@@ -25,7 +25,6 @@
   <MaxTeamAmountOnTraining>0</MaxTeamAmountOnTraining> <!-- Send the message only if your team amount is less than this number. If 0 this feature is disabled -->
   <MaxTeamAmountOnCompany>0</MaxTeamAmountOnCompany> <!-- Send the message only if your team amount is less than this number. If 0 this feature is disabled -->
   <MaxTeamAmountOnCyberSport>0</MaxTeamAmountOnCyberSport> <!-- Send the message only if your team amount is less than this number. If 0 this feature is disabled -->
-  <MaxTeamAmountOnHistorical>0</MaxTeamAmountOnHistorical> <!-- Send the message only if your team amount is less than this number. If 0 this feature is disabled -->
   <MaxTeamAmountOnFortifications>0</MaxTeamAmountOnFortifications> <!-- Send the message only if your team amount is less than this number. If 0 this feature is disabled -->
   <MaxTeamAmountOnClanWar>0</MaxTeamAmountOnClanWar> <!-- Send the message only if your team amount is less than this number. If 0 this feature is disabled -->
        

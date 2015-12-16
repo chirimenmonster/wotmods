@@ -28,7 +28,6 @@ class SpotMessanger(Plugin):
         'AvoidCompanyMes':False,
         'AvoidCyberSportMes':False,
         'AvoidClanWarMes':False,
-        'AvoidHistoricalMes':False,
         'AvoidFortificationsMes':False,
         'OnTD':True,
         'OnMD':True,
@@ -39,7 +38,6 @@ class SpotMessanger(Plugin):
         'MaxTeamAmountOnTraining':0,
         'MaxTeamAmountOnCompany':0,
         'MaxTeamAmountOnCyberSport':0,
-        'MaxTeamAmountOnHistorical':0,
         'MaxTeamAmountOnFortifications':0,
         'MaxTeamAmountOnClanWar':0,
         'pluginEnable' : True
