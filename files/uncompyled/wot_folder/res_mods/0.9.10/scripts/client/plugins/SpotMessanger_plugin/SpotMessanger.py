@@ -80,11 +80,6 @@ class SpotMessanger(Plugin):
             if SpotMessanger.myConf['Avoid'+battleTypeName+'Mes']:
                 return None
             controller = IngameMessanger().getTeamChannelController()
-        elif battleType == constants.ARENA_GUI_TYPE.HISTORICAL:
-            battleTypeName = 'Historical'
-            if SpotMessanger.myConf['Avoid'+battleTypeName+'Mes']:
-                return None
-            controller = IngameMessanger().getTeamChannelController()
         elif battleType == constants.ARENA_GUI_TYPE.SORTIE:
             battleTypeName = 'Fortifications'
             if SpotMessanger.myConf['Avoid'+battleTypeName+'Mes']:
