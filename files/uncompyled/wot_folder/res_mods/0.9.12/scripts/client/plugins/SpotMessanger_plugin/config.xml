@@ -34,7 +34,6 @@
   <AvoidTrainingMes>false</AvoidTrainingMes> <!-- Avoid send message in training battles - true/false. -->
   <AvoidCompanyMes>false</AvoidCompanyMes> <!-- Avoid send message in company battles - true/false. -->
   <AvoidCyberSportMes>false</AvoidCyberSportMes> <!-- Avoid send message in team battles - true/false. -->
-  <AvoidHistoricalMes>false</AvoidHistoricalMes> <!-- Avoid send message in historical battles - true/false. -->
   <AvoidFortificationsMes>false</AvoidFortificationsMes> <!-- Avoid send message in fortifications battles - true/false. -->
   <AvoidClanWarMes>false</AvoidClanWarMes> <!-- Avoid send message in special (clan war) battles - true/false. -->
     
