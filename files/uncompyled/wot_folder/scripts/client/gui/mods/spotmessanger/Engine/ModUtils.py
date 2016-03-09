@@ -200,7 +200,7 @@ class FileUtils:
     def readXml(path, defset, filename = ''):
         cfg = ResMgr.openSection(path)
         if cfg is None:
-            LOG_WARNING('no config found')
+            LOG_WARNING("%s: no config found" % path)
             return defset
         else:
             return FileUtils.readElement(cfg, defset, filename, 'root')
@@ -213,13 +213,15 @@ class FileUtils:
         jsonVirtualPath = os.path.join(virtualPath, configName + '.json')
         xmlRealPath = os.path.join(realPath, configName + '.xml')
         jsonRealPath = os.path.join(realPath, configName + '.json')
+        print "xmlRealPath: %s" % xmlRealPath
+        print "xmlVirtualPath: %s" % xmlVirtualPath
         d = {xmlRealPath: partial(FileUtils.readXml, xmlVirtualPath, defset, pluginName),
          jsonRealPath: partial(FileUtils.readJson, jsonVirtualPath, defset, pluginName)}
         for s, f in d.iteritems():
             if os.path.isfile(s):
                 return f()
 
-        LOG_WARNING(path + " can't be read, unknow format")
+        LOG_WARNING(realPath + " can't be read, unknow format")
         return defset
 
     @staticmethod
@@ -316,7 +318,7 @@ class FileUtils:
 
     @staticmethod
     def getVirtualPluginPath(pluginName):
-        return os.path.join('scripts', 'client', 'plugins', pluginName + '_plugin')
+        return os.path.join('scripts', 'client', 'gui', 'mods', 'spotmessanger', pluginName + '_plugin')
 
 
 class HotKeysUtils:

@@ -54,6 +54,7 @@ class Plugin(object):
 
     @classmethod
     def readConfig(cls):
+        print "pluginName: %s" % cls.pluginName
         value = FileUtils.readConfig(cls.pluginName, cls.myGetAttr('myConf'))
         cls.mySetAttr('myConf', value)
         if value.has_key('pluginEnable'):

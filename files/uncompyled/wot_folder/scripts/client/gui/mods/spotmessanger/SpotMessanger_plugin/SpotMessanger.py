@@ -2,17 +2,17 @@
 
 # @author: BirrettaMalefica EU
 from game import *
-#autoFlushPythonLog()
 import constants
 from gui.Scaleform.Battle import Battle
-from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG, LOG_NOTE
 from gui.shared.gui_items.Vehicle import VEHICLE_CLASS_NAME
-from plugins.IngameMessanger_plugin.IngameMessanger import IngameMessanger
-from plugins.Engine.ModUtils import BattleUtils,MinimapUtils,FileUtils,HotKeysUtils,DecorateUtils
-from plugins.Engine.Plugin import Plugin
+from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG, LOG_NOTE
+from ..Engine.ModUtils import BattleUtils,MinimapUtils,FileUtils,HotKeysUtils,DecorateUtils
+from ..Engine.Plugin import Plugin
+from ..IngameMessanger_plugin.IngameMessanger import IngameMessanger
 
 class SpotMessanger(Plugin):
     isActive = True
+    pluginName = 'SpotMessanger'
     myConf = {
         'ActiveByDefault':True,
         'ActivationHotkey':'KEY_F11',
