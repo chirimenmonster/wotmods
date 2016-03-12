@@ -1,6 +1,6 @@
 import game
 import ResMgr
-from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG, LOG_NOTE
+from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG, LOG_NOTE, LOG_WARNING
 from ModUtils import FileUtils, HotKeysUtils, DecorateUtils
 old_handleKeyEvent = None
 
@@ -61,8 +61,8 @@ class Plugin(object):
         if cfg:
             value = FileUtils.readElement(cfg, cls.myGetAttr('myConf'), 'SpotMessanger', 'root')
         else:
-            LOG_WARNING("%s: no config found" % path)
-            value = defset
+            LOG_WARNING("%s: no config found" % cls.confFile)
+            value = cls.myGetAttr('myConf')
         cls.mySetAttr('myConf', value)
         if value.has_key('pluginEnable'):
             cls.pluginEnable = value['pluginEnable']
