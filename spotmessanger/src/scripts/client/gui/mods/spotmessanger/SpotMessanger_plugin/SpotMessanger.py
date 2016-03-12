@@ -13,6 +13,7 @@ from ..IngameMessanger_plugin.IngameMessanger import IngameMessanger
 class SpotMessanger(Plugin):
     isActive = True
     pluginName = 'SpotMessanger'
+    confFile = '../res_mods/configs/spotmessanger/spotmessanger.xml'
     myConf = {
         'ActiveByDefault':True,
         'ActivationHotkey':'KEY_F11',

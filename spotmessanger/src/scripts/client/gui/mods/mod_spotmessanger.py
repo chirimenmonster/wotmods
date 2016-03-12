@@ -5,10 +5,10 @@ from spotmessanger.SpotMessanger_plugin.SpotMessanger import SpotMessanger
 def init():
     '''Mod's main entry point.  Called by WoT's built-in mod loader.'''
     try:
-        print 'SpotMessanger DEV'
+        print '[SpotMessanger] SpotMessanger development version'
         SpotMessanger.readConfig()
         if SpotMessanger.pluginEnable:
-            print '---> Loading SpotMessanger'
+            print '[SpotMessanger] mod enable'
             SpotMessanger.run()
         
     except:
