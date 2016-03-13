@@ -7,8 +7,8 @@ from messenger.gui.Scaleform.channels.bw_chat2.battle_controllers import *
 from chat_shared import CHAT_COMMANDS
 from debug_utils import LOG_ERROR
 from functools import partial
-from ..Engine.ModUtils import FileUtils
-from ..Engine.Plugin import Plugin
+from ModUtils import FileUtils
+from Plugin import Plugin
 
 
 class IngameMessanger(Plugin):

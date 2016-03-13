@@ -6,9 +6,9 @@ import constants
 from gui.Scaleform.Battle import Battle
 from gui.shared.gui_items.Vehicle import VEHICLE_CLASS_NAME
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG, LOG_NOTE
-from ..Engine.ModUtils import BattleUtils,MinimapUtils,FileUtils,HotKeysUtils,DecorateUtils
-from ..Engine.Plugin import Plugin
-from ..IngameMessanger_plugin.IngameMessanger import IngameMessanger
+from ModUtils import BattleUtils,MinimapUtils,FileUtils,HotKeysUtils,DecorateUtils
+from Plugin import Plugin
+from IngameMessanger import IngameMessanger
 
 class SpotMessanger(Plugin):
     isActive = True
