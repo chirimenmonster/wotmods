@@ -122,7 +122,6 @@ class Packager(object):
 
     def __iterate_src_filepaths(self, path):
         '''Returns an iterator which returns paths to all files within source dir.'''
-        print "__iterate_src_filepaths: " + path
         for root, dirs, files in os.walk(path):
             for filename in files:
                 if all([not re.match(pattern, filename, re.IGNORECASE) for pattern in self.__ignored_file_patterns]):
@@ -149,7 +148,6 @@ class Packager(object):
 
     @accepts_extensions([".in"])
     def __run_template_file(self, src_filepath):
-        print "__run_template_file: ", src_filepath
         build_filepath = src_filepath[:-3]
         parameters = self.__in_file_parameters[os.path.basename(src_filepath)]
         # run 'parameters' through in-template and produce temporary output file
@@ -166,10 +164,6 @@ class Packager(object):
 			return src_path.replace(self.__src_dir, self.__build_script_dir)
 		if self.__conf_dir in src_path:
 			return src_path.replace(self.__conf_dir, self.__build_conf_dir)
-		print "ERROR: src_path: ", src_path
-		print "ERROR: src_dir: ", self.__src_dir
-		print "ERROR: conf_dir: ", self.__conf_dir
-		exit()
 
     def __make_parent_dirs(self, filepath):
         '''Creates any missing parent directories of file indicated in 'filepath'.'''
