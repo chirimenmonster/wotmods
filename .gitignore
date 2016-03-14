@@ -6,3 +6,4 @@ private/
 *.project
 *.pydevproject
 py.exe
+*~

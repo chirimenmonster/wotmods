@@ -1,6 +1,7 @@
-from ModUtils import FileUtils, HotKeysUtils, DecorateUtils
 import game
-from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG, LOG_NOTE
+import ResMgr
+from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG, LOG_NOTE, LOG_WARNING
+from ModUtils import FileUtils, HotKeysUtils, DecorateUtils
 old_handleKeyEvent = None
 
 class Plugin(object):
@@ -8,6 +9,7 @@ class Plugin(object):
     pluginEnable = True
     debug = False
     pluginName = 'Plugin'
+    confFile = ''
 
     @classmethod
     def new_handleKeyEvent(cls, event):
@@ -54,7 +56,13 @@ class Plugin(object):
 
     @classmethod
     def readConfig(cls):
-        value = FileUtils.readConfig(cls.pluginName, cls.myGetAttr('myConf'))
+        print "[SpotMessanger] read config: %s" % cls.confFile
+        cfg = ResMgr.openSection(cls.confFile)
+        if cfg:
+            value = FileUtils.readElement(cfg, cls.myGetAttr('myConf'), 'SpotMessanger', 'root')
+        else:
+            LOG_WARNING("%s: no config found" % cls.confFile)
+            value = cls.myGetAttr('myConf')
         cls.mySetAttr('myConf', value)
         if value.has_key('pluginEnable'):
             cls.pluginEnable = value['pluginEnable']

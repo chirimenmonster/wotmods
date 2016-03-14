@@ -1,14 +1,14 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 # @author: BirrettaMalefica EU
+import BigWorld
 from messenger.gui.Scaleform.channels.bw_chat2.factories import BattleControllersFactory
 from messenger.gui.Scaleform.channels.bw_chat2.battle_controllers import *
 from chat_shared import CHAT_COMMANDS
-import BigWorld
-from plugins.Engine.ModUtils import FileUtils
 from debug_utils import LOG_ERROR
 from functools import partial
-from plugins.Engine.Plugin import Plugin
+from ModUtils import FileUtils
+from Plugin import Plugin
 
 
 class IngameMessanger(Plugin):
