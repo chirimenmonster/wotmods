@@ -1,15 +1,18 @@
 
-from debug_utils import LOG_CURRENT_EXCEPTION
+from spotmessanger import log
+from spotmessanger.constants import MOD_INFO
 from spotmessanger.SpotMessanger import SpotMessanger
 
 def init():
     '''Mod's main entry point.  Called by WoT's built-in mod loader.'''
+
     try:
-        print '[SpotMessanger] SpotMessanger development version'
+        log.info(MOD_INFO.NAME + ' ' + MOD_INFO.VERSION_LONG)
+
         SpotMessanger.readConfig()
         if SpotMessanger.pluginEnable:
-            print '[SpotMessanger] mod enable'
+            log.info('mod enable')
             SpotMessanger.run()
         
     except:
-        LOG_CURRENT_EXCEPTION()
+        log.current_exception()

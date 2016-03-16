@@ -3,6 +3,7 @@ import ResMgr
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG, LOG_NOTE, LOG_WARNING
 from ModUtils import FileUtils, HotKeysUtils, DecorateUtils
 old_handleKeyEvent = None
+import log
 
 class Plugin(object):
     handlers = {}
@@ -56,12 +57,13 @@ class Plugin(object):
 
     @classmethod
     def readConfig(cls):
-        print "[SpotMessanger] read config: %s" % cls.confFile
+        log.debug("searching config: %s" % cls.confFile)
         cfg = ResMgr.openSection(cls.confFile)
         if cfg:
+            log.info("config found: %s" % cls.confFile)
             value = FileUtils.readElement(cfg, cls.myGetAttr('myConf'), 'SpotMessanger', 'root')
         else:
-            LOG_WARNING("%s: no config found" % cls.confFile)
+            log.warning("no config found: %s" % cls.confFile)
             value = cls.myGetAttr('myConf')
         cls.mySetAttr('myConf', value)
         if value.has_key('pluginEnable'):
