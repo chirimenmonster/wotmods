@@ -1,9 +1,10 @@
-
+import game
 from gui.Scaleform.Battle import Battle
 from spotmessanger import log
-from spotmessanger.events import registerEvent
+from spotmessanger.events import overrideMethod
 from spotmessanger.const import MOD_INFO
 from spotmessanger.SpotMessanger import SpotMessanger
+from spotmessanger.Plugin import Plugin
 
 def init():
     '''Mod's main entry point.  Called by WoT's built-in mod loader.'''
@@ -19,7 +20,16 @@ def init():
     except:
         log.current_exception()
 
-@registerEvent(Battle, "_showSixthSenseIndicator")
-def showSixthSenseIndicator(self, isShow):
-    log.debug('acivate sixth sense!')
-    SpotMessanger.showSixthSenseIndicator(self, isShow)
+@overrideMethod(Battle, "_showSixthSenseIndicator")
+def showSixthSenseIndicator(orig, *args, **kwargs):
+    log.debug('activate sixth sense!')
+    ret = orig(*args, **kwargs)
+    SpotMessanger.showSixthSenseIndicator(*args, **kwargs)
+    return ret
+
+@overrideMethod(game, "handleKeyEvent")
+def handleKeyEvent(orig, *args, **kwargs):
+    ret = orig(*args, **kwargs)
+    Plugin.handleKeyEvent(*args, **kwargs)
+    return ret
+

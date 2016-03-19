@@ -4,8 +4,6 @@ import ResMgr
 import log
 from ModUtils import FileUtils, HotKeysUtils, DecorateUtils
 
-old_handleKeyEvent = None
-
 class Plugin(object):
     handlers = {}
     pluginEnable = True
@@ -14,8 +12,7 @@ class Plugin(object):
     confFile = ''
 
     @classmethod
-    def new_handleKeyEvent(cls, event):
-        global old_handleKeyEvent
+    def handleKeyEvent(cls, event):
         try:
             isDown, key, mods, isRepeat = game.convertKeyEvent(event)
             if not isRepeat and isDown:
@@ -27,8 +24,6 @@ class Plugin(object):
 
         except Exception as e:
             log.current_exception()
-        finally:
-            return old_handleKeyEvent(event)
 
     @classmethod
     def addEventHandler(cls, key, callback):
@@ -42,11 +37,7 @@ class Plugin(object):
 
     @classmethod
     def run(cls):
-        global old_handleKeyEvent
-        if old_handleKeyEvent is None:
-            old_handleKeyEvent = game.handleKeyEvent
-            game.handleKeyEvent = Plugin.new_handleKeyEvent
-        return
+        pass
 
     @classmethod
     def myGetAttr(cls, name):

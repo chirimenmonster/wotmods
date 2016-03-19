@@ -2,13 +2,15 @@
 
 # @author: BirrettaMalefica EU
 from game import *
-import constants
+#import constants
 from gui.Scaleform.Battle import Battle
 from gui.shared.gui_items.Vehicle import VEHICLE_CLASS_NAME
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG, LOG_NOTE
 from ModUtils import BattleUtils,MinimapUtils,FileUtils,HotKeysUtils,DecorateUtils
 from Plugin import Plugin
 from IngameMessanger import IngameMessanger
+import const
+import log
 
 class SpotMessanger(Plugin):
     isActive = True
@@ -43,72 +45,53 @@ class SpotMessanger(Plugin):
         'MaxTeamAmountOnClanWar':0,
         'pluginEnable' : True
         } 
-    
+	
+    @staticmethod
+    def getBattleTypeName(player):
+        import constants
+        type = player.arena.guiType
+        if type in const.BATTLE_TYPE.LABELS:
+            name = const.BATTLE_TYPE.LABELS[type]
+        else:
+            name = 'ClanWar'
+        log.debug('battle type: ' + name + ' ({}:{})'.format(type, constants.ARENA_GUI_TYPE_LABEL.LABELS[type]))
+        return name
+
+    @staticmethod
+    def getVehicleTypeName(player):
+        type = BattleUtils.getVehicleType(BattleUtils.getCurrentVehicleDesc(player))
+        name = const.VEHICLE_TYPE.LABELS[type]
+        log.debug('vehicle type: ' + name)
+        return name	
+		
     @staticmethod
     def getController(player):
-    
+        controller = None
+	
         #battle type checks
         battleType = player.arena.guiType
-        controller = None
-        battleTypeName = ''
-        if battleType == constants.ARENA_GUI_TYPE.RANDOM:
-            battleTypeName = 'Random'
-            if SpotMessanger.myConf['TryPlatoonMes']:
-                if IngameMessanger().hasSquadChannelController():
-                    controller = IngameMessanger().getSquadChannelController()
-                elif SpotMessanger.myConf['Avoid'+battleTypeName+'Mes']:
-                    return None
-                else:
-                    controller = IngameMessanger().getTeamChannelController()
-            elif SpotMessanger.myConf['Avoid'+battleTypeName+'Mes']:
-                return None
-            else:
+        battleTypeName = SpotMessanger.getBattleTypeName(player)
+        if battleTypeName in 'Random' and SpotMessanger.myConf['TryPlatoonMes']:
+            if IngameMessanger().hasSquadChannelController():
+                controller = IngameMessanger().getSquadChannelController()
+        if not controller:
+            key = 'Avoid' + battleTypeName + 'Mes'
+            if not SpotMessanger.myConf.has_key(key) or not SpotMessanger.myConf[key]:
                 controller = IngameMessanger().getTeamChannelController()
-        elif battleType == constants.ARENA_GUI_TYPE.TRAINING:
-            battleTypeName = 'Training'
-            if SpotMessanger.myConf['Avoid'+battleTypeName+'Mes']:
-                return None
-            controller = IngameMessanger().getTeamChannelController()
-        elif battleType == constants.ARENA_GUI_TYPE.COMPANY:
-            battleTypeName = 'Company'
-            if SpotMessanger.myConf['Avoid'+battleTypeName+'Mes']:
-                return None
-            controller = IngameMessanger().getTeamChannelController()
-        elif battleType == constants.ARENA_GUI_TYPE.CYBERSPORT:
-            battleTypeName = 'CyberSport'
-            if SpotMessanger.myConf['Avoid'+battleTypeName+'Mes']:
-                return None
-            controller = IngameMessanger().getTeamChannelController()
-        elif battleType == constants.ARENA_GUI_TYPE.SORTIE:
-            battleTypeName = 'Fortifications'
-            if SpotMessanger.myConf['Avoid'+battleTypeName+'Mes']:
-                return None
-            controller = IngameMessanger().getTeamChannelController()
-        else:
-            battleTypeName = 'ClanWar'
-            if not SpotMessanger.myConf['Avoid'+battleTypeName+'Mes']:
-                controller = IngameMessanger().getTeamChannelController()
-            else:
-                return None
         
         #vehicle type checks
-        vehicleType = BattleUtils.getVehicleType(BattleUtils.getCurrentVehicleDesc(player))
-        if vehicleType == VEHICLE_CLASS_NAME.SPG and not SpotMessanger.myConf['OnSPG']:
-            return None
-        elif vehicleType == VEHICLE_CLASS_NAME.LIGHT_TANK and not SpotMessanger.myConf['OnLT']:
-            return None
-        elif vehicleType == VEHICLE_CLASS_NAME.MEDIUM_TANK and not SpotMessanger.myConf['OnMD']:
-            return None
-        elif vehicleType == VEHICLE_CLASS_NAME.HEAVY_TANK and not SpotMessanger.myConf['OnHT']:
-            return None
-        elif vehicleType == VEHICLE_CLASS_NAME.AT_SPG and not SpotMessanger.myConf['OnTD']:
+        vehicleTypeName = SpotMessanger.getVehicleTypeName(player)
+        if not SpotMessanger.myConf['On' + vehicleTypeName]:
             return None
         
         #team amount checks
-        maxTeamAmount = SpotMessanger.myConf['MaxTeamAmountOn'+battleTypeName]
-        if maxTeamAmount > 0:
-            if maxTeamAmount < BattleUtils.getTeamAmount(player):
-                return None
+        if controller:
+            key = 'MaxTeamAmountOn' + battleTypeName
+            if SpotMessanger.myConf.has_key(key):
+                maxTeamAmount = SpotMessanger.myConf[key]
+                if maxTeamAmount > 0 and maxTeamAmount < BattleUtils.getTeamAmount(player):
+                    return None
+        
         return controller
 
     @staticmethod
