@@ -136,9 +136,7 @@ class SpotMessanger(Plugin):
             controller = SpotMessanger.getController(player)
             SpotMessanger.mySendMessage(controller,text.replace("{pos}", position+""))
             SpotMessanger.myDoPing(controller,position)
-            SpotMessanger.myCallHelp(controller)                
-        return oldShowSixthSenseIndicatorFromSpotMessanger(self,isShow)
-    
+            SpotMessanger.myCallHelp(controller)                   
     
     @staticmethod
     def handleActivationHotkey():
@@ -154,20 +152,8 @@ class SpotMessanger(Plugin):
         super(SpotMessanger, SpotMessanger).run()
         cls.addEventHandler(SpotMessanger.myConf['ReloadConfigKey'],cls.reloadConfig)
         cls.addEventHandler(SpotMessanger.myConf['ActivationHotkey'],SpotMessanger.handleActivationHotkey)
-        saveOldFuncs()
-        injectNewFuncs()
-        
+
     @classmethod
     def readConfig(cls):
         super(SpotMessanger, SpotMessanger).readConfig()
         SpotMessanger.isActive = SpotMessanger.myConf['ActiveByDefault']
-        
-def saveOldFuncs():
-    global oldShowSixthSenseIndicatorFromSpotMessanger
-    DecorateUtils.ensureGlobalVarNotExist('oldShowSixthSenseIndicatorFromSpotMessanger')
-    oldShowSixthSenseIndicatorFromSpotMessanger = Battle._showSixthSenseIndicator
-    
-def injectNewFuncs():
-    Battle._showSixthSenseIndicator = SpotMessanger.showSixthSenseIndicator
-    
-    

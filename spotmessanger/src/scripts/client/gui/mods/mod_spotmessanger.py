@@ -1,6 +1,8 @@
 
+from gui.Scaleform.Battle import Battle
 from spotmessanger import log
-from spotmessanger.constants import MOD_INFO
+from spotmessanger.events import registerEvent
+from spotmessanger.const import MOD_INFO
 from spotmessanger.SpotMessanger import SpotMessanger
 
 def init():
@@ -11,8 +13,13 @@ def init():
 
         SpotMessanger.readConfig()
         if SpotMessanger.pluginEnable:
-            log.info('mod enable')
+            log.info(MOD_INFO.NAME + ' mod enable')
             SpotMessanger.run()
-        
+			
     except:
         log.current_exception()
+
+@registerEvent(Battle, "_showSixthSenseIndicator")
+def showSixthSenseIndicator(self, isShow):
+    log.debug('acivate sixth sense!')
+    SpotMessanger.showSixthSenseIndicator(self, isShow)

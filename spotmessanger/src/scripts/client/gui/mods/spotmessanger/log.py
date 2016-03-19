@@ -1,7 +1,7 @@
 
 import BigWorld
 from debug_utils import LOG_CURRENT_EXCEPTION
-from constants import MOD_INFO
+from const import MOD_INFO
 
 
 def error(msg, *args, **kwargs):
