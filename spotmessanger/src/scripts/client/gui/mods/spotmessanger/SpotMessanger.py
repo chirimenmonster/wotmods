@@ -5,7 +5,6 @@ from game import *
 #import constants
 from gui.Scaleform.Battle import Battle
 from gui.shared.gui_items.Vehicle import VEHICLE_CLASS_NAME
-from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG, LOG_NOTE
 from ModUtils import BattleUtils,MinimapUtils,FileUtils,HotKeysUtils,DecorateUtils
 from Plugin import Plugin
 from IngameMessanger import IngameMessanger
@@ -50,10 +49,7 @@ class SpotMessanger(Plugin):
     def getBattleTypeName(player):
         import constants
         type = player.arena.guiType
-        if type in const.BATTLE_TYPE.LABELS:
-            name = const.BATTLE_TYPE.LABELS[type]
-        else:
-            name = 'ClanWar'
+        name = const.BATTLE_TYPE.LABELS.get(type, 'ClanWar')
         log.debug('battle type: ' + name + ' ({}:{})'.format(type, constants.ARENA_GUI_TYPE_LABEL.LABELS[type]))
         return name
 
@@ -69,44 +65,41 @@ class SpotMessanger(Plugin):
         controller = None
 	
         #battle type checks
-        battleType = player.arena.guiType
         battleTypeName = SpotMessanger.getBattleTypeName(player)
-        if battleTypeName in 'Random' and SpotMessanger.myConf['TryPlatoonMes']:
+        if battleTypeName == 'Random' and SpotMessanger.myConf.get('TryPlatoonMes', False):
             if IngameMessanger().hasSquadChannelController():
                 controller = IngameMessanger().getSquadChannelController()
-        if not controller:
-            key = 'Avoid' + battleTypeName + 'Mes'
-            if not SpotMessanger.myConf.has_key(key) or not SpotMessanger.myConf[key]:
+        if not controller and not SpotMessanger.myConf.get('Avoid' + battleTypeName + 'Mes', False):
                 controller = IngameMessanger().getTeamChannelController()
         
         #vehicle type checks
         vehicleTypeName = SpotMessanger.getVehicleTypeName(player)
-        if not SpotMessanger.myConf['On' + vehicleTypeName]:
-            return None
+        if not SpotMessanger.myConf.get('On' + vehicleTypeName, True):
+            controller = None
         
         #team amount checks
-        if controller:
-            key = 'MaxTeamAmountOn' + battleTypeName
-            if SpotMessanger.myConf.has_key(key):
-                maxTeamAmount = SpotMessanger.myConf[key]
-                if maxTeamAmount > 0 and maxTeamAmount < BattleUtils.getTeamAmount(player):
-                    return None
+        maxTeamAmount = SpotMessanger.myConf.get('MaxTeamAmountOn' + battleTypeName, 0)
+        if maxTeamAmount > 0 and maxTeamAmount < BattleUtils.getTeamAmount(player):
+            controller = None
         
         return controller
 
     @staticmethod
     def myDoPing(controller,position):
         if controller and SpotMessanger.myConf['DoPing']:
+            log.debug('action: do ping')
             IngameMessanger().doPing(controller,MinimapUtils.name2cell(position))
             
     @staticmethod
     def myCallHelp(controller):
         if controller and SpotMessanger.myConf['CallHelp']:
+            log.debug('action: call help')
             IngameMessanger().callHelp(controller)
     
     @staticmethod
     def mySendMessage(controller,text):
         if text != "None" and text and controller:
+            log.debug('action: send message')
             IngameMessanger().sendText(controller,text)
     
     #------ injected methods --------
@@ -124,17 +117,14 @@ class SpotMessanger(Plugin):
     @staticmethod
     def handleActivationHotkey():
         if SpotMessanger.isActive:
+            log.debug('Sixth Sense Message disabled')
             BattleUtils.DebugMsg(SpotMessanger.myConf['DisableSystemMsg'], True)
         else:
+            log.debug('Sixth Sense Message enabled')
             BattleUtils.DebugMsg(SpotMessanger.myConf['EnableSystemMsg'], True)
         SpotMessanger.isActive = not SpotMessanger.isActive
         
     #--------- end ---------
-    @classmethod
-    def run(cls):
-        super(SpotMessanger, SpotMessanger).run()
-        cls.addEventHandler(SpotMessanger.myConf['ReloadConfigKey'],cls.reloadConfig)
-        cls.addEventHandler(SpotMessanger.myConf['ActivationHotkey'],SpotMessanger.handleActivationHotkey)
 
     @classmethod
     def readConfig(cls):

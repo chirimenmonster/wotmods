@@ -13,9 +13,10 @@ def init():
         log.info(MOD_INFO.NAME + ' ' + MOD_INFO.VERSION_LONG)
 
         SpotMessanger.readConfig()
-        if SpotMessanger.pluginEnable:
-            log.info(MOD_INFO.NAME + ' mod enable')
-            SpotMessanger.run()
+
+        log.info('set key event handlers')
+        Plugin.addEventHandler(SpotMessanger.myConf['ReloadConfigKey'], SpotMessanger.reloadConfig)
+        Plugin.addEventHandler(SpotMessanger.myConf['ActivationHotkey'], SpotMessanger.handleActivationHotkey)
 			
     except:
         log.current_exception()
