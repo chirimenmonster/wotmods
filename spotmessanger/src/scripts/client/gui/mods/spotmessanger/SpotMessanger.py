@@ -66,11 +66,11 @@ class SpotMessanger(Plugin):
 	
         #battle type checks
         battleTypeName = SpotMessanger.getBattleTypeName(player)
+        controllers = IngameMessanger.getChannelControllers()
         if battleTypeName == 'Random' and SpotMessanger.myConf.get('TryPlatoonMes', False):
-            if IngameMessanger().hasSquadChannelController():
-                controller = IngameMessanger().getSquadChannelController()
+            controller = controllers.get('squad', None)
         if not controller and not SpotMessanger.myConf.get('Avoid' + battleTypeName + 'Mes', False):
-                controller = IngameMessanger().getTeamChannelController()
+            controller = controllers.get('team', None)
         
         #vehicle type checks
         vehicleTypeName = SpotMessanger.getVehicleTypeName(player)
@@ -83,24 +83,6 @@ class SpotMessanger(Plugin):
             controller = None
         
         return controller
-
-    @staticmethod
-    def myDoPing(controller,position):
-        if controller and SpotMessanger.myConf['DoPing']:
-            log.debug('action: do ping')
-            IngameMessanger().doPing(controller,MinimapUtils.name2cell(position))
-            
-    @staticmethod
-    def myCallHelp(controller):
-        if controller and SpotMessanger.myConf['CallHelp']:
-            log.debug('action: call help')
-            IngameMessanger().callHelp(controller)
-    
-    @staticmethod
-    def mySendMessage(controller,text):
-        if text != "None" and text and controller:
-            log.debug('action: send message')
-            IngameMessanger().sendText(controller,text)
     
     #------ injected methods --------
     @staticmethod
@@ -108,12 +90,19 @@ class SpotMessanger(Plugin):
         if isShow and SpotMessanger.isActive:
             player = BattleUtils.getPlayer()
             position = MinimapUtils.getOwnPos(player)
-            text = SpotMessanger.myConf['ImSpotted']
+            text = SpotMessanger.myConf.get('ImSpotted', 'None')
             controller = SpotMessanger.getController(player)
-            SpotMessanger.mySendMessage(controller,text.replace("{pos}", position+""))
-            SpotMessanger.myDoPing(controller,position)
-            SpotMessanger.myCallHelp(controller)                   
-    
+            if controller:
+                if text != 'None' and text:
+                    log.debug('action: send message')
+                    IngameMessanger.sendText(controller, text.format(pos=position))
+                if SpotMessanger.myConf['DoPing']:
+                    log.debug('action: do ping')
+                    IngameMessanger.doPing(controller)
+                if SpotMessanger.myConf['CallHelp']:
+                    log.debug('action: call help')
+                    IngameMessanger.callHelp(controller)
+
     @staticmethod
     def handleActivationHotkey():
         if SpotMessanger.isActive:
