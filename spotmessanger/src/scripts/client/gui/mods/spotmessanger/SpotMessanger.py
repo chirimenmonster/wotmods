@@ -74,7 +74,10 @@ class SpotMessanger(Plugin):
                     IngameMessanger.sendText(controllers.get('team', None), msg.format(pos=position))
                 elif c == 'squadmsg' and msg and msg != 'None':
                     log.debug('action: "{}", send message with squad channel'.format(c))
-                    IngameMessanger.sendText(controllers.get('squad', None), msg.format(pos=position))
+                    if controllers.has_key('squad'):
+                        IngameMessanger.sendText(controllers.get('squad', None), msg.format(pos=position))
+                    else:
+                        log.debug('action: "{}", no squad channel found.'.format(c))
 
     @staticmethod
     def handleActivationHotkey():
