@@ -11,8 +11,8 @@ confFile = '../res_mods/configs/spotmessanger/spotmessanger.xml'
 
 def readConfig():
     SpotMessanger.settings = Settings.readConfig(confFile)
-    print SpotMessanger.settings
     log.flgDebugMsg = SpotMessanger.settings['Debug']
+    log.debug('settings = {}'.format(str(SpotMessanger.settings)))
     SpotMessanger.isActive = SpotMessanger.settings['ActiveByDefault']
 
 def init():
