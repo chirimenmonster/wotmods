@@ -7,11 +7,12 @@ from spotmessanger.SpotMessanger import SpotMessanger
 from spotmessanger.Plugin import Plugin
 from spotmessanger.settings import Settings
 
-confFile = '../res_mods/configs/spotmessanger/settings.xml'
+confFile = '../res_mods/configs/spotmessanger/spotmessanger.xml'
 
 def readConfig():
     SpotMessanger.settings = Settings.readConfig(confFile)
     print SpotMessanger.settings
+    log.flgDebugMsg = SpotMessanger.settings['Debug']
     SpotMessanger.isActive = SpotMessanger.settings['ActiveByDefault']
 
 def init():
@@ -19,6 +20,7 @@ def init():
 
     try:
         log.info(MOD_INFO.NAME + ' ' + MOD_INFO.VERSION_LONG)
+        log.flgDebugMsg = True
         readConfig()
 		
         log.info('set key event handlers')

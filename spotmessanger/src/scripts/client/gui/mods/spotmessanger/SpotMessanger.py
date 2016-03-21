@@ -64,20 +64,20 @@ class SpotMessanger(Plugin):
                 log.debug('controller "squad" found.')
             for c in setting['Order']:
                 if c == 'ping':
-                    log.debug('action: "{}", do ping at {}'.format(c, position))
+                    log.info('action: "{}", do ping at {}'.format(c, position))
                     IngameMessanger.doPing(controllers.get('team', None), MinimapUtils.name2cell(position))
                 elif c == 'help':
-                    log.debug('action: "{}", call help'.format(c))
+                    log.info('action: "{}", call help'.format(c))
                     IngameMessanger.callHelp(controllers.get('team', None))
                 elif c == 'teammsg' and msg and msg != 'None':
-                    log.debug('action: "{}", send message with team channel'.format(c))
+                    log.info('action: "{}", send message with team channel'.format(c))
                     IngameMessanger.sendText(controllers.get('team', None), msg.format(pos=position))
                 elif c == 'squadmsg' and msg and msg != 'None':
-                    log.debug('action: "{}", send message with squad channel'.format(c))
+                    log.info('action: "{}", send message with squad channel'.format(c))
                     if controllers.has_key('squad'):
                         IngameMessanger.sendText(controllers.get('squad', None), msg.format(pos=position))
                     else:
-                        log.debug('action: "{}", no squad channel found.'.format(c))
+                        log.info('action: "{}", no squad channel found.'.format(c))
 
     @staticmethod
     def handleActivationHotkey():

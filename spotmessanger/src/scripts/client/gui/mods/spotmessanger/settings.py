@@ -8,6 +8,7 @@ class Settings(object):
 
     battleTypes = [ 'default', 'Random', 'Training', 'Company', 'CyberSport', 'Fortifications' ]
     _templateGlobal = {
+        'Debug': True,
         'ActiveByDefault': True,
         'ActivationHotKey': 'KEY_F11',
         'ReloadConfigKey': 'KEY_NUMPAD4',
