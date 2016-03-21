@@ -13,38 +13,7 @@ import log
 
 class SpotMessanger(Plugin):
     isActive = True
-    pluginName = 'SpotMessanger'
-    confFile = '../res_mods/configs/spotmessanger/spotmessanger.xml'
-    myConf = {
-        'ActiveByDefault':True,
-        'ActivationHotkey':'KEY_F11',
-        'ReloadConfigKey':'KEY_NUMPAD4',
-        'DoPing':False,
-        'CallHelp':False,
-        'ImSpotted':'I\'m spotted at {pos}',
-        'EnableSystemMsg':'enabled',
-        'DisableSystemMsg':'disabled',
-        'TryPlatoonMes':False,
-        'AvoidRandomMes':True,
-        'AvoidTrainingMes':False,
-        'AvoidCompanyMes':False,
-        'AvoidCyberSportMes':False,
-        'AvoidClanWarMes':False,
-        'AvoidFortificationsMes':False,
-        'OnTD':True,
-        'OnMD':True,
-        'OnHT':True,
-        'OnLT':True,
-        'OnSPG':True,
-        'MaxTeamAmountOnRandom':0,
-        'MaxTeamAmountOnTraining':0,
-        'MaxTeamAmountOnCompany':0,
-        'MaxTeamAmountOnCyberSport':0,
-        'MaxTeamAmountOnFortifications':0,
-        'MaxTeamAmountOnClanWar':0,
-        'pluginEnable' : True
-        } 
-	
+
     @staticmethod
     def getBattleTypeName(player):
         import constants
@@ -59,63 +28,62 @@ class SpotMessanger(Plugin):
         name = const.VEHICLE_TYPE.LABELS[type]
         log.debug('vehicle type: ' + name)
         return name	
-		
-    @staticmethod
-    def getController(player):
-        controller = None
-	
-        #battle type checks
-        battleTypeName = SpotMessanger.getBattleTypeName(player)
-        controllers = IngameMessanger.getChannelControllers()
-        if battleTypeName == 'Random' and SpotMessanger.myConf.get('TryPlatoonMes', False):
-            controller = controllers.get('squad', None)
-        if not controller and not SpotMessanger.myConf.get('Avoid' + battleTypeName + 'Mes', False):
-            controller = controllers.get('team', None)
-        
-        #vehicle type checks
-        vehicleTypeName = SpotMessanger.getVehicleTypeName(player)
-        if not SpotMessanger.myConf.get('On' + vehicleTypeName, True):
-            controller = None
-        
-        #team amount checks
-        maxTeamAmount = SpotMessanger.myConf.get('MaxTeamAmountOn' + battleTypeName, 0)
-        if maxTeamAmount > 0 and maxTeamAmount < BattleUtils.getTeamAmount(player):
-            controller = None
-        
-        return controller
-    
+		    
     #------ injected methods --------
     @staticmethod
     def showSixthSenseIndicator(self, isShow):
         if isShow and SpotMessanger.isActive:
             player = BattleUtils.getPlayer()
+            teamAmount = BattleUtils.getTeamAmount(player)
             position = MinimapUtils.getOwnPos(player)
-            text = SpotMessanger.myConf.get('ImSpotted', 'None')
-            controller = SpotMessanger.getController(player)
-            if controller:
-                if text != 'None' and text:
-                    log.debug('action: send message')
-                    IngameMessanger.sendText(controller, text.format(pos=position))
-                if SpotMessanger.myConf['DoPing']:
-                    log.debug('action: do ping')
-                    IngameMessanger.doPing(controller)
-                if SpotMessanger.myConf['CallHelp']:
-                    log.debug('action: call help')
-                    IngameMessanger.callHelp(controller)
+            controllers = IngameMessanger.getChannelControllers()
+            battleTypeName = SpotMessanger.getBattleTypeName(player)
+			
+            setting = SpotMessanger.settings.get(battleTypeName, None)
+            if not setting:
+                log.debug('setting for battle type "{}" is none, use default'.format(battleTypeName))
+                setting = SpotMessanger.settings.get('default')
+
+            # vehicle type checks
+            vehicleTypeName = SpotMessanger.getVehicleTypeName(player)
+            if not setting['VehicleTypes'].get(vehicleTypeName, True):
+                log.debug('Vehicle type "{}" is disabled.'.format(vehicleTypeName))
+                return
+
+            #team amount checks
+            maxTeamAmount = setting.get('MaxTeamAmount', 0)
+            log.debug('team amount "{}"'.format(teamAmount))
+            if maxTeamAmount > 0 and maxTeamAmount < teamAmount:
+                log.debug('team amount "{}" is greater than "{}", do nothing.'.format(teamAmount, maxTeamAmount))
+                return
+
+            msg = SpotMessanger.settings.get('ImSpotted', None)
+            if controllers.get('team', None):
+                log.debug('controller "team" found.')
+            if controllers.get('squad', None):
+                log.debug('controller "squad" found.')
+            for c in setting['Order']:
+                if c == 'ping':
+                    log.debug('action: "{}", do ping at {}'.format(c, position))
+                    IngameMessanger.doPing(controllers.get('team', None), MinimapUtils.name2cell(position))
+                elif c == 'help':
+                    log.debug('action: "{}", call help'.format(c))
+                    IngameMessanger.callHelp(controllers.get('team', None))
+                elif c == 'teammsg' and msg and msg != 'None':
+                    log.debug('action: "{}", send message with team channel'.format(c))
+                    IngameMessanger.sendText(controllers.get('team', None), msg.format(pos=position))
+                elif c == 'squadmsg' and msg and msg != 'None':
+                    log.debug('action: "{}", send message with squad channel'.format(c))
+                    IngameMessanger.sendText(controllers.get('squad', None), msg.format(pos=position))
 
     @staticmethod
     def handleActivationHotkey():
         if SpotMessanger.isActive:
             log.debug('Sixth Sense Message disabled')
-            BattleUtils.DebugMsg(SpotMessanger.myConf['DisableSystemMsg'], True)
+            BattleUtils.DebugMsg(SpotMessanger.settings['DisableSystemMsg'], True)
         else:
             log.debug('Sixth Sense Message enabled')
-            BattleUtils.DebugMsg(SpotMessanger.myConf['EnableSystemMsg'], True)
+            BattleUtils.DebugMsg(SpotMessanger.settings['EnableSystemMsg'], True)
         SpotMessanger.isActive = not SpotMessanger.isActive
         
     #--------- end ---------
-
-    @classmethod
-    def readConfig(cls):
-        super(SpotMessanger, SpotMessanger).readConfig()
-        SpotMessanger.isActive = SpotMessanger.myConf['ActiveByDefault']

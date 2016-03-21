@@ -25,19 +25,3 @@ class Plugin(object):
     @classmethod
     def addEventHandler(cls, key, callback):
         Plugin.handlers[key] = callback
-
-
-    @classmethod
-    def readConfig(cls):
-        log.debug("searching config file: %s" % cls.confFile)
-        cfg = ResMgr.openSection(cls.confFile)
-        if cfg:
-            log.info("config found: %s" % cls.confFile)
-            value = FileUtils.readElement(cfg, getattr(cls, 'myConf'), 'SpotMessanger', 'root')
-            setattr(cls, 'myConf', value)
-        else:
-            log.warning("no config found: %s" % cls.confFile)
-
-    @classmethod
-    def reloadConfig(cls):
-        cls.readConfig()

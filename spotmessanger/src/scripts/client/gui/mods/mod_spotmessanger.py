@@ -5,18 +5,25 @@ from spotmessanger.events import overrideMethod
 from spotmessanger.const import MOD_INFO
 from spotmessanger.SpotMessanger import SpotMessanger
 from spotmessanger.Plugin import Plugin
+from spotmessanger.settings import Settings
+
+confFile = '../res_mods/configs/spotmessanger/settings.xml'
+
+def readConfig():
+    SpotMessanger.settings = Settings.readConfig(confFile)
+    print SpotMessanger.settings
+    SpotMessanger.isActive = SpotMessanger.settings['ActiveByDefault']
 
 def init():
     '''Mod's main entry point.  Called by WoT's built-in mod loader.'''
 
     try:
         log.info(MOD_INFO.NAME + ' ' + MOD_INFO.VERSION_LONG)
-
-        SpotMessanger.readConfig()
-
+        readConfig()
+		
         log.info('set key event handlers')
-        Plugin.addEventHandler(SpotMessanger.myConf['ReloadConfigKey'], SpotMessanger.reloadConfig)
-        Plugin.addEventHandler(SpotMessanger.myConf['ActivationHotkey'], SpotMessanger.handleActivationHotkey)
+        Plugin.addEventHandler(SpotMessanger.settings['ReloadConfigKey'], readConfig)
+        Plugin.addEventHandler(SpotMessanger.settings['ActivationHotKey'], SpotMessanger.handleActivationHotkey)
 			
     except:
         log.current_exception()
