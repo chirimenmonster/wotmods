@@ -26,13 +26,20 @@ def init():
         log.info('set key event handlers')
         Plugin.addEventHandler(SpotMessanger.settings['ReloadConfigKey'], readConfig)
         Plugin.addEventHandler(SpotMessanger.settings['ActivationHotKey'], SpotMessanger.handleActivationHotkey)
-			
+
     except:
         log.current_exception()
 
+@overrideMethod(game, "onGeometryMapped")
+def initSpotMessanger(orig, *args, **kwargs):
+    ret = orig(*args, **kwargs)
+    log.debug('init SpotMessanger.')
+    SpotMessanger.init()
+    return ret
+
 @overrideMethod(Battle, "_showSixthSenseIndicator")
 def showSixthSenseIndicator(orig, *args, **kwargs):
-    log.debug('activate sixth sense!')
+    log.info('activate sixth sense.')
     ret = orig(*args, **kwargs)
     SpotMessanger.showSixthSenseIndicator(*args, **kwargs)
     return ret

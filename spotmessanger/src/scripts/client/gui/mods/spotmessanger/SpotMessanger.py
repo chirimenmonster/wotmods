@@ -13,25 +13,38 @@ import log
 
 class SpotMessanger(Plugin):
     isActive = True
+    _activateTime = 0
 
+    @staticmethod
+    def init():
+       SpotMessanger._activateTime = 0
+    
     @staticmethod
     def getBattleTypeName(player):
         import constants
         type = player.arena.guiType
-        name = const.BATTLE_TYPE.LABELS.get(type, 'ClanWar')
-        log.debug('battle type: ' + name + ' ({}:{})'.format(type, constants.ARENA_GUI_TYPE_LABEL.LABELS[type]))
+        name = const.BATTLE_TYPE.LABELS.get(type, 'Unknown')
+        log.debug('battle type: "{}" (official: {}:{})'.format(name, type, constants.ARENA_GUI_TYPE_LABEL.LABELS[type]))
         return name
 
     @staticmethod
     def getVehicleTypeName(player):
         type = BattleUtils.getVehicleType(BattleUtils.getCurrentVehicleDesc(player))
         name = const.VEHICLE_TYPE.LABELS[type]
-        log.debug('vehicle type: ' + name)
+        log.debug('vehicle type: "{}"'.format(name))
         return name	
-		    
-    #------ injected methods --------
+
     @staticmethod
     def showSixthSenseIndicator(self, isShow):
+        currentTime = BigWorld.time()
+        cooldownTimer = SpotMessanger._activateTime + SpotMessanger.settings['CooldownTime'] - currentTime
+        if SpotMessanger._activateTime > currentTime:
+            log.debug('[time:{:.1f}] maybe time rewinded (< time:{:.1f}), reset timer'.format(currentTime, SpotMessanger._activateTime))
+        elif cooldownTimer > 0:
+            log.debug('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (effective after time:{:.1f})'.format(currentTime, cooldownTimer))
+            return
+        SpotMessanger._activateTime = currentTime
+        log.debug('[time:{:.1f}] activate sixth sense, do commands, next after time:{:.1f}'.format(currentTime, SpotMessanger._activateTime + SpotMessanger.settings['CooldownTime']))
         if isShow and SpotMessanger.isActive:
             player = BattleUtils.getPlayer()
             teamAmount = BattleUtils.getTeamAmount(player)

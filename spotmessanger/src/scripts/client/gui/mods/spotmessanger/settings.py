@@ -14,7 +14,8 @@ class Settings(object):
         'ReloadConfigKey': 'KEY_NUMPAD4',
         'ImSpotted': 'An enemy has spotted me at {pos}.',
         'DisableSystemMsg': 'Sixth Sense Message disabled',
-        'EnableSystemMsg': 'Sixth Sense Message enabled'
+        'EnableSystemMsg': 'Sixth Sense Message enabled',
+        'CooldownTime': 30
     }
     _templateBattleType = {
         'Order': [ 'ping', 'help', 'teammsg' ],
