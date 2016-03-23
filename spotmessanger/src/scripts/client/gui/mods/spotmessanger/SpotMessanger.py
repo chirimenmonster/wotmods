@@ -1,64 +1,52 @@
 # -*- coding: utf-8 -*-
 
 # @author: BirrettaMalefica EU
-from game import *
-#import constants
+import BigWorld
 from gui.Scaleform.Battle import Battle
 from gui.shared.gui_items.Vehicle import VEHICLE_CLASS_NAME
 from ModUtils import BattleUtils,MinimapUtils,FileUtils,HotKeysUtils,DecorateUtils
-from Plugin import Plugin
 from IngameMessanger import IngameMessanger
 import const
 import log
 
-class SpotMessanger(Plugin):
+class SpotMessanger(object):
     isActive = True
-    _activateTime = 0
+    _lastActivate = 0
 
-    @staticmethod
-    def init():
-       SpotMessanger._activateTime = 0
-    
-    @staticmethod
-    def getBattleTypeName(player):
-        import constants
-        type = player.arena.guiType
-        name = const.BATTLE_TYPE.LABELS.get(type, 'Unknown')
-        log.debug('battle type: "{}" (official: {}:{})'.format(name, type, constants.ARENA_GUI_TYPE_LABEL.LABELS[type]))
-        return name
+    @classmethod
+    def initialize(cls):
+        cls.isActive = cls.settings['ActiveByDefault']
+        cls._lastActivate = 0
 
-    @staticmethod
-    def getVehicleTypeName(player):
-        type = BattleUtils.getVehicleType(BattleUtils.getCurrentVehicleDesc(player))
-        name = const.VEHICLE_TYPE.LABELS[type]
-        log.debug('vehicle type: "{}"'.format(name))
-        return name	
-
-    @staticmethod
-    def showSixthSenseIndicator(self, isShow):
+    @classmethod
+    def showSixthSenseIndicator(cls):
         currentTime = BigWorld.time()
-        cooldownTimer = SpotMessanger._activateTime + SpotMessanger.settings['CooldownTime'] - currentTime
-        if SpotMessanger._activateTime > currentTime:
-            log.debug('[time:{:.1f}] maybe time rewinded (< time:{:.1f}), reset timer'.format(currentTime, SpotMessanger._activateTime))
-        elif cooldownTimer > 0:
-            log.debug('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (effective after time:{:.1f})'.format(currentTime, cooldownTimer))
+        cooldownTime = cls._lastActivate + cls.settings['CooldownInterval'] - currentTime
+        if cooldownTime > 0:
+            log.debug('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
             return
-        SpotMessanger._activateTime = currentTime
-        log.debug('[time:{:.1f}] activate sixth sense, do commands, next after time:{:.1f}'.format(currentTime, SpotMessanger._activateTime + SpotMessanger.settings['CooldownTime']))
-        if isShow and SpotMessanger.isActive:
+        cls._lastActivate = currentTime
+        log.debug('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
+ 
+        if cls.isActive:
             player = BattleUtils.getPlayer()
+            battleTypeName = _getBattleTypeName(player)
+            vehicleTypeName = _getVehicleTypeName(player)
+
             teamAmount = BattleUtils.getTeamAmount(player)
             position = MinimapUtils.getOwnPos(player)
+
             controllers = IngameMessanger.getChannelControllers()
-            battleTypeName = SpotMessanger.getBattleTypeName(player)
+            for channelType in [ 'team', 'squad' ]:
+                if controllers.get(channelType, None):
+                    log.debug('controller "{}" found.'.format(channelType))
 			
-            setting = SpotMessanger.settings.get(battleTypeName, None)
+            setting = cls.settings.get(battleTypeName, None)
             if not setting:
                 log.debug('setting for battle type "{}" is none, use default'.format(battleTypeName))
-                setting = SpotMessanger.settings.get('default')
+                setting = cls.settings.get('default')
 
             # vehicle type checks
-            vehicleTypeName = SpotMessanger.getVehicleTypeName(player)
             if not setting['VehicleTypes'].get(vehicleTypeName, True):
                 log.debug('Vehicle type "{}" is disabled.'.format(vehicleTypeName))
                 return
@@ -70,11 +58,7 @@ class SpotMessanger(Plugin):
                 log.debug('team amount "{}" is greater than "{}", do nothing.'.format(teamAmount, maxTeamAmount))
                 return
 
-            msg = SpotMessanger.settings.get('ImSpotted', None)
-            if controllers.get('team', None):
-                log.debug('controller "team" found.')
-            if controllers.get('squad', None):
-                log.debug('controller "squad" found.')
+            msg = cls.settings.get('ImSpotted', None)
             for c in setting['Order']:
                 if c == 'ping':
                     log.info('action: "{}", do ping at {}'.format(c, position))
@@ -92,14 +76,27 @@ class SpotMessanger(Plugin):
                     else:
                         log.info('action: "{}", no squad channel found.'.format(c))
 
-    @staticmethod
-    def handleActivationHotkey():
-        if SpotMessanger.isActive:
+    @classmethod
+    def toggleActive(cls):
+        cls.isActive = not cls.isActive
+        if not cls.isActive:
             log.debug('Sixth Sense Message disabled')
-            BattleUtils.DebugMsg(SpotMessanger.settings['DisableSystemMsg'], True)
+            BattleUtils.DebugMsg(cls.settings['DisableSystemMsg'], True)
         else:
             log.debug('Sixth Sense Message enabled')
-            BattleUtils.DebugMsg(SpotMessanger.settings['EnableSystemMsg'], True)
-        SpotMessanger.isActive = not SpotMessanger.isActive
-        
-    #--------- end ---------
+            BattleUtils.DebugMsg(cls.settings['EnableSystemMsg'], True)
+
+
+def _getBattleTypeName(player):
+    import constants
+    type = player.arena.guiType
+    name = const.BATTLE_TYPE.LABELS.get(type, 'Unknown')
+    log.debug('battle type: "{}" (official: {}:{})'.format(name, type, constants.ARENA_GUI_TYPE_LABEL.LABELS[type]))
+    return name
+
+def _getVehicleTypeName(player):
+    type = BattleUtils.getVehicleType(BattleUtils.getCurrentVehicleDesc(player))
+    name = const.VEHICLE_TYPE.LABELS[type]
+    log.debug('vehicle type: "{}"'.format(name))
+    return name	
+
