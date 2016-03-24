@@ -15,7 +15,8 @@ class Settings(object):
         'ImSpotted': 'An enemy has spotted me at {pos}.',
         'DisableSystemMsg': 'Sixth Sense Message disabled',
         'EnableSystemMsg': 'Sixth Sense Message enabled',
-        'CooldownInterval': 60
+        'CooldownInterval': 60,
+        'CooldownMsg': 'SpotMessanger: cooldown, rest {sec} sec.'
     }
     _templateBattleType = {
         'Order': [ 'ping', 'help', 'teammsg' ],

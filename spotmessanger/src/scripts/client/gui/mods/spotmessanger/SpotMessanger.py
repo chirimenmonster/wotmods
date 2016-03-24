@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 # @author: BirrettaMalefica EU
+
+import math
+
 import BigWorld
 from gui.Scaleform.Battle import Battle
 from gui.shared.gui_items.Vehicle import VEHICLE_CLASS_NAME
@@ -10,26 +13,45 @@ import const
 import log
 
 class SpotMessanger(object):
-    _isActive = True
-    _lastActivate = 0
+    _isEnabled = True
+    _lastActivity = 0
 
     def setConfig(self, settings):
         self._settings = settings
     
     def initialize(self):
-        self._isActive = self._settings['ActiveByDefault']
-        self._lastActivate = 0
+        self._isEnabled = self._settings['ActiveByDefault']
+        self._lastActivity = 0
+        self.showCurrentMode()
+
+    def toggleActive(self):
+        self._isEnabled = not self._isEnabled
+        self.showCurrentMode()
+
+    def showCurrentMode(self):
+        if self._isEnabled:
+            log.debug('Sixth Sense Message enabled')
+            BattleUtils.DebugMsg(self._settings['EnableSystemMsg'], True)
+        else:
+            log.debug('Sixth Sense Message disabled')
+            BattleUtils.DebugMsg(self._settings['DisableSystemMsg'], True)
+
+    def _isCooldown(self, currentTime):
+        cooldownTime = self._lastActivity + self._settings['CooldownInterval'] - currentTime
+        if cooldownTime > 0:
+            log.debug('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
+            BattleUtils.DebugMsg(self._settings['CooldownMsg'].format(rest=int(math.ceil(cooldownTime))))
+            return True
+        return False
 
     def showSixthSenseIndicator(self):
         currentTime = BigWorld.time()
-        cooldownTime = self._lastActivate + self._settings['CooldownInterval'] - currentTime
-        if cooldownTime > 0:
-            log.debug('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
+        if self._isCooldown(currentTime):
             return
-        self._lastActivate = currentTime
+        self._lastActivity = currentTime
         log.debug('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
  
-        if self._isActive:
+        if self._isEnabled:
             player = BattleUtils.getPlayer()
             battleTypeName = _getBattleTypeName(player)
             vehicleTypeName = _getVehicleTypeName(player)
@@ -76,15 +98,6 @@ class SpotMessanger(object):
                         IngameMessanger.sendText(controllers.get('squad', None), msg.format(pos=position))
                     else:
                         log.info('action: "{}", no squad channel found.'.format(c))
-
-    def toggleActive(self):
-        self._isActive = not self._isActive
-        if not self._isActive:
-            log.debug('Sixth Sense Message disabled')
-            BattleUtils.DebugMsg(self._settings['DisableSystemMsg'], True)
-        else:
-            log.debug('Sixth Sense Message enabled')
-            BattleUtils.DebugMsg(self._settings['EnableSystemMsg'], True)
 
 
 def _getBattleTypeName(player):

@@ -17,6 +17,7 @@
     <EnableSystemMsg>Sixth Sense Message enabled</EnableSystemMsg>
 
     <CooldownInterval>60</CooldownInterval>
+    <CooldownMsg>Sixth Sense Message cooldown, rest {rest} sec.</CooldownMsg>
     
     <BattleType> <!-- BattleType may default/Random/Training/Company/CyberSport/Fortifications -->
  
