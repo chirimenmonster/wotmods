@@ -10,23 +10,26 @@ import const
 import log
 
 class SpotMessanger(object):
-    isActive = True
+    _isActive = True
     _lastActivate = 0
 
+    def setConfig(self, settings):
+        self._settings = settings
+    
     def initialize(self):
-        self.isActive = self.settings['ActiveByDefault']
+        self._isActive = self._settings['ActiveByDefault']
         self._lastActivate = 0
 
     def showSixthSenseIndicator(self):
         currentTime = BigWorld.time()
-        cooldownTime = self._lastActivate + self.settings['CooldownInterval'] - currentTime
+        cooldownTime = self._lastActivate + self._settings['CooldownInterval'] - currentTime
         if cooldownTime > 0:
             log.debug('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
             return
         self._lastActivate = currentTime
         log.debug('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
  
-        if self.isActive:
+        if self._isActive:
             player = BattleUtils.getPlayer()
             battleTypeName = _getBattleTypeName(player)
             vehicleTypeName = _getVehicleTypeName(player)
@@ -39,10 +42,10 @@ class SpotMessanger(object):
                 if controllers.get(channelType, None):
                     log.debug('controller "{}" found.'.format(channelType))
 			
-            mode = self.settings.get(battleTypeName, None)
+            mode = self._settings.get(battleTypeName, None)
             if not mode:
                 log.debug('setting for battle type "{}" is none, use default'.format(battleTypeName))
-                mode = self.settings.get('default')
+                mode = self._settings.get('default')
 
             # vehicle type checks
             if not mode['VehicleTypes'].get(vehicleTypeName, True):
@@ -56,7 +59,7 @@ class SpotMessanger(object):
                 log.debug('team amount "{}" is greater than "{}", do nothing.'.format(teamAmount, maxTeamAmount))
                 return
 
-            msg = self.settings.get('ImSpotted', None)
+            msg = self._settings.get('ImSpotted', None)
             for c in mode['Order']:
                 if c == 'ping':
                     log.info('action: "{}", do ping at {}'.format(c, position))
@@ -75,13 +78,13 @@ class SpotMessanger(object):
                         log.info('action: "{}", no squad channel found.'.format(c))
 
     def toggleActive(self):
-        self.isActive = not self.isActive
-        if not self.isActive:
+        self._isActive = not self._isActive
+        if not self._isActive:
             log.debug('Sixth Sense Message disabled')
-            BattleUtils.DebugMsg(self.settings['DisableSystemMsg'], True)
+            BattleUtils.DebugMsg(self._settings['DisableSystemMsg'], True)
         else:
             log.debug('Sixth Sense Message enabled')
-            BattleUtils.DebugMsg(self.settings['EnableSystemMsg'], True)
+            BattleUtils.DebugMsg(self._settings['EnableSystemMsg'], True)
 
 
 def _getBattleTypeName(player):

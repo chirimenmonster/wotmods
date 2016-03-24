@@ -32,7 +32,7 @@ def _readConfig():
     settings = Settings.readConfig(confFile)
     log.flgDebugMsg = settings['Debug']
     log.debug('settings = {}'.format(str(settings)))
-    sm_control.settings = settings
+    sm_control.setConfig(settings)
     return settings
 
 def _on_avatar_ready():
