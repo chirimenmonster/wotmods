@@ -22,7 +22,18 @@ class SpotMessanger(object):
     def initialize(self):
         self._isEnabled = self._settings['ActiveByDefault']
         self._lastActivity = 0
+        self._player = BattleUtils.getPlayer()
+        self._currentBattleType = _getBattleTypeName(self._player)
+        self._currentVehicleType = _getVehicleTypeName(self._player)
+        self._currentParam = self._settings.get(self._currentBattleType, None)
+        if not self._currentParam:
+            log.debug('setting for battle type "{}" is none, use default'.format(self._currentBattleType))
+            self._currentParam = self._settings.get('default')
+        self._cooldownInterval = self._currentParam['CooldownInterval'] if self._currentParam['CooldownInterval'] else self._settings['CooldownInterval']            
+        self._commandDelay = self._currentParam['CommandDelay'] if self._currentParam['CommandDelay'] else self._settings['CommandDelay']
+        self._textDelay = self._currentParam['TextDelay'] if self._currentParam['TextDelay'] else self._settings['TextDelay']
         self.showCurrentMode()
+        log.info('CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(self._cooldownInterval, self._commandDelay, self._textDelay))
 
     def toggleActive(self):
         self._isEnabled = not self._isEnabled
@@ -30,14 +41,14 @@ class SpotMessanger(object):
 
     def showCurrentMode(self):
         if self._isEnabled:
-            log.debug('Sixth Sense Message enabled')
+            log.info('Sixth Sense Message enabled')
             BattleUtils.DebugMsg(self._settings['EnableSystemMsg'], True)
         else:
-            log.debug('Sixth Sense Message disabled')
+            log.info('Sixth Sense Message disabled')
             BattleUtils.DebugMsg(self._settings['DisableSystemMsg'], True)
 
     def _isCooldown(self, currentTime):
-        cooldownTime = self._lastActivity + self._settings['CooldownInterval'] - currentTime
+        cooldownTime = self._lastActivity + self._cooldownInterval - currentTime
         if cooldownTime > 0:
             log.debug('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
             BattleUtils.DebugMsg(self._settings['CooldownMsg'].format(rest=int(math.ceil(cooldownTime))))
@@ -54,30 +65,22 @@ class SpotMessanger(object):
         self._lastActivity = currentTime
         log.debug('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
  
-        player = BattleUtils.getPlayer()
-        battleTypeName = _getBattleTypeName(player)
-        vehicleTypeName = _getVehicleTypeName(player)
+        teamAmount = BattleUtils.getTeamAmount(self._player)
+        position = MinimapUtils.getOwnPos(self._player)
 
-        teamAmount = BattleUtils.getTeamAmount(player)
-        position = MinimapUtils.getOwnPos(player)
-
-        messenger = IngameMessanger(self._settings)
+        messenger = IngameMessanger(commandDelay=self._commandDelay, textDelay=self._textDelay)
         for channelType in [ 'team', 'squad' ]:
             if messenger.has_channel(channelType):
                 log.debug('channel "{}" found.'.format(channelType))
 	
-        param = self._settings.get(battleTypeName, None)
-        if not param:
-            log.debug('setting for battle type "{}" is none, use default'.format(battleTypeName))
-            param = self._settings.get('default')
 
         # vehicle type checks
-        if not param['VehicleTypes'].get(vehicleTypeName, True):
-            log.debug('Vehicle type "{}" is disabled.'.format(vehicleTypeName))
+        if not self._currentParam['VehicleTypes'].get(self._currentVehicleType, True):
+            log.debug('Vehicle type "{}" is disabled.'.format(self._currentVehicleType))
             return
 
         #team amount checks
-        maxTeamAmount = param.get('MaxTeamAmount', 0)
+        maxTeamAmount = self._currentParam.get('MaxTeamAmount', 0)
         log.debug('team amount "{}"'.format(teamAmount))
         if maxTeamAmount > 0 and maxTeamAmount < teamAmount:
             log.debug('team amount "{}" is greater than "{}", do nothing.'.format(teamAmount, maxTeamAmount))
@@ -85,7 +88,7 @@ class SpotMessanger(object):
 
         msg = self._settings.get('ImSpotted', None)
         
-        for c in param['Order']:
+        for c in self._currentParam['Order']:
             if c == 'ping':
                 log.info('action: "{}", do ping at {}'.format(c, position))
                 messenger.doPing(MinimapUtils.name2cell(position))

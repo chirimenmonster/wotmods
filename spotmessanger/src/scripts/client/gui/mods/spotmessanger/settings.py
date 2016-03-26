@@ -23,7 +23,10 @@ class Settings(object):
     _templateBattleType = {
         'Order': [ 'ping', 'help', 'teammsg' ],
         'MaxTeamAmount': 0,
-        'VehicleTypes': { 'LT': True, 'MT': True, 'HT': True, 'TD': True, 'SPG': True }
+        'VehicleTypes': { 'LT': True, 'MT': True, 'HT': True, 'TD': True, 'SPG': True },
+        'CooldownInterval': 0,
+        'TextDelay': 0.0,
+        'CommandDelay': 0.0
     }
     _settings = {}
 	

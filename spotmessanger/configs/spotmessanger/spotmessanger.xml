@@ -55,6 +55,9 @@
 				<TD>true</TD>
                 <SPG>true</SPG>
             </VehicleTypes>
+            <CooldownInterval>60</CooldownInterval>
+            <TextDelay>0.5</TextDelay>
+            <CommandDelay>5</CommandDelay>
         </Random>
 
     </BattleType>

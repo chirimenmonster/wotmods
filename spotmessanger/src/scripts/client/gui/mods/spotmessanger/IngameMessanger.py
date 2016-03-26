@@ -17,8 +17,9 @@ class IngameMessanger(object):
     _controllers = None
     _commandFactory = None
     
-    def __init__(self, settings):
-        self._settings = settings
+    def __init__(self, commandDelay=0.5, textDelay=5.0):
+        self._commandDelay = commandDelay
+        self._textDelay = textDelay
         self._initChannelControllers()
         self._initCommandfactory()
     
@@ -48,17 +49,17 @@ class IngameMessanger(object):
         self._cooldDown += delay
 
     def doPing(self, cellIdx):  
-        delay = self._settings['CommandDelay']
+        delay = self._commandDelay
         command = self._commandFactory.createByCellIdx(cellIdx)
         self._setCallback(delay, partial(self._controllers['team'].sendCommand, command))
 
     def callHelp(self):
-        delay = self._settings['CommandDelay']
+        delay = self._commandDelay
         command = self._commandFactory.createByName(CHAT_COMMANDS.HELPME.name())
         self._setCallback(delay, partial(self._controllers['team'].sendCommand, command))
 
     def sendText(self, channel, text):
-        delay = self._settings['TextDelay']
+        delay = self._textDelay
         if self.has_channel(channel):
             self._setCallback(delay, partial(self._controllers[channel]._broadcast, text))
 
