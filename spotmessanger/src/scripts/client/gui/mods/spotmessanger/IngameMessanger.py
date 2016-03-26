@@ -66,3 +66,6 @@ class IngameMessanger(object):
     def has_channel(self, channel):
         return self._controllers.has_key(channel)
 
+    def getKeys(self):
+        return self._controllers.keys()
+

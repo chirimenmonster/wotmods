@@ -4,9 +4,9 @@ from gui.Scaleform.Battle import Battle
 from spotmessanger import log
 from spotmessanger.events import overrideMethod
 from spotmessanger.const import MOD_INFO
-from spotmessanger.Plugin import Plugin
 from spotmessanger.settings import Settings
 from spotmessanger.SpotMessanger import sm_control
+from spotmessanger.Plugin import im_control
 
 confFile = '../res_mods/configs/spotmessanger/spotmessanger.xml'
 
@@ -19,8 +19,8 @@ def init():
         settings = _readConfig()
 		
         log.info('set key event handlers')
-        Plugin.addEventHandler(settings['ReloadConfigKey'], _readConfig)
-        Plugin.addEventHandler(settings['ActivationHotKey'], _toggleActive)
+        im_control.addEventHandler(settings['ReloadConfigKey'], _readConfig)
+        im_control.addEventHandler(settings['ActivationHotKey'], _toggleActive)
         
         g_playerEvents.onAvatarReady += _on_avatar_ready
         
@@ -52,6 +52,6 @@ def showSixthSenseIndicator(orig, *args, **kwargs):
 @overrideMethod(game, "handleKeyEvent")
 def handleKeyEvent(orig, *args, **kwargs):
     ret = orig(*args, **kwargs)
-    Plugin.handleKeyEvent(*args, **kwargs)
+    im_control.handleKeyEvent(*args, **kwargs)
     return ret
 

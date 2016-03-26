@@ -2,11 +2,11 @@
 import copy
 import ResMgr
 import log
+from const import BATTLE_TYPE
 from ModUtils import FileUtils
 
 class Settings(object):
 
-    battleTypes = [ 'default', 'Random', 'Training', 'Company', 'CyberSport', 'Fortifications' ]
     _templateGlobal = {
         'Debug': True,
         'ActiveByDefault': True,
@@ -41,7 +41,8 @@ class Settings(object):
         else:
             log.info('config found: {}'.format(file))
             cls._settings = FileUtils.readElement(section, cls._templateGlobal, file)
-            for bt in cls.battleTypes:
+            print 'available battle tags: ', BATTLE_TYPE.LIST + ['default']
+            for bt in BATTLE_TYPE.LIST + ['default']:
                 if section['BattleType'].has_key(bt):
                     cls._settings[bt] = FileUtils.readElement(section['BattleType'][bt], cls._templateBattleType, file)
         return cls._settings

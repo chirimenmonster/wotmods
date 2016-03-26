@@ -21,9 +21,10 @@
  
     <TextDelay>0.5</TextDelay>
     <CommandDelay>5</CommandDelay>
-        
-    <BattleType> <!-- BattleType may default/Random/Training/Company/CyberSport/Fortifications -->
- 
+
+    <!-- BattleType may default/Random/Training/Company/TeamBattle/Fortifications/ProvingGround/Fallout -->
+    <BattleType> 
+    
         <!-- default settings -->
         <default>
             <Order> <!-- order of commands, commands may ping/help/teammsg/squadmsg -->

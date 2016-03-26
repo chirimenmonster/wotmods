@@ -15,25 +15,41 @@ import log
 class SpotMessanger(object):
     _isEnabled = True
     _lastActivity = 0
+    _currentParam = {}
 
     def setConfig(self, settings):
         self._settings = settings
     
+    def getFallbackParam(self, key):
+        value = self._currentParam.get(key, None)
+        if not value:
+            value = self._settings.get(key, None)
+        return value
+
     def initialize(self):
         self._isEnabled = self._settings['ActiveByDefault']
         self._lastActivity = 0
         self._player = BattleUtils.getPlayer()
         self._currentBattleType = _getBattleTypeName(self._player)
         self._currentVehicleType = _getVehicleTypeName(self._player)
+
         self._currentParam = self._settings.get(self._currentBattleType, None)
         if not self._currentParam:
             log.debug('setting for battle type "{}" is none, use default'.format(self._currentBattleType))
             self._currentParam = self._settings.get('default')
-        self._cooldownInterval = self._currentParam['CooldownInterval'] if self._currentParam['CooldownInterval'] else self._settings['CooldownInterval']            
-        self._commandDelay = self._currentParam['CommandDelay'] if self._currentParam['CommandDelay'] else self._settings['CommandDelay']
-        self._textDelay = self._currentParam['TextDelay'] if self._currentParam['TextDelay'] else self._settings['TextDelay']
+
+        self._cooldownInterval = self.getFallbackParam('CooldownInterval')
+        self._commandDelay = self.getFallbackParam('CommandDelay')
+        self._textDelay = self.getFallbackParam('TextDelay')
+
+        self._isEnabledVehicle = self._currentParam['VehicleTypes'].get(self._currentVehicleType, True)
+
         self.showCurrentMode()
         log.info('CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(self._cooldownInterval, self._commandDelay, self._textDelay))
+
+        if not self._isEnabledVehicle:
+            log.debug('Vehicle type "{}" is disabled.'.format(self._currentVehicleType))
+
 
     def toggleActive(self):
         self._isEnabled = not self._isEnabled
@@ -56,7 +72,7 @@ class SpotMessanger(object):
         return False
 
     def showSixthSenseIndicator(self):
-        if not self._isEnabled:
+        if not self._isEnabled or not self._isEnabledVehicle:
             return
 
         currentTime = BigWorld.time()
@@ -68,22 +84,14 @@ class SpotMessanger(object):
         position = MinimapUtils.getOwnPos(self._player)
 
         messenger = IngameMessanger(commandDelay=self._commandDelay, textDelay=self._textDelay)
-        for channelType in [ 'team', 'squad' ]:
-            if messenger.has_channel(channelType):
-                log.debug('channel "{}" found.'.format(channelType))
-	
-
-        # vehicle type checks
-        if not self._currentParam['VehicleTypes'].get(self._currentVehicleType, True):
-            log.debug('Vehicle type "{}" is disabled.'.format(self._currentVehicleType))
-            return
+        log.debug('channel found: {}'.format(', '.join(messenger.getKeys())))
 
         #team amount checks
         maxTeamAmount = self._currentParam.get('MaxTeamAmount', 0)
-        log.debug('team amount "{}"'.format(teamAmount))
         if maxTeamAmount > 0 and maxTeamAmount < teamAmount:
-            log.debug('team amount "{}" is greater than "{}", do nothing.'.format(teamAmount, maxTeamAmount))
+            log.debug('current team amount "{}" is greater than "{}", do nothing.'.format(teamAmount, maxTeamAmount))
             return
+        log.debug('current team amount "{}"'.format(teamAmount))
 
         msg = self._settings.get('ImSpotted', None)
         
@@ -104,7 +112,7 @@ class SpotMessanger(object):
                 log.info('action: "{}", send message with squad channel'.format(c))
                 if messenger.has_channel('squad'):
                     self._lastActivity = currentTime
-                    messanger.sendText('squad', msg.format(pos=position))
+                    messenger.sendText('squad', msg.format(pos=position))
                 else:
                     log.info('action: "{}", no squad channel found.'.format(c))
 

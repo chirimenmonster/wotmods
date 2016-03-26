@@ -1,27 +1,22 @@
 import game
-import ResMgr
 
 import log
 from ModUtils import FileUtils, HotKeysUtils, DecorateUtils
 
 class Plugin(object):
-    handlers = {}
-    pluginEnable = True
-    debug = False
-    pluginName = 'Plugin'
-    confFile = ''
+    _handlers = {}
 
-    @classmethod
-    def handleKeyEvent(cls, event):
+    def handleKeyEvent(self, event):
         isDown, key, mods, isRepeat = game.convertKeyEvent(event)
         if not isRepeat and isDown:
-            for k, handler in cls.handlers.iteritems():
+            for k, handler in self._handlers.iteritems():
                 if HotKeysUtils.keysMatch([key], HotKeysUtils.parseHotkeys(k)):
                     try:
                         handler()
                     except Exception:
                         log.current_exception()
 
-    @classmethod
-    def addEventHandler(cls, key, callback):
-        Plugin.handlers[key] = callback
+    def addEventHandler(self, key, callback):
+        Plugin._handlers[key] = callback
+
+im_control = Plugin()
