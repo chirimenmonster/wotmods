@@ -62,7 +62,6 @@ class SpotMessanger(object):
         currentTime = BigWorld.time()
         if self._isCooldown(currentTime):
             return
-        self._lastActivity = currentTime
         log.debug('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
  
         teamAmount = BattleUtils.getTeamAmount(self._player)
@@ -91,19 +90,24 @@ class SpotMessanger(object):
         for c in self._currentParam['Order']:
             if c == 'ping':
                 log.info('action: "{}", do ping at {}'.format(c, position))
+                self._lastActivity = currentTime
                 messenger.doPing(MinimapUtils.name2cell(position))
             elif c == 'help':
                 log.info('action: "{}", call help'.format(c))
+                self._lastActivity = currentTime
                 messenger.callHelp()
             elif c == 'teammsg' and msg and msg != 'None':
                 log.info('action: "{}", send message with team channel'.format(c))
+                self._lastActivity = currentTime
                 messenger.sendText('team', msg.format(pos=position))
             elif c == 'squadmsg' and msg and msg != 'None':
                 log.info('action: "{}", send message with squad channel'.format(c))
                 if messenger.has_channel('squad'):
+                    self._lastActivity = currentTime
                     messanger.sendText('squad', msg.format(pos=position))
                 else:
                     log.info('action: "{}", no squad channel found.'.format(c))
+
 
 
 def _getBattleTypeName(player):
