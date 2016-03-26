@@ -18,7 +18,10 @@
 
     <CooldownInterval>60</CooldownInterval>
     <CooldownMsg>Sixth Sense Message cooldown, rest {rest} sec.</CooldownMsg>
-    
+ 
+    <TextDelay>0.5</TextDelay>
+    <CommandDelay>5</CommandDelay>
+        
     <BattleType> <!-- BattleType may default/Random/Training/Company/CyberSport/Fortifications -->
  
         <!-- default settings -->

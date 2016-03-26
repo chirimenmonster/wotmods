@@ -45,59 +45,62 @@ class SpotMessanger(object):
         return False
 
     def showSixthSenseIndicator(self):
+        if not self._isEnabled:
+            return
+
         currentTime = BigWorld.time()
         if self._isCooldown(currentTime):
             return
         self._lastActivity = currentTime
         log.debug('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
  
-        if self._isEnabled:
-            player = BattleUtils.getPlayer()
-            battleTypeName = _getBattleTypeName(player)
-            vehicleTypeName = _getVehicleTypeName(player)
+        player = BattleUtils.getPlayer()
+        battleTypeName = _getBattleTypeName(player)
+        vehicleTypeName = _getVehicleTypeName(player)
 
-            teamAmount = BattleUtils.getTeamAmount(player)
-            position = MinimapUtils.getOwnPos(player)
+        teamAmount = BattleUtils.getTeamAmount(player)
+        position = MinimapUtils.getOwnPos(player)
 
-            controllers = IngameMessanger.getChannelControllers()
-            for channelType in [ 'team', 'squad' ]:
-                if controllers.get(channelType, None):
-                    log.debug('controller "{}" found.'.format(channelType))
-			
-            mode = self._settings.get(battleTypeName, None)
-            if not mode:
-                log.debug('setting for battle type "{}" is none, use default'.format(battleTypeName))
-                mode = self._settings.get('default')
+        messenger = IngameMessanger(self._settings)
+        for channelType in [ 'team', 'squad' ]:
+            if messenger.has_channel(channelType):
+                log.debug('channel "{}" found.'.format(channelType))
+	
+        param = self._settings.get(battleTypeName, None)
+        if not param:
+            log.debug('setting for battle type "{}" is none, use default'.format(battleTypeName))
+            param = self._settings.get('default')
 
-            # vehicle type checks
-            if not mode['VehicleTypes'].get(vehicleTypeName, True):
-                log.debug('Vehicle type "{}" is disabled.'.format(vehicleTypeName))
-                return
+        # vehicle type checks
+        if not param['VehicleTypes'].get(vehicleTypeName, True):
+            log.debug('Vehicle type "{}" is disabled.'.format(vehicleTypeName))
+            return
 
-            #team amount checks
-            maxTeamAmount = mode.get('MaxTeamAmount', 0)
-            log.debug('team amount "{}"'.format(teamAmount))
-            if maxTeamAmount > 0 and maxTeamAmount < teamAmount:
-                log.debug('team amount "{}" is greater than "{}", do nothing.'.format(teamAmount, maxTeamAmount))
-                return
+        #team amount checks
+        maxTeamAmount = param.get('MaxTeamAmount', 0)
+        log.debug('team amount "{}"'.format(teamAmount))
+        if maxTeamAmount > 0 and maxTeamAmount < teamAmount:
+            log.debug('team amount "{}" is greater than "{}", do nothing.'.format(teamAmount, maxTeamAmount))
+            return
 
-            msg = self._settings.get('ImSpotted', None)
-            for c in mode['Order']:
-                if c == 'ping':
-                    log.info('action: "{}", do ping at {}'.format(c, position))
-                    IngameMessanger.doPing(controllers.get('team', None), MinimapUtils.name2cell(position))
-                elif c == 'help':
-                    log.info('action: "{}", call help'.format(c))
-                    IngameMessanger.callHelp(controllers.get('team', None))
-                elif c == 'teammsg' and msg and msg != 'None':
-                    log.info('action: "{}", send message with team channel'.format(c))
-                    IngameMessanger.sendText(controllers.get('team', None), msg.format(pos=position))
-                elif c == 'squadmsg' and msg and msg != 'None':
-                    log.info('action: "{}", send message with squad channel'.format(c))
-                    if controllers.has_key('squad'):
-                        IngameMessanger.sendText(controllers.get('squad', None), msg.format(pos=position))
-                    else:
-                        log.info('action: "{}", no squad channel found.'.format(c))
+        msg = self._settings.get('ImSpotted', None)
+        
+        for c in param['Order']:
+            if c == 'ping':
+                log.info('action: "{}", do ping at {}'.format(c, position))
+                messenger.doPing(MinimapUtils.name2cell(position))
+            elif c == 'help':
+                log.info('action: "{}", call help'.format(c))
+                messenger.callHelp()
+            elif c == 'teammsg' and msg and msg != 'None':
+                log.info('action: "{}", send message with team channel'.format(c))
+                messenger.sendText('team', msg.format(pos=position))
+            elif c == 'squadmsg' and msg and msg != 'None':
+                log.info('action: "{}", send message with squad channel'.format(c))
+                if messenger.has_channel('squad'):
+                    messanger.sendText('squad', msg.format(pos=position))
+                else:
+                    log.info('action: "{}", no squad channel found.'.format(c))
 
 
 def _getBattleTypeName(player):

@@ -16,7 +16,9 @@ class Settings(object):
         'DisableSystemMsg': 'Sixth Sense Message disabled',
         'EnableSystemMsg': 'Sixth Sense Message enabled',
         'CooldownInterval': 60,
-        'CooldownMsg': 'SpotMessanger: cooldown, rest {sec} sec.'
+        'CooldownMsg': 'SpotMessanger: cooldown, rest {sec} sec.',
+        'TextDelay': 0.5,
+        'CommandDelay': 5
     }
     _templateBattleType = {
         'Order': [ 'ping', 'help', 'teammsg' ],

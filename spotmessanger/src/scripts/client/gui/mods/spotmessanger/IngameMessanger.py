@@ -1,65 +1,67 @@
 # -*- coding: utf-8 -*-
 
 # @author: BirrettaMalefica EU
+
+from functools import partial
+
 import BigWorld
+from gui.battle_control import g_sessionProvider
 from messenger.gui.Scaleform.channels.bw_chat2.factories import BattleControllersFactory
 from messenger.gui.Scaleform.channels.bw_chat2.battle_controllers import TeamChannelController, CommonChannelController, SquadChannelController
 from chat_shared import CHAT_COMMANDS
-from functools import partial
+
 import log
 
 class IngameMessanger(object):
-    myConf = {"TextDelay":0.5,"CommandDelay":5}
     _cooldDown = 0
-
-    @staticmethod
-    def getChannelControllers():
-        dict = {}
+    _controllers = None
+    _commandFactory = None
+    
+    def __init__(self, settings):
+        self._settings = settings
+        self._initChannelControllers()
+        self._initCommandfactory()
+    
+    def _initChannelControllers(self):
+        self._controllers = {}
         controllers = BattleControllersFactory().init()
-        for controller in controllers:
-            if isinstance(controller, TeamChannelController):
-                dict['team'] = controller
-            elif isinstance(controller, CommonChannelController):
-                dict['common'] = controller
-            elif isinstance(controller, SquadChannelController):
-                dict['squad'] = controller
+        for c in controllers:
+            if isinstance(c, TeamChannelController):
+                self._controllers['team'] = c
+            elif isinstance(c, CommonChannelController):
+                self._controllers['common'] = c
+            elif isinstance(c, SquadChannelController):
+                self._controllers['squad'] = c
             else:
                 log.warning('unknwon channel controller')
-        return dict
 		
-    @staticmethod
-    def getCommandfactory():
-        from gui.battle_control import g_sessionProvider
-        cmdFc = g_sessionProvider.getChatCommands().proto.battleCmd
-        if cmdFc is None:
+    def _initCommandfactory(self):
+        self._commandFactory = g_sessionProvider.getChatCommands().proto.battleCmd
+        if self._commandFactory is None:
             log.error('Commands factory is not defined')
-        return cmdFc              
-    
-    @staticmethod
-    def doPing(controller, cellIdx):  
-        command = IngameMessanger.getCommandfactory().createByCellIdx(cellIdx)
-        IngameMessanger.sendCommand(controller, command) 
 
-    @staticmethod
-    def callHelp(controller):
-        command = IngameMessanger.getCommandfactory().createByName(CHAT_COMMANDS.HELPME.name())
-        IngameMessanger.sendCommand(controller, command)
+    def _setCallback(self, delay, callback):
+        currentTime = BigWorld.time()
+        self._cooldDown = max(self._cooldDown, currentTime)
+        diff = self._cooldDown - currentTime
+        BigWorld.callback(diff, callback)
+        self._cooldDown += delay
 
-    @staticmethod
-    def sendCommand(controller, command):
-        diff = IngameMessanger._cooldDown - BigWorld.time()
-        if diff < 0:
-            diff = 0
-            IngameMessanger._cooldDown = BigWorld.time()
-        IngameMessanger._cooldDown += IngameMessanger.myConf['CommandDelay']
-        BigWorld.callback(diff, partial(controller.sendCommand, command))
+    def doPing(self, cellIdx):  
+        delay = self._settings['CommandDelay']
+        command = self._commandFactory.createByCellIdx(cellIdx)
+        self._setCallback(delay, partial(self._controllers['team'].sendCommand, command))
 
-    @staticmethod
-    def sendText(controller, text):
-        diff = IngameMessanger._cooldDown - BigWorld.time()
-        if diff < 0:
-            diff = 0
-            IngameMessanger._cooldDown = BigWorld.time()
-        IngameMessanger._cooldDown += IngameMessanger.myConf['TextDelay']
-        BigWorld.callback(diff, partial(controller._broadcast, text))
+    def callHelp(self):
+        delay = self._settings['CommandDelay']
+        command = self._commandFactory.createByName(CHAT_COMMANDS.HELPME.name())
+        self._setCallback(delay, partial(self._controllers['team'].sendCommand, command))
+
+    def sendText(self, channel, text):
+        delay = self._settings['TextDelay']
+        if self.has_channel(channel):
+            self._setCallback(delay, partial(self._controllers[channel]._broadcast, text))
+
+    def has_channel(self, channel):
+        return self._controllers.has_key(channel)
 
