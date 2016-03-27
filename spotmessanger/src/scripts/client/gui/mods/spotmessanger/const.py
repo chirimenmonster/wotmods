@@ -36,3 +36,6 @@ class VEHICLE_TYPE:
         VEHICLE_CLASS_NAME.SPG: 'SPG'
 	}
 
+class COMMAND_TYPE:
+    LIST = [ 'ping', 'help', 'teammsg', 'squadmsg' ]
+

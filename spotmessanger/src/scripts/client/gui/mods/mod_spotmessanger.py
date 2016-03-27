@@ -4,7 +4,7 @@ from gui.Scaleform.Battle import Battle
 from spotmessanger import log
 from spotmessanger.events import overrideMethod
 from spotmessanger.const import MOD_INFO
-from spotmessanger.settings import Settings
+from spotmessanger.settings import st_control
 from spotmessanger.SpotMessanger import sm_control
 from spotmessanger.Plugin import im_control
 
@@ -29,7 +29,7 @@ def init():
 
 
 def _readConfig():
-    settings = Settings.readConfig(confFile)
+    settings = st_control.readConfig(confFile)
     log.flgDebugMsg = settings['Debug']
     log.debug('settings = {}'.format(str(settings)))
     sm_control.setConfig(settings)

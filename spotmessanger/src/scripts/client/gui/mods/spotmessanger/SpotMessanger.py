@@ -33,10 +33,10 @@ class SpotMessanger(object):
         self._currentBattleType = _getBattleTypeName(self._player)
         self._currentVehicleType = _getVehicleTypeName(self._player)
 
-        self._currentParam = self._settings.get(self._currentBattleType, None)
+        self._currentParam = self._settings['BattleType'].get(self._currentBattleType, None)
         if not self._currentParam:
             log.debug('setting for battle type "{}" is none, use default'.format(self._currentBattleType))
-            self._currentParam = self._settings.get('default')
+            self._currentParam = self._settings['BattleType'].get('default')
 
         self._cooldownInterval = self.getFallbackParam('CooldownInterval')
         self._commandDelay = self.getFallbackParam('CommandDelay')
@@ -95,26 +95,30 @@ class SpotMessanger(object):
 
         msg = self._settings.get('ImSpotted', None)
         
-        for c in self._currentParam['Order']:
-            if c == 'ping':
-                log.info('action: "{}", do ping at {}'.format(c, position))
+        commandOrder = self._currentParam.get('CommandOrder', [])
+        if not commandOrder:
+            log.warning('CommandOrder is empty')
+            return
+        for command in commandOrder:
+            if command == 'ping':
+                log.info('action: "{}", do ping at {}'.format(command, position))
                 self._lastActivity = currentTime
                 messenger.doPing(MinimapUtils.name2cell(position))
-            elif c == 'help':
-                log.info('action: "{}", call help'.format(c))
+            elif command == 'help':
+                log.info('action: "{}", call help'.format(command))
                 self._lastActivity = currentTime
                 messenger.callHelp()
-            elif c == 'teammsg' and msg and msg != 'None':
-                log.info('action: "{}", send message with team channel'.format(c))
+            elif command == 'teammsg' and msg and msg != 'None':
+                log.info('action: "{}", send message with team channel'.format(command))
                 self._lastActivity = currentTime
                 messenger.sendText('team', msg.format(pos=position))
-            elif c == 'squadmsg' and msg and msg != 'None':
-                log.info('action: "{}", send message with squad channel'.format(c))
+            elif command == 'squadmsg' and msg and msg != 'None':
+                log.info('action: "{}", send message with squad channel'.format(command))
                 if messenger.has_channel('squad'):
                     self._lastActivity = currentTime
                     messenger.sendText('squad', msg.format(pos=position))
                 else:
-                    log.info('action: "{}", no squad channel found.'.format(c))
+                    log.info('action: "{}", no squad channel found.'.format(command))
 
 
 

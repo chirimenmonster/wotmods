@@ -22,17 +22,22 @@
     <TextDelay>0.5</TextDelay>
     <CommandDelay>5</CommandDelay>
 
-    <!-- BattleType may default/Random/Training/Company/TeamBattle/Fortifications/ProvingGround/Fallout -->
-    <BattleType> 
-    
-        <!-- default settings -->
-        <default>
-            <Order> <!-- order of commands, commands may ping/help/teammsg/squadmsg -->
+    <BattleTypeParameterList>
+
+        <BattleTypeParameter>
+            <!-- List for assign battle types -->
+            <!-- BattleType may default/Random/Training/Company/TeamBattle/Fortifications/ProvingGround/Fallout -->
+            <AssignBattleType>
+                <BattleType>default</BattleType>
+            </AssignBattleType>
+            <!-- Order of commands -->
+            <!-- Command may ping/help/teammsg/squadmsg -->
+            <CommandOrder>
                 <Command>ping</Command> <!-- Ping the minimap square you are in when the perk activates. -->
                 <Command>help</Command> <!-- Send "Help!" quick command (F7) when the perk activates. -->
                 <Command>teammsg</Command> <!-- Send Message to team chat. -->
-            </Order>
-            <MaxTeamAmount>0</MaxTeamAmount> <!-- exec commands only if your team amount is less than this number.  If 0 this feature is disabled -->
+            </CommandOrder>
+            <MaxTeamAmount>0</MaxTeamAmount>
             <!-- Tank filters -->
             <VehicleTypes>
                 <LT>true</LT> <!-- Send message when driving a light tank - true/false. -->
@@ -41,13 +46,19 @@
                 <TD>true</TD> <!-- Send message when driving a tank destroyer - true/false. -->
                 <SPG>true</SPG> <!-- Send message when driving artillery - true/false. -->
             </VehicleTypes>
-        </default>
+            <CooldownInterval>60</CooldownInterval>
+            <TextDelay>0.5</TextDelay>
+            <CommandDelay>5</CommandDelay>
+        </BattleTypeParameter>
 
         <!-- for Random Battle -->
-        <Random>
-            <Order>
-                <Command>squadmsg</Command> <!-- Send Message to platoon chat. -->
-            </Order>
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>Random</BattleType>
+            </AssignBattleType>
+            <CommandOrder>
+                <Command>squadmsg</Command>  <!-- Send Message to platoon chat. -->
+            </CommandOrder>
             <MaxTeamAmount>0</MaxTeamAmount>
             <VehicleTypes>
                 <LT>true</LT>
@@ -59,7 +70,31 @@
             <CooldownInterval>60</CooldownInterval>
             <TextDelay>0.5</TextDelay>
             <CommandDelay>5</CommandDelay>
-        </Random>
+        </BattleTypeParameter>
 
-    </BattleType>
+        <!-- for Clan Battle -->
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>GlobalMap</BattleType>
+                <BattleType>Fortifications</BattleType>
+            </AssignBattleType>
+            <CommandOrder>
+                <Command>help</Command>
+                <Command>teammsg</Command>
+            </CommandOrder>
+            <MaxTeamAmount>0</MaxTeamAmount>
+            <VehicleTypes>
+                <LT>true</LT>
+                <MT>true</MT>
+                <HT>true</HT>
+				<TD>true</TD>
+                <SPG>true</SPG>
+            </VehicleTypes>
+            <CooldownInterval>60</CooldownInterval>
+            <TextDelay>0.5</TextDelay>
+            <CommandDelay>5</CommandDelay>
+        </BattleTypeParameter>
+
+    </BattleTypeParameterList>
+    
 </config.xml>
