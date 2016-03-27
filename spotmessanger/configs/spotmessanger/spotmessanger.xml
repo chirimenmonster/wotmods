@@ -11,7 +11,7 @@
     <ActivationHotKey>KEY_F11</ActivationHotKey> <!-- Set the hotkey to enable/disable the Mod during battle. -->
     <ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey> <!-- Press this hotkey to reload configuration. -->
 
-    <!-- Message options -->	
+    <!-- Message options -->
     <ImSpotted>An enemy has spotted me at {pos}.</ImSpotted>
     <DisableSystemMsg>Sixth Sense Message disabled</DisableSystemMsg>
     <EnableSystemMsg>Sixth Sense Message enabled</EnableSystemMsg>

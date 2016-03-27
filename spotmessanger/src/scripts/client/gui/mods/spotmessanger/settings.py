@@ -30,22 +30,25 @@ class Settings(object):
     _settings = {}
 	
     def readConfig(self, file):
-        log.debug('search config file: {}'.format(file))
+        log.info('config file: {}'.format(file))
         section = ResMgr.openSection(file)
         if not section:
             log.warning('cannot open config file: {}'.format(file))
             self._settings = copy.copy(self._templateGlobal)
             self._settings['default'] = self._templateBattleType
         else:
-            log.info('config found: {}'.format(file))
+            if section['Debug'].asString.lower() == 'true':
+                log.flgDebugMsg = True
+            elif section['Debug'].asString.lower() == 'false':
+                log.flgDebugMsg = False
             self._settings = FileUtils.readElement(section, self._templateGlobal, file)
             log.info('available battletype tags: {}'.format(BATTLE_TYPE.LIST + ['default']))
-
             self._settings['BattleType'] = {}
             for key, param in section['BattleTypeParameterList'].items():
                 log.debug('key={}'.format(key))
                 if key == 'BattleTypeParameter':
                     self._readBattleTypeSettings(param)
+            log.info('found battletype settings: {}'.format(self._settings['BattleType'].keys()))
 
         return self._settings
 

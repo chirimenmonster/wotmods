@@ -18,7 +18,7 @@ def init():
         log.flgDebugMsg = True
         settings = _readConfig()
 		
-        log.info('set key event handlers')
+        log.debug('set key event handlers')
         im_control.addEventHandler(settings['ReloadConfigKey'], _readConfig)
         im_control.addEventHandler(settings['ActivationHotKey'], _toggleActive)
         
@@ -44,7 +44,7 @@ def _toggleActive():
 
 @overrideMethod(Battle, "_showSixthSenseIndicator")
 def showSixthSenseIndicator(orig, *args, **kwargs):
-    log.info('activate sixth sense.')
+    log.debug('activate sixth sense.')
     ret = orig(*args, **kwargs)
     sm_control.showSixthSenseIndicator()
     return ret

@@ -43,12 +43,17 @@ class SpotMessanger(object):
         self._textDelay = self.getFallbackParam('TextDelay')
 
         self._isEnabledVehicle = self._currentParam['VehicleTypes'].get(self._currentVehicleType, True)
-
+        
         self.showCurrentMode()
+        log.info('Battle Type: {}'.format(self._currentBattleType))
         log.info('CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(self._cooldownInterval, self._commandDelay, self._textDelay))
-
-        if not self._isEnabledVehicle:
-            log.debug('Vehicle type "{}" is disabled.'.format(self._currentVehicleType))
+        log.info('Command Order: {}'.format(self._currentParam.get('CommandOrder', [])))
+        log.info('Max Team Amount: {}'.format(self._currentParam.get('MaxTeamAmount')))
+        log.info('Enable Tank Types: {}'.format([ k for k in self._currentParam['VehicleTypes'] if self._currentParam['VehicleTypes'][k] ]))
+        if self._isEnabledVehicle:
+            log.info('current vehicle type is {}, sixth sense message is enable.'.format(self._currentVehicleType))
+        else:
+            log.info('current vehicle type is {}, sixth sense message is disabled.'.format(self._currentVehicleType))
 
 
     def toggleActive(self):
@@ -66,7 +71,7 @@ class SpotMessanger(object):
     def _isCooldown(self, currentTime):
         cooldownTime = self._lastActivity + self._cooldownInterval - currentTime
         if cooldownTime > 0:
-            log.debug('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
+            log.info('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
             BattleUtils.DebugMsg(self._settings['CooldownMsg'].format(rest=int(math.ceil(cooldownTime))))
             return True
         return False
@@ -94,6 +99,7 @@ class SpotMessanger(object):
         log.debug('current team amount "{}"'.format(teamAmount))
 
         msg = self._settings.get('ImSpotted', None)
+        msg = msg.format(pos=position) if msg else None
         
         commandOrder = self._currentParam.get('CommandOrder', [])
         if not commandOrder:
@@ -109,14 +115,14 @@ class SpotMessanger(object):
                 self._lastActivity = currentTime
                 messenger.callHelp()
             elif command == 'teammsg' and msg and msg != 'None':
-                log.info('action: "{}", send message with team channel'.format(command))
+                log.info('action: "{}", send message with team channel: {}'.format(command, msg))
                 self._lastActivity = currentTime
-                messenger.sendText('team', msg.format(pos=position))
+                messenger.sendText('team', msg)
             elif command == 'squadmsg' and msg and msg != 'None':
-                log.info('action: "{}", send message with squad channel'.format(command))
+                log.info('action: "{}", send message with squad channel: {}'.format(command, msg))
                 if messenger.has_channel('squad'):
                     self._lastActivity = currentTime
-                    messenger.sendText('squad', msg.format(pos=position))
+                    messenger.sendText('squad', msg)
                 else:
                     log.info('action: "{}", no squad channel found.'.format(command))
 
