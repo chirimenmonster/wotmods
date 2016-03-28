@@ -3,7 +3,7 @@ import game
 import log
 from ModUtils import FileUtils, HotKeysUtils, DecorateUtils
 
-class Plugin(object):
+class InputHandler(object):
     _handlers = {}
 
     def handleKeyEvent(self, event):
@@ -17,6 +17,6 @@ class Plugin(object):
                         log.current_exception()
 
     def addEventHandler(self, key, callback):
-        Plugin._handlers[key] = callback
+        self._handlers[key] = callback
 
-im_control = Plugin()
+im_control = InputHandler()

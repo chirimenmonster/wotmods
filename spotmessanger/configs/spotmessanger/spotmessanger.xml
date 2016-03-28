@@ -6,6 +6,8 @@
 
     <Debug>true</Debug>
 
+    <!-- Global settings -->
+    
     <!-- Activation options -->
     <ActiveByDefault>true</ActiveByDefault> <!-- Activate Mod at the beginning of the battle - true/false. -->
     <ActivationHotKey>KEY_F11</ActivationHotKey> <!-- Set the hotkey to enable/disable the Mod during battle. -->
@@ -15,13 +17,14 @@
     <ImSpotted>An enemy has spotted me at {pos}.</ImSpotted>
     <DisableSystemMsg>Sixth Sense Message disabled</DisableSystemMsg>
     <EnableSystemMsg>Sixth Sense Message enabled</EnableSystemMsg>
-
-    <CooldownInterval>60</CooldownInterval>
     <CooldownMsg>Sixth Sense Message cooldown, rest {rest} sec.</CooldownMsg>
  
+    <!-- Cooldown parameters -->
+    <CooldownInterval>60</CooldownInterval>
     <TextDelay>0.5</TextDelay>
     <CommandDelay>5</CommandDelay>
 
+    <!-- Local settings for each battle types -->
     <BattleTypeParameterList>
 
         <BattleTypeParameter>
@@ -38,14 +41,17 @@
                 <Command>teammsg</Command> <!-- Send Message to team chat. -->
             </CommandOrder>
             <MaxTeamAmount>0</MaxTeamAmount>
-            <!-- Tank filters -->
-            <VehicleTypes>
-                <LT>true</LT> <!-- Send message when driving a light tank - true/false. -->
-                <MT>true</MT> <!-- Send message when driving a medium tank - true/false. -->
-                <HT>true</HT> <!-- Send message when driving a heavy tank - true/false. -->
-                <TD>true</TD> <!-- Send message when driving a tank destroyer - true/false. -->
-                <SPG>true</SPG> <!-- Send message when driving artillery - true/false. -->
-            </VehicleTypes>
+            <!-- List of available tanks -->
+            <!-- VehicleType may LT/MT/HT/TD/SPG -->
+            <EnableVehicleType>
+                <VehicleType>LT</VehicleType> <!-- Send message when driving a light tank -->
+                <VehicleType>MT</VehicleType> <!-- Send message when driving a medium tank -->
+                <VehicleType>HT</VehicleType> <!-- Send message when driving a heavy tank -->
+                <VehicleType>TD</VehicleType> <!-- Send message when driving a tank destroyer -->
+                <VehicleType>SPG</VehicleType> <!-- Send message when driving artillery -->
+            </EnableVehicleType>
+            <!-- Cooldown parameters -->
+            <!-- if not specified in BattleTypeParameter section, used global setting -->
             <CooldownInterval>60</CooldownInterval>
             <TextDelay>0.5</TextDelay>
             <CommandDelay>5</CommandDelay>
@@ -59,14 +65,14 @@
             <CommandOrder>
                 <Command>squadmsg</Command>  <!-- Send Message to platoon chat. -->
             </CommandOrder>
+            <EnableVehicleType>
+                <VehicleType>LT</VehicleType>
+                <VehicleType>MT</VehicleType>
+                <VehicleType>HT</VehicleType>
+                <VehicleType>TD</VehicleType>
+                <VehicleType>SPG</VehicleType>
+            </EnableVehicleType>
             <MaxTeamAmount>0</MaxTeamAmount>
-            <VehicleTypes>
-                <LT>true</LT>
-                <MT>true</MT>
-                <HT>true</HT>
-				<TD>true</TD>
-                <SPG>true</SPG>
-            </VehicleTypes>
             <CooldownInterval>60</CooldownInterval>
             <TextDelay>0.5</TextDelay>
             <CommandDelay>5</CommandDelay>
@@ -82,17 +88,17 @@
                 <Command>help</Command>
                 <Command>teammsg</Command>
             </CommandOrder>
+            <EnableVehicleType>
+                <VehicleType>LT</VehicleType>
+                <VehicleType>MT</VehicleType>
+                <VehicleType>HT</VehicleType>
+                <VehicleType>TD</VehicleType>
+                <VehicleType>SPG</VehicleType>
+            </EnableVehicleType>
             <MaxTeamAmount>0</MaxTeamAmount>
-            <VehicleTypes>
-                <LT>true</LT>
-                <MT>true</MT>
-                <HT>true</HT>
-				<TD>true</TD>
-                <SPG>true</SPG>
-            </VehicleTypes>
-            <CooldownInterval>60</CooldownInterval>
-            <TextDelay>0.5</TextDelay>
-            <CommandDelay>5</CommandDelay>
+            <CooldownInterval>30</CooldownInterval>
+            <TextDelay>0.2</TextDelay>
+            <CommandDelay>1</CommandDelay>
         </BattleTypeParameter>
 
     </BattleTypeParameterList>

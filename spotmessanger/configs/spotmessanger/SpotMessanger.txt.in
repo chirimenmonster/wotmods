@@ -8,7 +8,7 @@ where
  - [game_root] is your World of Tanks installation directory
 
 Config
-  If 'Fallback parameter' is not found in 'par BattleType parameter' section, use in 'Global Parameter' section.
+  If 'Fallback parameter' is not found in 'per BattleType parameter' section, use in 'Global Parameter' section.
  - Global parameter
      Debug
         bool: flag if enable output debug message to python.log
@@ -19,7 +19,7 @@ Config
      ReloadConfigKey
         string: key name for reload config file
      ImSpotted
-        string: message when spotted to send team/squad chat channel, {pos} is spotted position
+        string: message when spotted to send team/squad chat channel, {{pos}} is spotted position
      DisableSystemMsg
         string: message when disable mod
      EnableSystemMsg
@@ -33,11 +33,11 @@ Config
         float: second of delay to next command
      CommandDelay
         float: second of delay to next command
- - par BattleTytpe parameter
+ - per BattleTytpe parameter
      CommandOrder
-        list: order of command when spotted, commands may ping/help/teammsg/squadmsg
+        list: order of command when spotted, Command may ping/help/teammsg/squadmsg
      MaxTeamAmount
         int: threshold of team amount for activate sixth sense message, 0 is always active sixth sense message
-     VehicleType     
-        list: vehicle type for enable sixth sense message
+     EnableVehicleType     
+        list: vehicle type for enable sixth sense message, VehicleType may LT/MT/HT/TD/SPG
  

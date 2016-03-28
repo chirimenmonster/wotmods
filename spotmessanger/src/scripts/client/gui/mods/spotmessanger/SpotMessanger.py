@@ -42,14 +42,14 @@ class SpotMessanger(object):
         self._commandDelay = self.getFallbackParam('CommandDelay')
         self._textDelay = self.getFallbackParam('TextDelay')
 
-        self._isEnabledVehicle = self._currentParam['VehicleTypes'].get(self._currentVehicleType, True)
+        self._isEnabledVehicle = self._currentVehicleType in self._currentParam['EnableVehicleType']
         
         self.showCurrentMode()
         log.info('Battle Type: {}'.format(self._currentBattleType))
         log.info('CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(self._cooldownInterval, self._commandDelay, self._textDelay))
         log.info('Command Order: {}'.format(self._currentParam.get('CommandOrder', [])))
         log.info('Max Team Amount: {}'.format(self._currentParam.get('MaxTeamAmount')))
-        log.info('Enable Tank Types: {}'.format([ k for k in self._currentParam['VehicleTypes'] if self._currentParam['VehicleTypes'][k] ]))
+        log.info('Enable Vehicle Type: {}'.format(self._currentParam.get('EnableVehicleType')))
         if self._isEnabledVehicle:
             log.info('current vehicle type is {}, sixth sense message is enable.'.format(self._currentVehicleType))
         else:
@@ -115,11 +115,11 @@ class SpotMessanger(object):
                 self._lastActivity = currentTime
                 messenger.callHelp()
             elif command == 'teammsg' and msg and msg != 'None':
-                log.info('action: "{}", send message with team channel: {}'.format(command, msg))
+                log.info('action: "{}", send message with team channel: "{}"'.format(command, msg))
                 self._lastActivity = currentTime
                 messenger.sendText('team', msg)
             elif command == 'squadmsg' and msg and msg != 'None':
-                log.info('action: "{}", send message with squad channel: {}'.format(command, msg))
+                log.info('action: "{}", send message with squad channel: "{}"'.format(command, msg))
                 if messenger.has_channel('squad'):
                     self._lastActivity = currentTime
                     messenger.sendText('squad', msg)

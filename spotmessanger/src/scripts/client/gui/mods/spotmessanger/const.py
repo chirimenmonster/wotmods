@@ -20,12 +20,12 @@ class BATTLE_TYPE:
         ARENA_GUI_TYPE.SORTIE: 'Fortifications',
         ARENA_GUI_TYPE.FORT_BATTLE: 'Fortifications',
         ARENA_GUI_TYPE.RATED_CYBERSPORT: 'TeamBattle',
-        ARENA_GUI_TYPE.RATED_SANDBOX: 'unknwon',
+        ARENA_GUI_TYPE.RATED_SANDBOX: 'others',
         ARENA_GUI_TYPE.SANDBOX: 'ProvingGround',
         ARENA_GUI_TYPE.FALLOUT_CLASSIC: 'Fallout',
         ARENA_GUI_TYPE.FALLOUT_MULTITEAM: 'Fallout'
 	}
-    LIST = list(set(LABELS.values()))
+    LIST = list(set(LABELS.values())) + ['default']
 
 class VEHICLE_TYPE:
     LABELS = {
@@ -35,6 +35,7 @@ class VEHICLE_TYPE:
         VEHICLE_CLASS_NAME.AT_SPG: 'TD',
         VEHICLE_CLASS_NAME.SPG: 'SPG'
 	}
+    LIST = list(set(LABELS.values()))
 
 class COMMAND_TYPE:
     LIST = [ 'ping', 'help', 'teammsg', 'squadmsg' ]

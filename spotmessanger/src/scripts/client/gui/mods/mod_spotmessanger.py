@@ -5,8 +5,8 @@ from spotmessanger import log
 from spotmessanger.events import overrideMethod
 from spotmessanger.const import MOD_INFO
 from spotmessanger.settings import st_control
+from spotmessanger.inputhandler import im_control
 from spotmessanger.SpotMessanger import sm_control
-from spotmessanger.Plugin import im_control
 
 confFile = '../res_mods/configs/spotmessanger/spotmessanger.xml'
 
