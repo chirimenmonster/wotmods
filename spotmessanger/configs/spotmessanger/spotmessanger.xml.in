@@ -1,10 +1,11 @@
 
-<!-- SpotMessanger by Pleiadi -->
-<!-- Configuration by Kaeptn -->
+<!-- Original: SpotMessanger by Pleiadi -->
+<!-- Original: Configuration by Kaeptn -->
+<!-- Configuration by Chirimen -->
  
 <config.xml>
 
-    <Debug>true</Debug>
+    <Debug>{DEBUG}</Debug>
 
     <!-- Global settings -->
     
@@ -14,10 +15,10 @@
     <ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey> <!-- Press this hotkey to reload configuration. -->
 
     <!-- Message options -->
-    <ImSpotted>An enemy has spotted me at {pos}.</ImSpotted>
+    <ImSpotted>An enemy has spotted me at {{pos}}.</ImSpotted>
     <DisableSystemMsg>Sixth Sense Message disabled</DisableSystemMsg>
     <EnableSystemMsg>Sixth Sense Message enabled</EnableSystemMsg>
-    <CooldownMsg>Sixth Sense Message cooldown, rest {rest} sec.</CooldownMsg>
+    <CooldownMsg>Sixth Sense Message cooldown, rest {{rest}} sec.</CooldownMsg>
  
     <!-- Cooldown parameters -->
     <CooldownInterval>60</CooldownInterval>
@@ -31,7 +32,7 @@
             <!-- List for assign battle types -->
             <!-- BattleType may default/Random/Training/Company/TeamBattle/Fortifications/ProvingGround/Fallout -->
             <AssignBattleType>
-                <BattleType>default</BattleType>
+                <BattleType>default</BattleType> <!-- default when battle type is not found -->
             </AssignBattleType>
             <!-- Order of commands -->
             <!-- Command may ping/help/teammsg/squadmsg -->
@@ -60,7 +61,7 @@
         <!-- for Random Battle -->
         <BattleTypeParameter>
             <AssignBattleType>
-                <BattleType>Random</BattleType>
+                <BattleType>Random</BattleType> <!-- for Random Battle (Regular) -->
             </AssignBattleType>
             <CommandOrder>
                 <Command>squadmsg</Command>  <!-- Send Message to platoon chat. -->
@@ -81,8 +82,8 @@
         <!-- for Clan Battle -->
         <BattleTypeParameter>
             <AssignBattleType>
-                <BattleType>GlobalMap</BattleType>
-                <BattleType>Fortifications</BattleType>
+                <BattleType>GlobalMap</BattleType> <!-- for Global Map -->
+                <BattleType>Fortifications</BattleType> <!-- for Skirmish or Stronghold -->
             </AssignBattleType>
             <CommandOrder>
                 <Command>help</Command>

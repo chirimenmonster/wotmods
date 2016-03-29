@@ -23,6 +23,8 @@ DEFAULT_MOD_NAME     = "SpotMessanger"
 DEFAULT_MOD_VERSION  = "2.0-dev"
 DEFAULT_MOD_VERSION_LONG = DEFAULT_MOD_VERSION + " develop version"
 
+DEBUG = "True"
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--mod-version', default=DEFAULT_MOD_VERSION)
@@ -35,6 +37,9 @@ def main():
         ),
         "SpotMessanger.txt.in": dict(
             SUPPORT_URL = SUPPORT_URL
+        ),
+        "spotmessanger.xml.in": dict(
+            DEBUG = DEBUG
         )
     }
     packager = Packager(
