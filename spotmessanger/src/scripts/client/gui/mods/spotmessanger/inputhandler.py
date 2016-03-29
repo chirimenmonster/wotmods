@@ -1,7 +1,7 @@
 import game
 
-import log
-from ModUtils import FileUtils, HotKeysUtils, DecorateUtils
+from logger import log
+from ModUtils import HotKeysUtils
 
 class InputHandler(object):
     _handlers = {}

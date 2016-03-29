@@ -4,8 +4,7 @@
 
 """ XFW Library (c) www.modxvm.com 2013-2015 """
 
-#from logger import *
-import log
+from logger import log
 
 #####################################################################
 # EventHook
@@ -60,7 +59,6 @@ def __event_handler(prepend, e, m, *a, **k):
             e.fire(*a, **k)
         return r
     except:
-        #logtrace(__file__)
         log.current_exception()
 
 def _OverrideMethod(handler, cls, method):

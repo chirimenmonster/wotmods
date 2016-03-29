@@ -10,7 +10,7 @@ from messenger.gui.Scaleform.channels.bw_chat2.factories import BattleController
 from messenger.gui.Scaleform.channels.bw_chat2.battle_controllers import TeamChannelController, CommonChannelController, SquadChannelController
 from chat_shared import CHAT_COMMANDS
 
-import log
+from logger import log
 
 class IngameMessanger(object):
     _cooldDown = 0

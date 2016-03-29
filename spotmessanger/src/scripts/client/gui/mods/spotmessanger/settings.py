@@ -1,7 +1,7 @@
 
 import copy
 import ResMgr
-import log
+from logger import log
 from const import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
 from ModUtils import FileUtils
 
@@ -31,18 +31,23 @@ class Settings(object):
     def readConfig(self, file):
         log.info('config file: {}'.format(file))
         section = ResMgr.openSection(file)
+        
+        log.flgDebugMsg = self._templateGlobal['Debug']
+        if section and section.has_key('Debug'):
+            value = section['Debug'].asString.lower()
+            if value == 'true':
+                log.flgDebugMsg = True
+            elif value == 'false':
+                log.flgDebugMsg = False
+        
         if not section:
             log.warning('cannot open config file: {}'.format(file))
             self._settings = copy.copy(self._templateGlobal)
-            self._settings['default'] = self._templateBattleType
+            self._settings['default'] = copy.copy(self._templateBattleType)
         else:
-            if section['Debug'].asString.lower() == 'true':
-                log.flgDebugMsg = True
-            elif section['Debug'].asString.lower() == 'false':
-                log.flgDebugMsg = False
             self._settings = FileUtils.readElement(section, self._templateGlobal, file)
-            log.info('available battletype tags: {}'.format(BATTLE_TYPE.LIST))
             self._settings['BattleType'] = {}
+            log.info('available battletype tags: {}'.format(BATTLE_TYPE.LIST))
             for key, param in section['BattleTypeParameterList'].items():
                 log.debug('key={}'.format(key))
                 if key == 'BattleTypeParameter':
@@ -73,7 +78,7 @@ class Settings(object):
                     log.debug('found valid tag "{}" with valid item "{}", append to list.'.format(key, value))
                     list.append(value)
                 else:
-                    log.waring('found valid tag "{}" with invalid item "{}", available only {}'.format(key, value, items))                
+                    log.waring('found valid tag "{}", but invalid item "{}", available only {}'.format(key, value, items))
             else:
                 log.waring('found invalid tag "{}", available only "{}"'.format(key, tag))
         return list

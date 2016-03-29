@@ -5,12 +5,11 @@
 import math
 
 import BigWorld
-from gui.Scaleform.Battle import Battle
-from gui.shared.gui_items.Vehicle import VEHICLE_CLASS_NAME
-from ModUtils import BattleUtils,MinimapUtils,FileUtils,HotKeysUtils,DecorateUtils
+
+from ModUtils import BattleUtils, MinimapUtils
 from IngameMessanger import IngameMessanger
-import const
-import log
+from const import BATTLE_TYPE, VEHICLE_TYPE
+from logger import log
 
 class SpotMessanger(object):
     _isEnabled = True
@@ -131,13 +130,13 @@ class SpotMessanger(object):
 def _getBattleTypeName(player):
     import constants
     type = player.arena.guiType
-    name = const.BATTLE_TYPE.LABELS.get(type, 'Unknown')
+    name = BATTLE_TYPE.LABELS.get(type, 'others')
     log.debug('battle type: "{}" (official: {}:{})'.format(name, type, constants.ARENA_GUI_TYPE_LABEL.LABELS[type]))
     return name
 
 def _getVehicleTypeName(player):
     type = BattleUtils.getVehicleType(BattleUtils.getCurrentVehicleDesc(player))
-    name = const.VEHICLE_TYPE.LABELS[type]
+    name = VEHICLE_TYPE.LABELS[type]
     log.debug('vehicle type: "{}"'.format(name))
     return name	
 

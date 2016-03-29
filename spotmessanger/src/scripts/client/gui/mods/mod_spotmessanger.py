@@ -1,9 +1,9 @@
 import game
 from PlayerEvents import g_playerEvents
 from gui.Scaleform.Battle import Battle
-from spotmessanger import log
+from spotmessanger.logger import log
 from spotmessanger.events import overrideMethod
-from spotmessanger.const import MOD_INFO
+from spotmessanger.version import MOD_INFO
 from spotmessanger.settings import st_control
 from spotmessanger.inputhandler import im_control
 from spotmessanger.SpotMessanger import sm_control
@@ -15,8 +15,7 @@ def init():
 
     try:
         log.info(MOD_INFO.NAME + ' ' + MOD_INFO.VERSION_LONG)
-        log.flgDebugMsg = True
-        settings = _readConfig()
+        settings = _readConfig(confFile)
 		
         log.debug('set key event handlers')
         im_control.addEventHandler(settings['ReloadConfigKey'], _readConfig)
@@ -28,9 +27,8 @@ def init():
         log.current_exception()
 
 
-def _readConfig():
-    settings = st_control.readConfig(confFile)
-    log.flgDebugMsg = settings['Debug']
+def _readConfig(file):
+    settings = st_control.readConfig(file)
     log.debug('settings = {}'.format(str(settings)))
     sm_control.setConfig(settings)
     return settings

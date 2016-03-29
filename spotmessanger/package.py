@@ -15,19 +15,23 @@ CONF_DIR             = os.path.join(ROOT_DIR, "configs")
 PACKAGE_ROOT_DIR     = os.path.join("res_mods")
 PACKAGE_SCRIPT_DIR   = os.path.join("res_mods", WOT_VERSION)
 PACKAGE_CONF_DIR     = os.path.join("res_mods", "configs")
-DEFAULT_MOD_VERSION  = "2.0-dev"
 BUILD_DIR            = os.path.join(os.getcwd(), "build")
 BUILD_SCRIPT_DIR     = os.path.join(os.getcwd(), "build", WOT_VERSION)
 BUILD_CONF_DIR       = os.path.join(os.getcwd(), "build", "configs")
+
+DEFAULT_MOD_NAME     = "SpotMessanger"
+DEFAULT_MOD_VERSION  = "2.0-dev"
+DEFAULT_MOD_VERSION_LONG = DEFAULT_MOD_VERSION + " develop version"
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--mod-version', default=DEFAULT_MOD_VERSION)
     args = parser.parse_args()
     in_file_parameters = {
-        "build_info.py.in": dict(
+        "version.py.in": dict(
+            MOD_NAME = DEFAULT_MOD_NAME,
             MOD_VERSION = args.mod_version,
-            SUPPORT_URL = SUPPORT_URL
+            MOD_VERSION_LONG = DEFAULT_MOD_VERSION_LONG
         ),
         "SpotMessanger.txt.in": dict(
             SUPPORT_URL = SUPPORT_URL

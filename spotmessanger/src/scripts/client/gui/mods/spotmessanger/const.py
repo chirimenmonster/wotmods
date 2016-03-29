@@ -2,11 +2,6 @@
 from constants import ARENA_GUI_TYPE
 from gui.shared.gui_items.Vehicle import VEHICLE_CLASS_NAME
 
-class MOD_INFO:
-    NAME ='SpotMessanger'
-    VERSION = '2.0-dev'
-    VERSION_LONG = 'development version'
-
 class BATTLE_TYPE:
     LABELS = {
         ARENA_GUI_TYPE.UNKNOWN: 'GlobalMap',	
