@@ -19,11 +19,15 @@ BUILD_DIR            = os.path.join(os.getcwd(), "build")
 BUILD_SCRIPT_DIR     = os.path.join(os.getcwd(), "build", WOT_VERSION)
 BUILD_CONF_DIR       = os.path.join(os.getcwd(), "build", "configs")
 
-DEFAULT_MOD_NAME     = "SpotMessanger"
-DEFAULT_MOD_VERSION  = "2.0-dev"
-DEFAULT_MOD_VERSION_LONG = DEFAULT_MOD_VERSION + " develop version"
+sys.dont_write_bytecode = True
+sys.path.append('./src/scripts/client/gui/mods')
+from spotmessanger.version import MOD_INFO
 
-DEBUG = "True"
+DEFAULT_MOD_NAME     = MOD_INFO.NAME
+DEFAULT_MOD_VERSION  = MOD_INFO.VERSION
+DEFAULT_MOD_VERSION_LONG = MOD_INFO.VERSION_LONG
+
+DEBUG = MOD_INFO.DEBUG
 
 def main():
     parser = argparse.ArgumentParser()
