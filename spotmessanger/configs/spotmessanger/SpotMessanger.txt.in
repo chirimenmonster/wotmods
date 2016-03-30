@@ -8,36 +8,96 @@ where
  - [game_root] is your World of Tanks installation directory
 
 Config
-  If 'Fallback parameter' is not found in 'per BattleType parameter' section, use in 'Global Parameter' section.
+  If 'Fallback parameter' is not found in 'per BattleType parameter' section,
+  use value in 'Global Parameter' section.
+
  - Global parameter
-     Debug
-        bool: flag if enable output debug message to python.log
-     ActiveByDefault
-        bool: flag if enable SpotMessanger when battle startup
-     ActivationHotKey
-        string: key name for toggle activate SpotMessanger 
-     ReloadConfigKey
-        string: key name for reload config file
-     ImSpotted
-        string: message when spotted to send team/squad chat channel, {{pos}} is spotted position
-     DisableSystemMsg
-        string: message when disable mod
-     EnableSystemMsg
-        string: message when enable mod
-     CooldownMsg
-        string: message when spotted in cooldown time 
+    Debug
+        Description: flag if enable output debug message to python.log
+        Type: bool
+        Context: root
+    ActiveByDefault
+        Description: flag if enable SpotMessanger when battle startup
+        Type: bool
+        Context: root
+    ActivationHotKey
+        Description: key name for toggle activate SpotMessanger
+        Type: string
+        Context: root
+    ReloadConfigKey
+        Description: key name for reload config file
+        Type: string
+        Context: root
+    ImSpotted
+        Description: message when spotted to send team/squad chat channel,
+            {{pos}} is spotted position
+        Type: string
+        Context: root
+    DisableSystemMsg
+        Description: message when disable mod
+        Type: string
+        Context: root
+    EnableSystemMsg
+        Description: message when enable mod
+        Type: string
+        Context: root
+    CooldownMsg
+        Description: message when spotted in cooldown time
+        Type: string
+        Context: root
+    BattleTypeParameterList
+        Description: list of settings for each battle types
+        Type: list of BattleTypeParameter
+        Context: root
+
  - Fallback parameter
-     CooldownInterval
-        float: second of cooldown interval from last sixth sense
-     TextDelay
-        float: second of delay to next command
-     CommandDelay
-        float: second of delay to next command
+    CooldownInterval
+        Description: seconds of cooldown interval from last sixth sense
+        Type: float
+        Context: root, BattleTypeParameter
+    TextDelay
+        Description: seconds of delay to next command
+        Type: float
+        Context: root, BattleTypeParameter
+    CommandDelay
+        Description: seconds of delay to next command
+        Type: float
+        Context: root, BattleTypeParameter
+        
+ - container
+    BattleTypeParameter
+        Description: container of parameter set for battle type
+        Type: tree
+        Context: BattleTypeParameterList
+    AssignBattleType
+        Description: list of specify battle types to current context
+        Type: list of BattleType
+        Context: BattleTypeParameter
+    BattleType
+        Description: specify battle type
+        Type: string; one of [ default | Random | Company | TeamBattle |
+            Fortifications | ProvingGround | Fallout | others ]
+        Context: AssignBattleType
+        
  - per BattleTytpe parameter
-     CommandOrder
-        list: order of command when spotted, Command may ping/help/teammsg/squadmsg
-     MaxTeamAmount
-        int: threshold of team amount for activate sixth sense message, 0 is always active sixth sense message
-     EnableVehicleType     
-        list: vehicle type for enable sixth sense message, VehicleType may LT/MT/HT/TD/SPG
- 
+    CommandOrder
+        Description: order of command when spotted
+        Type: list of Command
+        Context: BattleTypeParameter
+    Command
+        Description: specify command when sixth sense
+        Type: string; one of [ ping | help | teammsg | squadmsg ]
+        Context: CommandOrder
+    MaxTeamAmount
+        Description: threshold of team amount for activate sixth sense message,
+            0 is always active sixth sense message
+        Type: int
+        Context: BattleTypeParameter
+    EnableVehicleType     
+        Description: vehicle type for enable sixth sense message
+        Type: list of VehicleType
+        Context: BattleTypeParameter
+    VehicleType
+        Description: specify vehicle type
+        Type: string; one of [ LT | MT | HT | TD | SPG ]
+        Context: EnableVehicleType
