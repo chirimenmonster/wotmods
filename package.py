@@ -37,7 +37,7 @@ def main():
     parser.add_argument('--mod-debug',   default=MOD_INFO.DEBUG)
     args = parser.parse_args()
     in_file_parameters = {
-        "SpotMessanger.txt.in": dict(
+        "spotmessanger.txt.in": dict(
             SUPPORT_URL = SUPPORT_URL
         ),
         "spotmessanger.xml.in": dict(

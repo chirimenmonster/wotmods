@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# @author: BirrettaMalefica EU
+# @author: BirrettaMalefica EU, Chirimen SEA
 
 import math
-
 import BigWorld
 
 from ModUtils import BattleUtils, MinimapUtils
