@@ -2,7 +2,7 @@
 import copy
 import ResMgr
 from logger import log
-from const import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
+from modconsts import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
 from ModUtils import FileUtils
 
 class Settings(object):

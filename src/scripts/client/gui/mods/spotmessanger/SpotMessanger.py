@@ -8,7 +8,7 @@ import BigWorld
 
 from ModUtils import BattleUtils, MinimapUtils
 from IngameMessanger import IngameMessanger
-from const import BATTLE_TYPE, VEHICLE_TYPE
+from modconsts import BATTLE_TYPE, VEHICLE_TYPE
 from logger import log
 
 class SpotMessanger(object):
