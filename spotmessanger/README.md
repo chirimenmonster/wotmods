@@ -38,13 +38,14 @@ Default settings
 Customize
 ---------
 
-config file: res_mods/configs/spotmessanger/spotmessanger.xml
-document: res_mods/configs/spotmessanger/spotmessanger.txt
++ config file: res_mods/configs/spotmessanger/spotmessanger.xml
++ document: res_mods/configs/spotmessanger/spotmessanger.txt
 
 
 ChangeLog
 ---------
 
-0.1.0 first release
-    this project forked form original SpotMessanger of BirrettaMalefica.
-    for WoT version 0.9.14.
+### 0.1.0 first release
++ forked form original project of BirrettaMalefica.
++ for WoT version 0.9.14.
++ change install folder, and CameraNode.pyc is obsolete.
