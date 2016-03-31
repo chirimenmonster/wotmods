@@ -23,7 +23,7 @@ MOD_BASE_DIR         = os.path.join(SRC_DIR, "scripts", "client", "gui", "mods")
 
 DIRECT_FILES = map(os.path.normpath, [
     os.path.join(ROOT_DIR, "..", "LICENSE"),
-    os.path.join(ROOT_DIR, "README.md")
+    os.path.join(ROOT_DIR, "..", "README.md")
 ])
 
 sys.dont_write_bytecode = True
