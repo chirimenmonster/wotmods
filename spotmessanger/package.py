@@ -12,38 +12,36 @@ SUPPORT_URL          = ""
 ROOT_DIR             = os.path.dirname(os.path.realpath(__file__))
 SRC_DIR              = os.path.join(ROOT_DIR, "src")
 CONF_DIR             = os.path.join(ROOT_DIR, "configs")
-PACKAGE_ROOT_DIR     = os.path.join("res_mods")
-PACKAGE_SCRIPT_DIR   = os.path.join("res_mods", WOT_VERSION)
-PACKAGE_CONF_DIR     = os.path.join("res_mods", "configs")
+PACKAGE_ROOT_DIR     = ""
+PACKAGE_SCRIPT_DIR   = os.path.join(PACKAGE_ROOT_DIR, "res_mods", WOT_VERSION)
+PACKAGE_CONF_DIR     = os.path.join(PACKAGE_ROOT_DIR, "res_mods", "configs")
 BUILD_DIR            = os.path.join(os.getcwd(), "build")
-BUILD_SCRIPT_DIR     = os.path.join(os.getcwd(), "build", WOT_VERSION)
-BUILD_CONF_DIR       = os.path.join(os.getcwd(), "build", "configs")
+BUILD_SCRIPT_DIR     = os.path.join(BUILD_DIR, "res_mods", WOT_VERSION)
+BUILD_CONF_DIR       = os.path.join(BUILD_DIR, "res_mods", "configs")
+
+MOD_BASE_DIR         = os.path.join(SRC_DIR, "scripts", "client", "gui", "mods")
+
+DIRECT_FILES = map(os.path.normpath, [
+    os.path.join(ROOT_DIR, "..", "LICENSE"),
+    os.path.join(ROOT_DIR, "README.md")
+])
 
 sys.dont_write_bytecode = True
-sys.path.append('./src/scripts/client/gui/mods')
+sys.path.append(MOD_BASE_DIR)
 from spotmessanger.version import MOD_INFO
-
-DEFAULT_MOD_NAME     = MOD_INFO.NAME
-DEFAULT_MOD_VERSION  = MOD_INFO.VERSION
-DEFAULT_MOD_VERSION_LONG = MOD_INFO.VERSION_LONG
-
-DEBUG = MOD_INFO.DEBUG
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mod-version', default=DEFAULT_MOD_VERSION)
+    parser.add_argument('--mod-name',    default=MOD_INFO.NAME)
+    parser.add_argument('--mod-version', default=MOD_INFO.VERSION)
+    parser.add_argument('--mod-debug',   default=MOD_INFO.DEBUG)
     args = parser.parse_args()
     in_file_parameters = {
-        "version.py.in": dict(
-            MOD_NAME = DEFAULT_MOD_NAME,
-            MOD_VERSION = args.mod_version,
-            MOD_VERSION_LONG = DEFAULT_MOD_VERSION_LONG
-        ),
         "SpotMessanger.txt.in": dict(
             SUPPORT_URL = SUPPORT_URL
         ),
         "spotmessanger.xml.in": dict(
-            DEBUG = DEBUG
+            DEBUG = args.mod_debug
         )
     }
     packager = Packager(
@@ -52,7 +50,7 @@ def main():
         build_dir             = BUILD_DIR,
         build_script_dir      = BUILD_SCRIPT_DIR,
         build_conf_dir        = BUILD_CONF_DIR,
-        package_path          = os.path.join(os.getcwd(), "spotmessanger-{0}.zip".format(args.mod_version)),
+        package_path          = os.path.join(os.getcwd(), "{name}-{version}.zip".format(name=args.mod_name.lower(), version=args.mod_version)),
         package_root_dir      = PACKAGE_ROOT_DIR,
         package_script_dir    = PACKAGE_SCRIPT_DIR,
         package_conf_dir      = PACKAGE_CONF_DIR,
@@ -61,7 +59,6 @@ def main():
     )
     packager.create()
     print "Package file path:", packager.get_package_path()
-    print "Package root path:", packager.get_package_root_path()
 
 def accepts_extensions(extensions):
     '''Decorator function which allows call to pass to the decorated function
@@ -115,6 +112,7 @@ class Packager(object):
         self.__remove_old_package()
         self.__build_files(self.__iterate_src_filepaths(self.__src_dir))
         self.__build_files(self.__iterate_src_filepaths(self.__conf_dir))
+        self.__build_files(DIRECT_FILES)
         self.__package_files()
 
     def __remove_build_dir(self):
@@ -151,7 +149,7 @@ class Packager(object):
         # compile source py-file into bytecode pyc-file
         py_compile.compile(file=src_filepath, cfile=build_filepath, dfile=debug_filepath, doraise=True)
 
-    @accepts_extensions([".swf", ".txt", ".json", ".xml", ".png"])
+    @accepts_extensions([".swf", ".txt", ".json", ".xml", ".png"] + map(os.path.basename, DIRECT_FILES))
     def __copy_file(self, src_filepath):
         '''Simply copies file at 'src_filepath' to build dir.'''
         build_filepath = self.__src_path_to_build_path(src_filepath)
@@ -173,10 +171,11 @@ class Packager(object):
 
     def __src_path_to_build_path(self, src_path):
         # ${SRC_DIR}/whereever/whatever --> ${BUILD_DIR}/whereever/whatever
-		if self.__src_dir in src_path:
-			return src_path.replace(self.__src_dir, self.__build_script_dir)
-		if self.__conf_dir in src_path:
-			return src_path.replace(self.__conf_dir, self.__build_conf_dir)
+	if self.__src_dir in src_path:
+	    return src_path.replace(self.__src_dir, self.__build_script_dir)
+	if self.__conf_dir in src_path:
+	    return src_path.replace(self.__conf_dir, self.__build_conf_dir)
+        return os.path.join(self.__build_dir, os.path.basename(src_path))
 
     def __make_parent_dirs(self, filepath):
         '''Creates any missing parent directories of file indicated in 'filepath'.'''
