@@ -3,7 +3,7 @@
 <!-- Original: Configuration by Kaeptn -->
 <!-- Configuration by Chirimen -->
  
-<config.xml>
+<root>
 
     <Debug>{DEBUG}</Debug>
 
@@ -37,7 +37,7 @@
             <!-- Order of commands -->
             <!-- Command may ping/help/teammsg/squadmsg -->
             <CommandOrder>
-                <Command>ping</Command> <!-- Ping the minimap square you are in when the perk activates. -->
+                <!-- Command>ping</Command --> <!-- Ping the minimap square you are in when the perk activates. -->
                 <Command>help</Command> <!-- Send "Help!" quick command (F7) when the perk activates. -->
                 <Command>teammsg</Command> <!-- Send Message to team chat. -->
             </CommandOrder>
@@ -98,10 +98,10 @@
             </EnableVehicleType>
             <MaxTeamAmount>0</MaxTeamAmount>
             <CooldownInterval>30</CooldownInterval>
-            <TextDelay>0.2</TextDelay>
-            <CommandDelay>1</CommandDelay>
+            <TextDelay>0.5</TextDelay>
+            <CommandDelay>5</CommandDelay>
         </BattleTypeParameter>
 
     </BattleTypeParameterList>
     
-</config.xml>
+</root>
