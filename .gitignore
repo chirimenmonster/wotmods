@@ -2,8 +2,12 @@ libs/
 files/originals/
 files/pyd/
 private/
+*~
 *.bat
 *.project
 *.pydevproject
+*.pyc
+*.zip
 py.exe
-*~
+package/
+build/

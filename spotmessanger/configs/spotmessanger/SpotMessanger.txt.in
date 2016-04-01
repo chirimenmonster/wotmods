@@ -1,8 +1,0 @@
-SpotMessanger is mod for World of Tanks.
-
-Installation:
- - extract the archive to your game root.
- - To configure, edit [game_root]/res_mods/configs/spotmessanger/spotmessanger.xml.
-
-where
- - [game_root] is your Wolrd of Tanks installation directory
