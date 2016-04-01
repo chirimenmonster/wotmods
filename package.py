@@ -21,10 +21,10 @@ BUILD_CONF_DIR       = os.path.join(BUILD_DIR, "res_mods", "configs")
 
 MOD_BASE_DIR         = os.path.join(SRC_DIR, "scripts", "client", "gui", "mods")
 
-DIRECT_FILES = map(os.path.normpath, [
+DIRECT_FILES = [
     os.path.join(ROOT_DIR, "LICENSE"),
     os.path.join(ROOT_DIR, "README.md")
-])
+]
 
 sys.dont_write_bytecode = True
 sys.path.append(MOD_BASE_DIR)
@@ -44,13 +44,16 @@ def main():
             DEBUG = args.mod_debug
         )
     }
+    package_name = "{name}-{version}.zip".format(name=args.mod_name.lower(), version=args.mod_version)
     packager = Packager(
+        root_dir              = ROOT_DIR,
         src_dir               = SRC_DIR,
         conf_dir              = CONF_DIR,
+        direct_files          = DIRECT_FILES,
         build_dir             = BUILD_DIR,
         build_script_dir      = BUILD_SCRIPT_DIR,
         build_conf_dir        = BUILD_CONF_DIR,
-        package_path          = os.path.join(os.getcwd(), "{name}-{version}.zip".format(name=args.mod_name.lower(), version=args.mod_version)),
+        package_path          = os.path.join(os.getcwd(), package_name),
         package_root_dir      = PACKAGE_ROOT_DIR,
         package_script_dir    = PACKAGE_SCRIPT_DIR,
         package_conf_dir      = PACKAGE_CONF_DIR,
@@ -83,18 +86,20 @@ class CallbackList(object):
 
 class Packager(object):
 
-    def __init__(self, src_dir, conf_dir, build_dir, build_script_dir, build_conf_dir, package_path, package_root_dir, package_script_dir, package_conf_dir, in_file_parameters, ignored_file_patterns=[]):
-        self.__src_dir = os.path.normpath(src_dir)
-        self.__conf_dir = os.path.normpath(conf_dir)
-        self.__build_dir = os.path.normpath(build_dir)
-        self.__build_script_dir = os.path.normpath(build_script_dir)
-        self.__build_conf_dir = os.path.normpath(build_conf_dir)
-        self.__package_path = package_path
-        self.__package_root_dir = package_root_dir
-        self.__package_script_dir = package_script_dir
-        self.__package_conf_dir = package_conf_dir
-        self.__in_file_parameters = in_file_parameters
-        self.__ignored_file_patterns = ignored_file_patterns
+    def __init__(self, **dict):
+        self.__root_dir = os.path.normpath(dict['root_dir'])
+        self.__src_dir = os.path.normpath(dict['src_dir'])
+        self.__conf_dir = os.path.normpath(dict['conf_dir'])
+        self.__direct_files = map(os.path.normpath, dict['direct_files'])
+        self.__build_dir = os.path.normpath(dict['build_dir'])
+        self.__build_script_dir = os.path.normpath(dict['build_script_dir'])
+        self.__build_conf_dir = os.path.normpath(dict['build_conf_dir'])
+        self.__package_path = dict['package_path']
+        self.__package_root_dir = dict['package_root_dir']
+        self.__package_script_dir = dict['package_script_dir']
+        self.__package_conf_dir = dict['package_conf_dir']
+        self.__in_file_parameters = dict['in_file_parameters']
+        self.__ignored_file_patterns = dict['ignored_file_patterns']
         self.__builders = CallbackList(
             self.__compile_py_file,
             self.__copy_file,
@@ -171,11 +176,13 @@ class Packager(object):
 
     def __src_path_to_build_path(self, src_path):
         # ${SRC_DIR}/whereever/whatever --> ${BUILD_DIR}/whereever/whatever
-	if self.__src_dir in src_path:
-	    return src_path.replace(self.__src_dir, self.__build_script_dir)
-	if self.__conf_dir in src_path:
-	    return src_path.replace(self.__conf_dir, self.__build_conf_dir)
-        return os.path.join(self.__build_dir, os.path.basename(src_path))
+        if self.__src_dir in src_path:
+            return src_path.replace(self.__src_dir, self.__build_script_dir)
+        if self.__conf_dir in src_path:
+            return src_path.replace(self.__conf_dir, self.__build_conf_dir)
+        if src_path in self.__direct_files:
+            return src_path.replace(self.__root_dir, self.__build_dir)
+        print 'warning: unknwon file, {}'.format(src_path)
 
     def __make_parent_dirs(self, filepath):
         '''Creates any missing parent directories of file indicated in 'filepath'.'''
