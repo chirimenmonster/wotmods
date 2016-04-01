@@ -98,8 +98,8 @@
             </EnableVehicleType>
             <MaxTeamAmount>0</MaxTeamAmount>
             <CooldownInterval>30</CooldownInterval>
-            <TextDelay>0.2</TextDelay>
-            <CommandDelay>1</CommandDelay>
+            <TextDelay>0.5</TextDelay>
+            <CommandDelay>5</CommandDelay>
         </BattleTypeParameter>
 
     </BattleTypeParameterList>
