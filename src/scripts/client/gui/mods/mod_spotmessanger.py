@@ -1,6 +1,9 @@
+from functools import partial
+
 import game
 from PlayerEvents import g_playerEvents
 from gui.Scaleform.Battle import Battle
+
 from spotmessanger.logger import log
 from spotmessanger.events import overrideMethod
 from spotmessanger.version import MOD_INFO
@@ -18,7 +21,7 @@ def init():
         settings = _readConfig(confFile)
 		
         log.debug('set key event handlers')
-        im_control.addEventHandler(settings['ReloadConfigKey'], _readConfig)
+        im_control.addEventHandler(settings['ReloadConfigKey'], partial(_readConfig, confFile))
         im_control.addEventHandler(settings['ActivationHotKey'], _toggleActive)
         
         g_playerEvents.onAvatarReady += _on_avatar_ready
