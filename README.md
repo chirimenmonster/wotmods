@@ -45,6 +45,12 @@ Customize
 
 ChangeLog
 ---------
+### 0.2.0
++ for WoT version 0.9.14.1.
++ changed style config file.
++ some settings can be set individually for each battle type, random, training, and so on.
++ can be specified order of commands, send chat message, radio command help, minimap ping.
++ add new feature, cooldown interval after sixth sense message, default is 60 sec, only clan wars 30 sec.
 
 ### 0.1.0 first release
 + forked form original project of BirrettaMalefica.
