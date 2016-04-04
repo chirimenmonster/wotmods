@@ -32,13 +32,13 @@ class Settings(object):
         log.info('config file: {}'.format(file))
         section = ResMgr.openSection(file)
         
-        log.flgDebugMsg = self._templateGlobal['Debug']
+        log.setDebug(self._templateGlobal['Debug'])
         if section and section.has_key('Debug'):
             value = section['Debug'].asString.lower()
             if value == 'true':
-                log.flgDebugMsg = True
+                log.setDebug(True)
             elif value == 'false':
-                log.flgDebugMsg = False
+                log.setDebug(False)
         
         if not section:
             log.warning('cannot open config file: {}'.format(file))
