@@ -25,33 +25,40 @@ class SpotMessanger(object):
         return value
 
     def initialize(self):
+        from items.vehicles import getVehicleClass
         self._isEnabled = self._settings['ActiveByDefault']
         self._lastActivity = 0
         self._player = BattleUtils.getPlayer()
-        self._currentBattleType = _getBattleTypeName(self._player)
-        self._currentVehicleType = _getVehicleTypeName(self._player)
 
-        self._currentParam = self._settings['BattleType'].get(self._currentBattleType, None)
+        arenaType = self._player.arena.guiType
+        battleType = BATTLE_TYPE.LABELS.get(arenaType, 'others')
+
+        vehicle = BigWorld.entity(self._player.playerVehicleID)
+        vehicleClass = getVehicleClass(vehicle.typeDescriptor.type.compactDescr)
+        vehicleType = VEHICLE_TYPE.LABELS[getVehicleClass(vehicle.typeDescriptor.type.compactDescr)]
+        log.debug('Vehicle Class: {} [{}] ({})'.format(vehicleType, vehicleClass, vehicle.typeDescriptor.type.name))
+        
+        self._currentParam = self._settings['BattleType'].get(battleType, None)
         if not self._currentParam:
-            log.debug('setting for battle type "{}" is none, use default'.format(self._currentBattleType))
+            log.debug('setting for battle type "{}" is none, use default'.format(battleType))
             self._currentParam = self._settings['BattleType'].get('default')
 
         self._cooldownInterval = self.getFallbackParam('CooldownInterval')
         self._commandDelay = self.getFallbackParam('CommandDelay')
         self._textDelay = self.getFallbackParam('TextDelay')
 
-        self._isEnabledVehicle = self._currentVehicleType in self._currentParam['EnableVehicleType']
+        self._isEnabledVehicle = vehicleType in self._currentParam['EnableVehicleType']
         
         self.showCurrentMode()
-        log.info('Battle Type: {}'.format(self._currentBattleType))
+        log.info('Battle Type: {} [{}({}) = "{}"]'.format(battleType, BATTLE_TYPE.WOT_ATTR_NAME[arenaType], arenaType, BATTLE_TYPE.WOT_LABELS[arenaType]))
         log.info('CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(self._cooldownInterval, self._commandDelay, self._textDelay))
         log.info('Command Order: {}'.format(self._currentParam.get('CommandOrder', [])))
         log.info('Max Team Amount: {}'.format(self._currentParam.get('MaxTeamAmount')))
         log.info('Enable Vehicle Type: {}'.format(self._currentParam.get('EnableVehicleType')))
         if self._isEnabledVehicle:
-            log.info('current vehicle type is {}, sixth sense message is enable.'.format(self._currentVehicleType))
+            log.info('current vehicle type is {}, sixth sense message is enable.'.format(vehicleType))
         else:
-            log.info('current vehicle type is {}, sixth sense message is disabled.'.format(self._currentVehicleType))
+            log.info('current vehicle type is {}, sixth sense message is disabled.'.format(vehicleType))
 
 
     def toggleActive(self):
@@ -123,21 +130,6 @@ class SpotMessanger(object):
                     messenger.sendText('squad', msg)
                 else:
                     log.info('action: "{}", no squad channel found.'.format(command))
-
-
-
-def _getBattleTypeName(player):
-    import constants
-    type = player.arena.guiType
-    name = BATTLE_TYPE.LABELS.get(type, 'others')
-    log.debug('battle type: "{}" (official: {}:{})'.format(name, type, constants.ARENA_GUI_TYPE_LABEL.LABELS[type]))
-    return name
-
-def _getVehicleTypeName(player):
-    type = BattleUtils.getVehicleType(BattleUtils.getCurrentVehicleDesc(player))
-    name = VEHICLE_TYPE.LABELS[type]
-    log.debug('vehicle type: "{}"'.format(name))
-    return name	
 
 
 sm_control = SpotMessanger()

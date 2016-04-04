@@ -31,14 +31,11 @@ class Settings(object):
     def readConfig(self, file):
         log.info('config file: {}'.format(file))
         section = ResMgr.openSection(file)
-        
-        log.setDebug(self._templateGlobal['Debug'])
-        if section and section.has_key('Debug'):
-            value = section['Debug'].asString.lower()
-            if value == 'true':
-                log.setDebug(True)
-            elif value == 'false':
-                log.setDebug(False)
+
+        debug = self._templateGlobal['Debug']
+        if section:
+            debug = section.readBool('Debug', debug)
+        log.setDebug(debug)
         
         if not section:
             log.warning('cannot open config file: {}'.format(file))
