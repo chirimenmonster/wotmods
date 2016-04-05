@@ -3,12 +3,12 @@
 # @author: BirrettaMalefica EU, Chirimen SEA
 
 import math
-import BigWorld
 
 from ModUtils import BattleUtils, MinimapUtils
 from IngameMessanger import IngameMessanger
-from modconsts import BATTLE_TYPE, VEHICLE_TYPE
 from logger import log
+
+from wotapis import VehicleInfo, ArenaInfo, getBattleTime
 
 class SpotMessanger(object):
     _isEnabled = True
@@ -25,22 +25,19 @@ class SpotMessanger(object):
         return value
 
     def initialize(self):
-        from items.vehicles import getVehicleClass
         self._isEnabled = self._settings['ActiveByDefault']
         self._lastActivity = 0
         self._player = BattleUtils.getPlayer()
 
-        arenaType = self._player.arena.guiType
-        battleType = BATTLE_TYPE.LABELS.get(arenaType, 'others')
+        arena = ArenaInfo(player=self._player)
 
-        vehicle = BigWorld.entity(self._player.playerVehicleID)
-        vehicleClass = getVehicleClass(vehicle.typeDescriptor.type.compactDescr)
-        vehicleType = VEHICLE_TYPE.LABELS[getVehicleClass(vehicle.typeDescriptor.type.compactDescr)]
-        log.debug('Vehicle Class: {} [{}] ({})'.format(vehicleType, vehicleClass, vehicle.typeDescriptor.type.name))
+        vehicle = VehicleInfo(self._player.playerVehicleID)
+        vehicleType = vehicle.classAbbr
+        log.debug('Vehicle Class: {} [{}] ({})'.format(vehicleType, vehicle.className, vehicle.name))
         
-        self._currentParam = self._settings['BattleType'].get(battleType, None)
+        self._currentParam = self._settings['BattleType'].get(arena.battleType, None)
         if not self._currentParam:
-            log.debug('setting for battle type "{}" is none, use default'.format(battleType))
+            log.debug('setting for battle type "{}" is none, use default'.format(arena.battleType))
             self._currentParam = self._settings['BattleType'].get('default')
 
         self._cooldownInterval = self.getFallbackParam('CooldownInterval')
@@ -50,13 +47,13 @@ class SpotMessanger(object):
         self._isEnabledVehicle = vehicleType in self._currentParam['EnableVehicleType']
         
         self.showCurrentMode()
-        log.info('Battle Type: {} [{}({}) = "{}"]'.format(battleType, BATTLE_TYPE.WOT_ATTR_NAME[arenaType], arenaType, BATTLE_TYPE.WOT_LABELS[arenaType]))
+        log.info('Battle Type: {} [{}({}) = "{}"]'.format(arena.battleType, arena.attrLabel, arena.id, arena.name))
         log.info('CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(self._cooldownInterval, self._commandDelay, self._textDelay))
         log.info('Command Order: {}'.format(self._currentParam.get('CommandOrder', [])))
         log.info('Max Team Amount: {}'.format(self._currentParam.get('MaxTeamAmount')))
         log.info('Enable Vehicle Type: {}'.format(self._currentParam.get('EnableVehicleType')))
         if self._isEnabledVehicle:
-            log.info('current vehicle type is {}, sixth sense message is enable.'.format(vehicleType))
+            log.info('current vehicle type is {}, sixth sense message is enabled.'.format(vehicleType))
         else:
             log.info('current vehicle type is {}, sixth sense message is disabled.'.format(vehicleType))
 
@@ -85,7 +82,7 @@ class SpotMessanger(object):
         if not self._isEnabled or not self._isEnabledVehicle:
             return
 
-        currentTime = BigWorld.time()
+        currentTime = getBattleTime()
         if self._isCooldown(currentTime):
             return
         log.debug('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
