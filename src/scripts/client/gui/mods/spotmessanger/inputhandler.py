@@ -1,22 +1,26 @@
-import game
+import Keys
 
 from logger import log
-from ModUtils import HotKeysUtils
 
 class InputHandler(object):
     _handlers = {}
 
     def handleKeyEvent(self, event):
-        isDown, key, mods, isRepeat = game.convertKeyEvent(event)
-        if not isRepeat and isDown:
-            for k, handler in self._handlers.iteritems():
-                if HotKeysUtils.keysMatch([key], HotKeysUtils.parseHotkeys(k)):
-                    try:
-                        handler()
-                    except Exception:
-                        log.current_exception()
+        if event.isKeyDown() and not event.isRepeatedEvent():
+            handler = self._handlers.get(event.key, None)
+            if handler:
+                try:
+                    handler()
+                except Exception:
+                    log.current_exception()
 
-    def addEventHandler(self, key, callback):
+    def addEventHandler(self, keyName, callback):
+        key = getattr(Keys, keyName, None)
+        if not key:
+            log.warning('unknown key: "{}"'.format(keyName))
+            return
         self._handlers[key] = callback
 
+
 im_control = InputHandler()
+

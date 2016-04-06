@@ -4,11 +4,18 @@
 
 import math
 
+from modconsts import COMMAND_TYPE
 from ModUtils import BattleUtils, MinimapUtils
+from wotapis import Utils, VehicleInfo, ArenaInfo
 from IngameMessanger import IngameMessanger
 from logger import log
 
-from wotapis import VehicleInfo, ArenaInfo, getBattleTime
+_commandMethod = {
+    COMMAND_TYPE.LABELS.PING: '_doPing',
+    COMMAND_TYPE.LABELS.HELP: '_doHelp',
+    COMMAND_TYPE.LABELS.TEAMMSG: '_doSendTeamMsg',
+    COMMAND_TYPE.LABELS.SQUADMSG: '_doSendSquadMsg'
+}
 
 class SpotMessanger(object):
     _isEnabled = True
@@ -27,13 +34,11 @@ class SpotMessanger(object):
     def initialize(self):
         self._isEnabled = self._settings['ActiveByDefault']
         self._lastActivity = 0
-        self._player = BattleUtils.getPlayer()
 
-        arena = ArenaInfo(player=self._player)
-
-        vehicle = VehicleInfo(self._player.playerVehicleID)
-        vehicleType = vehicle.classAbbr
-        log.debug('Vehicle Class: {} [{}] ({})'.format(vehicleType, vehicle.className, vehicle.name))
+        player = Utils.getPlayer()
+        arena = ArenaInfo(player=player)
+        vehicle = VehicleInfo(player=player)
+        log.debug('Vehicle Class: {} [{}] ({})'.format(vehicle.classAbbr, vehicle.className, vehicle.name))
         
         self._currentParam = self._settings['BattleType'].get(arena.battleType, None)
         if not self._currentParam:
@@ -44,7 +49,7 @@ class SpotMessanger(object):
         self._commandDelay = self.getFallbackParam('CommandDelay')
         self._textDelay = self.getFallbackParam('TextDelay')
 
-        self._isEnabledVehicle = vehicleType in self._currentParam['EnableVehicleType']
+        self._isEnabledVehicle = vehicle.classAbbr in self._currentParam['EnableVehicleType']
         
         self.showCurrentMode()
         log.info('Battle Type: {} [{}({}) = "{}"]'.format(arena.battleType, arena.attrLabel, arena.id, arena.name))
@@ -53,9 +58,9 @@ class SpotMessanger(object):
         log.info('Max Team Amount: {}'.format(self._currentParam.get('MaxTeamAmount')))
         log.info('Enable Vehicle Type: {}'.format(self._currentParam.get('EnableVehicleType')))
         if self._isEnabledVehicle:
-            log.info('current vehicle type is {}, sixth sense message is enabled.'.format(vehicleType))
+            log.info('current vehicle type is {}, sixth sense message is enabled.'.format(vehicle.classAbbr))
         else:
-            log.info('current vehicle type is {}, sixth sense message is disabled.'.format(vehicleType))
+            log.info('current vehicle type is {}, sixth sense message is disabled.'.format(vehicle.classAbbr))
 
 
     def toggleActive(self):
@@ -82,13 +87,14 @@ class SpotMessanger(object):
         if not self._isEnabled or not self._isEnabledVehicle:
             return
 
-        currentTime = getBattleTime()
+        currentTime = Utils.getTime()
         if self._isCooldown(currentTime):
             return
         log.debug('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
- 
-        teamAmount = BattleUtils.getTeamAmount(self._player)
-        position = MinimapUtils.getOwnPos(self._player)
+
+        player = Utils.getPlayer()
+        teamAmount = BattleUtils.getTeamAmount(player)
+        position = MinimapUtils.getOwnPos(player)
 
         messenger = IngameMessanger(commandDelay=self._commandDelay, textDelay=self._textDelay)
         log.debug('channel found: {}'.format(', '.join(messenger.getKeys())))
@@ -107,26 +113,40 @@ class SpotMessanger(object):
         if not commandOrder:
             log.warning('CommandOrder is empty')
             return
+
         for command in commandOrder:
-            if command == 'ping':
-                log.info('action: "{}", do ping at {}'.format(command, position))
+            if getattr(self, _commandMethod[command])(messenger, pos=position, msg=msg):
                 self._lastActivity = currentTime
-                messenger.doPing(MinimapUtils.name2cell(position))
-            elif command == 'help':
-                log.info('action: "{}", call help'.format(command))
-                self._lastActivity = currentTime
-                messenger.callHelp()
-            elif command == 'teammsg' and msg and msg != 'None':
-                log.info('action: "{}", send message with team channel: "{}"'.format(command, msg))
-                self._lastActivity = currentTime
-                messenger.sendText('team', msg)
-            elif command == 'squadmsg' and msg and msg != 'None':
-                log.info('action: "{}", send message with squad channel: "{}"'.format(command, msg))
-                if messenger.has_channel('squad'):
-                    self._lastActivity = currentTime
-                    messenger.sendText('squad', msg)
-                else:
-                    log.info('action: "{}", no squad channel found.'.format(command))
+
+
+    def _doPing(self, messenger, pos=None):
+        if not pos:
+            return False
+        log.info('action: do ping at {}'.format(pos))
+        messenger.doPing(MinimapUtils.name2cell(pos))
+        return True
+        
+    def _doHelp(self, messenger):
+        log.info('action: call help')
+        messenger.callHelp()
+        return True
+
+    def _doSendTeamMsg(self, messenger, msg=None):
+        if not msg:
+            return False
+        log.info('action: send message to team channel: "{}"'.format(msg))
+        messenger.sendText('team', msg)
+        return True
+        
+    def _doSendSquadMsg(self, messenger, msg=None):
+        if not msg:
+            return False
+        if not messenger.has_channel('squad'):
+            log.info('action: "{}", no squad channel found.'.format(COMMAND_TYPE.LABELS.SQUADMSG))
+            return False
+        log.info('action: send message to squad channel: "{}"'.format(msg))
+        messenger.sendText('squad', msg)
+        return True
 
 
 sm_control = SpotMessanger()

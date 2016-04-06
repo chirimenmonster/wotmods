@@ -1,7 +1,7 @@
 from functools import partial
 
-import game
 from PlayerEvents import g_playerEvents
+from gui import g_keyEventHandlers
 from gui.Scaleform.Battle import Battle
 
 from spotmessanger.logger import log
@@ -25,6 +25,7 @@ def init():
         im_control.addEventHandler(settings['ActivationHotKey'], _toggleActive)
         
         g_playerEvents.onAvatarReady += _on_avatar_ready
+        g_keyEventHandlers.add(_handleKeyEvent)
         
     except:
         log.current_exception()
@@ -35,6 +36,10 @@ def _readConfig(file):
     log.debug('settings = {}'.format(str(settings)))
     sm_control.setConfig(settings)
     return settings
+
+def _handleKeyEvent(event):
+    im_control.handleKeyEvent(event)
+    return False
 
 def _on_avatar_ready():
     log.debug('onAvatarReady: initialize SpotMessanger')
@@ -49,10 +54,3 @@ def showSixthSenseIndicator(orig, *args, **kwargs):
     ret = orig(*args, **kwargs)
     sm_control.showSixthSenseIndicator()
     return ret
-
-@overrideMethod(game, "handleKeyEvent")
-def handleKeyEvent(orig, *args, **kwargs):
-    ret = orig(*args, **kwargs)
-    im_control.handleKeyEvent(*args, **kwargs)
-    return ret
-

@@ -37,5 +37,15 @@ class VEHICLE_TYPE:
 
 
 class COMMAND_TYPE:
-    LIST = [ 'ping', 'help', 'teammsg', 'squadmsg' ]
+    class LABELS:
+        PING = 'ping'
+        HELP = 'help'
+        TEAMMSG = 'teammsg'
+        SQUADMSG = 'squadmsg'
+    LIST = [
+        LABELS.PING,
+        LABELS.HELP,
+        LABELS.TEAMMSG,
+        LABELS.SQUADMSG
+    ]
 

@@ -3,15 +3,25 @@ import BigWorld
 from items.vehicles import getVehicleClass
 from modconsts import VEHICLE_TYPE, BATTLE_TYPE
 
-def getBattleTime():
-    return BigWorld.time()
+
+class Utils(object):
+
+    @classmethod
+    def getTime(cls):
+        return BigWorld.time()
+
+    @classmethod
+    def getPlayer(cls):
+        return BigWorld.player()
 
 
 class VehicleInfo(object):
 
-    def __init__(self, vehicleID=None):
+    def __init__(self, vehicleID=None, player=None):
         if not vehicleID:
-            vehicleID = BigWorld.player().playerVehicleID
+            if not player:
+                player = BigWorld.player()
+            vehicleID = player.playerVehicleID
         self._vehicle = BigWorld.entity(vehicleID)
         self._vehicleCompactDescr = self._vehicle.typeDescriptor.type.compactDescr
     
