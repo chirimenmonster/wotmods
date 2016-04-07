@@ -52,16 +52,27 @@ class IngameMessanger(object):
         delay = self._commandDelay
         command = self._commandFactory.createByCellIdx(cellIdx)
         self._setCallback(delay, partial(self._controllers['team'].sendCommand, command))
+        return True
 
     def callHelp(self):
         delay = self._commandDelay
         command = self._commandFactory.createByName(CHAT_COMMANDS.HELPME.name())
         self._setCallback(delay, partial(self._controllers['team'].sendCommand, command))
+        return True
 
     def sendText(self, channel, text):
+        if not self.has_channel(channel) or not text:
+            log.info('channel not found: "{}"'.format(channel))
+            return False
         delay = self._textDelay
-        if self.has_channel(channel):
-            self._setCallback(delay, partial(self._controllers[channel]._broadcast, text))
+        self._setCallback(delay, partial(self._controllers[channel]._broadcast, text))
+        return True
+
+    def sendTeam(self, text):
+        return self.sendText('team', text)
+
+    def sendSquad(self, text):
+        return self.sendText('squad', text)
 
     def has_channel(self, channel):
         return self._controllers.has_key(channel)

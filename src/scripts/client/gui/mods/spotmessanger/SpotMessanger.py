@@ -77,11 +77,7 @@ class SpotMessanger(object):
 
     def _isCooldown(self, currentTime):
         cooldownTime = self._lastActivity + self._cooldownInterval - currentTime
-        if cooldownTime > 0:
-            log.info('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
-            BattleUtils.DebugMsg(self._settings['CooldownMsg'].format(rest=int(math.ceil(cooldownTime))))
-            return True
-        return False
+        return cooldownTime > 0
 
     def showSixthSenseIndicator(self):
         if not self._isEnabled or not self._isEnabledVehicle:
@@ -89,6 +85,8 @@ class SpotMessanger(object):
 
         currentTime = Utils.getTime()
         if self._isCooldown(currentTime):
+            log.info('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
+            BattleUtils.DebugMsg(self._settings['CooldownMsg'].format(rest=int(math.ceil(cooldownTime))))
             return
         log.debug('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
 
@@ -106,16 +104,9 @@ class SpotMessanger(object):
             return
         log.debug('current team amount "{}"'.format(teamAmount))
 
-        msg = self._settings.get('ImSpotted', None)
-        msg = msg.format(pos=position) if msg else None
-        
-        commandOrder = self._currentParam.get('CommandOrder', [])
-        if not commandOrder:
-            log.warning('CommandOrder is empty')
-            return
-
-        for command in commandOrder:
-            if getattr(self, _commandMethod[command])(messenger, pos=position, msg=msg):
+        log.info('command order: {}'.format(self._currentParam.get('CommandOrder', [])))
+        for command in self._currentParam.get('CommandOrder', []):
+            if getattr(self, _commandMethod[command])(messenger, pos=position):
                 self._lastActivity = currentTime
 
 
@@ -131,22 +122,19 @@ class SpotMessanger(object):
         messenger.callHelp()
         return True
 
-    def _doSendTeamMsg(self, messenger, msg=None):
+    def _doSendTeamMsg(self, messenger, pos=None):
+        msg = self._settings.get('ImSpotted', '').format(pos=pos)
         if not msg:
             return False
         log.info('action: send message to team channel: "{}"'.format(msg))
-        messenger.sendText('team', msg)
-        return True
+        return messenger.sendTeam(msg)
         
-    def _doSendSquadMsg(self, messenger, msg=None):
+    def _doSendSquadMsg(self, messenger, pos=None):
+        msg = self._settings.get('ImSpotted', '').format(pos=pos)
         if not msg:
             return False
-        if not messenger.has_channel('squad'):
-            log.info('action: "{}", no squad channel found.'.format(COMMAND_TYPE.LABELS.SQUADMSG))
-            return False
         log.info('action: send message to squad channel: "{}"'.format(msg))
-        messenger.sendText('squad', msg)
-        return True
+        return messenger.sendSquad(msg)
 
 
 sm_control = SpotMessanger()
