@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# @author: BirrettaMalefica EU
+# @author: BirrettaMalefica EU, Chirimen SEA
 
 from functools import partial
 
@@ -11,6 +11,12 @@ from messenger.gui.Scaleform.channels.bw_chat2.battle_controllers import TeamCha
 from chat_shared import CHAT_COMMANDS
 
 from logger import log
+
+CHANNEL_CLASS_LIST = {
+    'common': CommonChannelController,
+    'team': TeamChannelController,
+    'squad': SquadChannelController
+}
 
 class IngameMessanger(object):
     _cooldDown = 0
@@ -25,14 +31,11 @@ class IngameMessanger(object):
     
     def _initChannelControllers(self):
         self._controllers = {}
-        controllers = BattleControllersFactory().init()
-        for c in controllers:
-            if isinstance(c, TeamChannelController):
-                self._controllers['team'] = c
-            elif isinstance(c, CommonChannelController):
-                self._controllers['common'] = c
-            elif isinstance(c, SquadChannelController):
-                self._controllers['squad'] = c
+        for controller in BattleControllersFactory().init():
+            for k, v in CHANNEL_CLASS_LIST.iteritems():
+                if isinstance(controller, v):
+                    self._controllers[k] = controller
+                    break
             else:
                 log.warning('unknwon channel controller')
 		
