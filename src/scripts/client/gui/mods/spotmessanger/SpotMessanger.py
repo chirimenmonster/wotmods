@@ -117,7 +117,7 @@ class SpotMessanger(object):
         messenger.doPing(MinimapUtils.name2cell(pos))
         return True
         
-    def _doHelp(self, messenger):
+    def _doHelp(self, messenger, pos=None):
         log.info('action: call help')
         messenger.callHelp()
         return True
