@@ -5,7 +5,13 @@ from logger import log
 from modconsts import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
 from ModUtils import FileUtils
 
-class Settings(object):
+FALLBACK_PARAM_LIST = [
+    'CooldownInterval',
+    'CommandDelay',
+    'TextDelay'
+]
+
+class _Settings(object):
 
     _templateGlobal = {
         'Debug': True,
@@ -27,7 +33,26 @@ class Settings(object):
         'CommandDelay': 0.0
     }
     _settings = {}
-	
+    _currentContext = {}
+
+    def get(self, key, default=None):
+        if self._templateGlobal.has_key(key) and not key in FALLBACK_PARAM_LIST:
+            return self._settings.get(key, default)
+        if self._currentContext.has_key(key):
+            return self._currentContext.get(key, default)
+        if key in FALLBACK_PARAM_LIST:
+            return self._settings.get(key, default)
+        return default
+
+    def setBattleType(self, battleType):
+        param = self._settings['BattleType'].get(battleType, None)
+        if param:
+            log.debug('parameter set for battle type "{}" is found'.format(battleType))
+        else:
+            param = self._settings['BattleType']['default']
+            log.debug('parameter set for battle type "{}" is none, use default'.format(battleType))
+        self._currentContext = param
+            
     def readConfig(self, file):
         log.info('config file: {}'.format(file))
         section = ResMgr.openSection(file)
@@ -51,6 +76,7 @@ class Settings(object):
                     self._setBattleTypeSettings(param)
             log.info('found battletype settings: {}'.format(self._settings['BattleType'].keys()))
 
+        log.debug('settings = {}'.format(self._settings))
         return self._settings
 
 
@@ -81,4 +107,4 @@ class Settings(object):
         return list
 
 
-st_control = Settings()
+sm_settings = _Settings()

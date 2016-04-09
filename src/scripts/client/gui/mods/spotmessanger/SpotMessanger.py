@@ -8,6 +8,7 @@ from modconsts import COMMAND_TYPE
 from ModUtils import BattleUtils, MinimapUtils
 from wotapis import Utils, VehicleInfo, ArenaInfo
 from IngameMessanger import IngameMessanger
+from settings import sm_settings
 from logger import log
 
 _commandMethod = {
@@ -21,18 +22,9 @@ class SpotMessanger(object):
     _isEnabled = True
     _lastActivity = 0
     _currentParam = {}
-
-    def setConfig(self, settings):
-        self._settings = settings
     
-    def getFallbackParam(self, key):
-        value = self._currentParam.get(key, None)
-        if not value:
-            value = self._settings.get(key, None)
-        return value
-
-    def initialize(self):
-        self._isEnabled = self._settings['ActiveByDefault']
+    def onBattleStart(self):
+        self._isEnabled = sm_settings.get('ActiveByDefault')
         self._lastActivity = 0
 
         player = Utils.getPlayer()
@@ -40,23 +32,20 @@ class SpotMessanger(object):
         vehicle = VehicleInfo(player=player)
         log.debug('Vehicle Class: {} [{}] ({})'.format(vehicle.classAbbr, vehicle.className, vehicle.name))
         
-        self._currentParam = self._settings['BattleType'].get(arena.battleType, None)
-        if not self._currentParam:
-            log.debug('setting for battle type "{}" is none, use default'.format(arena.battleType))
-            self._currentParam = self._settings['BattleType'].get('default')
+        sm_settings.setBattleType(arena.battleType)
+ 
+        self._cooldownInterval = sm_settings.get('CooldownInterval')
+        self._commandDelay = sm_settings.get('CommandDelay')
+        self._textDelay = sm_settings.get('TextDelay')
 
-        self._cooldownInterval = self.getFallbackParam('CooldownInterval')
-        self._commandDelay = self.getFallbackParam('CommandDelay')
-        self._textDelay = self.getFallbackParam('TextDelay')
-
-        self._isEnabledVehicle = vehicle.classAbbr in self._currentParam['EnableVehicleType']
+        self._isEnabledVehicle = vehicle.classAbbr in sm_settings.get('EnableVehicleType')
         
         self.showCurrentMode()
         log.info('Battle Type: {} [{}({}) = "{}"]'.format(arena.battleType, arena.attrLabel, arena.id, arena.name))
         log.info('CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(self._cooldownInterval, self._commandDelay, self._textDelay))
-        log.info('Command Order: {}'.format(self._currentParam.get('CommandOrder', [])))
-        log.info('Max Team Amount: {}'.format(self._currentParam.get('MaxTeamAmount')))
-        log.info('Enable Vehicle Type: {}'.format(self._currentParam.get('EnableVehicleType')))
+        log.info('Command Order: {}'.format(sm_settings.get('CommandOrder', [])))
+        log.info('Max Team Amount: {}'.format(sm_settings.get('MaxTeamAmount')))
+        log.info('Enable Vehicle Type: {}'.format(sm_settings.get('EnableVehicleType')))
         if self._isEnabledVehicle:
             log.info('current vehicle type is {}, sixth sense message is enabled.'.format(vehicle.classAbbr))
         else:
@@ -70,10 +59,10 @@ class SpotMessanger(object):
     def showCurrentMode(self):
         if self._isEnabled:
             log.info('Sixth Sense Message enabled')
-            BattleUtils.DebugMsg(self._settings['EnableSystemMsg'], True)
+            BattleUtils.DebugMsg(sm_settings.get('EnableSystemMsg'), True)
         else:
             log.info('Sixth Sense Message disabled')
-            BattleUtils.DebugMsg(self._settings['DisableSystemMsg'], True)
+            BattleUtils.DebugMsg(sm_settings.get('DisableSystemMsg'), True)
 
     def _isCooldown(self, currentTime):
         cooldownTime = self._lastActivity + self._cooldownInterval - currentTime
@@ -86,7 +75,7 @@ class SpotMessanger(object):
         currentTime = Utils.getTime()
         if self._isCooldown(currentTime):
             log.info('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
-            BattleUtils.DebugMsg(self._settings['CooldownMsg'].format(rest=int(math.ceil(cooldownTime))))
+            BattleUtils.DebugMsg(sm_settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
             return
         log.debug('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
 
@@ -104,8 +93,8 @@ class SpotMessanger(object):
             return
         log.debug('current team amount "{}"'.format(teamAmount))
 
-        log.info('command order: {}'.format(self._currentParam.get('CommandOrder', [])))
-        for command in self._currentParam.get('CommandOrder', []):
+        log.info('command order: {}'.format(sm_settings.get('CommandOrder', [])))
+        for command in sm_settings.get('CommandOrder', []):
             if getattr(self, _commandMethod[command])(messenger, pos=position):
                 self._lastActivity = currentTime
 
@@ -123,14 +112,14 @@ class SpotMessanger(object):
         return True
 
     def _doSendTeamMsg(self, messenger, pos=None):
-        msg = self._settings.get('ImSpotted', '').format(pos=pos)
+        msg = sm_settings.get('ImSpotted', '').format(pos=pos)
         if not msg:
             return False
         log.info('action: send message to team channel: "{}"'.format(msg))
         return messenger.sendTeam(msg)
         
     def _doSendSquadMsg(self, messenger, pos=None):
-        msg = self._settings.get('ImSpotted', '').format(pos=pos)
+        msg = sm_settings.get('ImSpotted', '').format(pos=pos)
         if not msg:
             return False
         log.info('action: send message to squad channel: "{}"'.format(msg))
