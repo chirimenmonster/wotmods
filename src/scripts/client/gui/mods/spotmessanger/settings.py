@@ -5,38 +5,38 @@ from logger import log
 from modconsts import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
 from ModUtils import FileUtils
 
+_templateGlobal = {
+    'Debug': True,
+    'ActiveByDefault': True,
+    'ActivationHotKey': 'KEY_F11',
+    'ReloadConfigKey': 'KEY_NUMPAD4',
+    'ImSpotted': 'An enemy has spotted me at {pos}.',
+    'DisableSystemMsg': 'Sixth Sense Message disabled',
+    'EnableSystemMsg': 'Sixth Sense Message enabled',
+    'CooldownInterval': 60,
+    'CooldownMsg': 'SpotMessanger: cooldown, rest {sec} sec.',
+    'TextDelay': 0.5,
+    'CommandDelay': 5
+}
+
+_templateBattleType = {
+    'MaxTeamAmount': 0,
+}
+
 FALLBACK_PARAM_LIST = [
     'CooldownInterval',
     'CommandDelay',
     'TextDelay'
 ]
 
-class _Settings(object):
+GLOBAL_PARAM_LIST = [ k for k in _templateGlobal.keys() if not k in FALLBACK_PARAM_LIST ]
 
-    _templateGlobal = {
-        'Debug': True,
-        'ActiveByDefault': True,
-        'ActivationHotKey': 'KEY_F11',
-        'ReloadConfigKey': 'KEY_NUMPAD4',
-        'ImSpotted': 'An enemy has spotted me at {pos}.',
-        'DisableSystemMsg': 'Sixth Sense Message disabled',
-        'EnableSystemMsg': 'Sixth Sense Message enabled',
-        'CooldownInterval': 60,
-        'CooldownMsg': 'SpotMessanger: cooldown, rest {sec} sec.',
-        'TextDelay': 0.5,
-        'CommandDelay': 5
-    }
-    _templateBattleType = {
-        'MaxTeamAmount': 0,
-        'CooldownInterval': 0,
-        'TextDelay': 0.0,
-        'CommandDelay': 0.0
-    }
+class _Settings(object):
     _settings = {}
     _currentContext = {}
 
     def get(self, key, default=None):
-        if self._templateGlobal.has_key(key) and not key in FALLBACK_PARAM_LIST:
+        if key in GLOBAL_PARAM_LIST:
             return self._settings.get(key, default)
         if self._currentContext.has_key(key):
             return self._currentContext.get(key, default)
@@ -57,17 +57,20 @@ class _Settings(object):
         log.info('config file: {}'.format(file))
         section = ResMgr.openSection(file)
 
-        debug = self._templateGlobal['Debug']
+        log.debug('GLOBAL_PARAM_LIST: {}'.format(GLOBAL_PARAM_LIST))
+        log.debug('FALLBACK_PARAM_LIST: {}'.format(FALLBACK_PARAM_LIST))
+        
+        debug = _templateGlobal['Debug']
         if section:
             debug = section.readBool('Debug', debug)
         log.setDebug(debug)
         
         if not section:
             log.warning('cannot open config file: {}'.format(file))
-            self._settings = copy.copy(self._templateGlobal)
-            self._settings['default'] = copy.copy(self._templateBattleType)
+            self._settings = copy.copy(_templateGlobal)
+            self._settings['default'] = copy.copy(_templateBattleType)
         else:
-            self._settings = FileUtils.readElement(section, self._templateGlobal, file)
+            self._settings = FileUtils.readElement(section, _templateGlobal, file)
             self._settings['BattleType'] = {}
             log.info('available battletype tags: {}'.format(BATTLE_TYPE.LIST))
             for key, param in section['BattleTypeParameterList'].items():
@@ -82,12 +85,24 @@ class _Settings(object):
 
     def _setBattleTypeSettings(self, section):
         log.debug('key: {}'.format(section.keys()))
-        config = FileUtils.readElement(section, self._templateBattleType)
+        config = FileUtils.readElement(section, _templateBattleType)
         config['CommandOrder'] = self._readElementList(section, 'CommandOrder', 'Command', COMMAND_TYPE.LIST)
         config['EnableVehicleType'] = self._readElementList(section, 'EnableVehicleType', 'VehicleType', VEHICLE_TYPE.LIST)
+        for key in FALLBACK_PARAM_LIST:
+            value = self._readElementAsFloat(section, key)
+            if value:
+                config[key] = value
         for battleType in self._readElementList(section, 'AssignBattleType', 'BattleType', BATTLE_TYPE.LIST):
             self._settings['BattleType'][battleType] = config
 
+    def _readElementAsFloat(self, section, key):
+        if not section.has_key(key):
+            return None
+        try:
+            value = section[key].asFloat
+            return value
+        except:
+            log.current_exception()
 
     def _readElementList(self, section, parent, tag, items):
         list = []
