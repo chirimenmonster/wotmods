@@ -27,9 +27,8 @@ class SpotMessanger(object):
         self._isEnabled = sm_settings.get('ActiveByDefault')
         self._lastActivity = 0
 
-        player = Utils.getPlayer()
-        arena = ArenaInfo(player=player)
-        vehicle = VehicleInfo(player=player)
+        arena = ArenaInfo()
+        vehicle = VehicleInfo()
         log.debug('Vehicle Class: {} [{}] ({})'.format(vehicle.classAbbr, vehicle.className, vehicle.name))
         
         sm_settings.setBattleType(arena.battleType)

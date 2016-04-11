@@ -1,6 +1,7 @@
 
 import BigWorld
 from items.vehicles import getVehicleClass
+from gui.battle_control import avatar_getter
 from modconsts import VEHICLE_TYPE, BATTLE_TYPE
 
 
@@ -17,21 +18,16 @@ class Utils(object):
 
 class VehicleInfo(object):
 
-    def __init__(self, vehicleID=None, player=None):
-        if not vehicleID:
-            if not player:
-                player = BigWorld.player()
-            vehicleID = player.playerVehicleID
-        self._vehicle = BigWorld.entity(vehicleID)
-        self._vehicleCompactDescr = self._vehicle.typeDescriptor.type.compactDescr
+    def __init__(self, avatar=None):
+        self._typeDescriptor = avatar_getter.getVehicleTypeDescriptor(avatar)
     
     @property
     def name(self):
-        return self._vehicle.typeDescriptor.type.name
+        return self._typeDescriptor.type.name
     
     @property
     def className(self):
-        return getVehicleClass(self._vehicleCompactDescr)
+        return getVehicleClass(self._typeDescriptor.type.compactDescr)
 
     @property
     def classAbbr(self):
@@ -40,24 +36,22 @@ class VehicleInfo(object):
 
 class ArenaInfo(object):
 
-    def __init__(self, player=None):
-        if not player:
-            player = BigWorld.player()
-        self._arenaType = player.arena.guiType
+    def __init__(self, avatar=None):
+        self._arena = avatar_getter.getArena()
 
     @property
     def id(self):
-        return self._arenaType
+        return self._arena.guiType
 
     @property
     def attrLabel(self):
-        return BATTLE_TYPE.WOT_ATTR_NAME[self._arenaType]
+        return BATTLE_TYPE.WOT_ATTR_NAME[self.id]
         
     @property
     def name(self):
-        return BATTLE_TYPE.WOT_LABELS[self._arenaType]
+        return BATTLE_TYPE.WOT_LABELS[self.id]
 
     @property
     def battleType(self):
-        return BATTLE_TYPE.LABELS.get(self._arenaType, 'others')
+        return BATTLE_TYPE.LABELS.get(self.id, 'others')
 
