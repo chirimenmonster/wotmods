@@ -18,6 +18,19 @@ CHANNEL_CLASS_LIST = {
     'squad': SquadChannelController
 }
 
+from messenger.m_constants import BATTLE_CHANNEL, PROTO_TYPE
+from messenger.proto.interfaces import IEntityFindCriteria
+from messenger.gui.scaleform.channels import BattleControllers
+
+class _FindCriteria(IEntityFindCriteria):
+
+    def __init__(self, channelSetting):
+        super(_FindCriteria, self).__init__()
+        self.__channelSetting = channelSetting
+
+    def filter(self, channel):
+        return channel.getProtoType() is PROTO_TYPE.BW_CHAT2 and channel.getProtoData().settings is self.__channelSetting
+
 class IngameMessanger(object):
     _cooldDown = 0
     _controllers = None
@@ -64,6 +77,11 @@ class IngameMessanger(object):
         return True
 
     def sendText(self, channel, text):
+        table = { 'team': BATTLE_CHANNEL.TEAM, 'squad': BATTLE_CHANNEL.SQUAD }
+        criteria = _FindCriteria(table[channel])
+        controller = BattleControllers().getControllerByCriteria(_FindCriteria(BATTLE_CHANNEL.TEAM))
+        if controller:
+            log.debug('found: BATTLE_CHANNEL.{}'.format(channel.upper()))
         if not self.has_channel(channel) or not text:
             log.info('channel not found: "{}"'.format(channel))
             return False
@@ -72,9 +90,11 @@ class IngameMessanger(object):
         return True
 
     def sendTeam(self, text):
+        log.debug('found: BATTLE_CHANNEL.TEAM')
         return self.sendText('team', text)
 
     def sendSquad(self, text):
+        log.debug('found: BATTLE_CHANNEL.SQUAD')
         return self.sendText('squad', text)
 
     def has_channel(self, channel):
