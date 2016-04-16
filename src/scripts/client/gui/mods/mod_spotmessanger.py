@@ -1,7 +1,8 @@
 from functools import partial
 
+import game
 from PlayerEvents import g_playerEvents
-from gui import g_keyEventHandlers
+#from gui import g_keyEventHandlers
 from gui.Scaleform.Battle import Battle
 
 from spotmessanger.logger import log
@@ -25,7 +26,7 @@ def init():
         sm_inputKeyManager.addCallback(sm_settings.get('ActivationHotKey'), sm_control.toggleActive)
         
         g_playerEvents.onAvatarReady += sm_control.onBattleStart
-        g_keyEventHandlers.add(sm_inputKeyManager.handleKeyEvent)
+        #g_keyEventHandlers.add(sm_inputKeyManager.handleKeyEvent)
         
     except:
         log.current_exception()
@@ -35,5 +36,11 @@ def showSixthSenseIndicator(orig, *args, **kwargs):
     log.debug('activate sixth sense.')
     ret = orig(*args, **kwargs)
     sm_control.showSixthSenseIndicator()
+    return ret
+
+@overrideMethod(game, "handleKeyEvent")
+def handleKeyEvent(orig, *args, **kwargs):
+    ret = orig(*args, **kwargs)
+    sm_inputKeyManager.handleKeyEvent(*args, **kwargs)
     return ret
 
