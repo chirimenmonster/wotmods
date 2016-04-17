@@ -63,16 +63,17 @@ class SpotMessanger(object):
             log.info('Sixth Sense Message disabled')
             BattleUtils.DebugMsg(sm_settings.get('DisableSystemMsg'), True)
 
-    def _isCooldown(self, currentTime):
+    def _getCooldownTime(self, currentTime):
         cooldownTime = self._lastActivity + self._cooldownInterval - currentTime
-        return cooldownTime > 0
+        return cooldownTime if cooldownTime > 0 else 0
 
     def showSixthSenseIndicator(self):
         if not self._isEnabled or not self._isEnabledVehicle:
             return
 
         currentTime = Utils.getTime()
-        if self._isCooldown(currentTime):
+        cooldownTime = self._getCooldownTime(currentTime)
+        if cooldownTime > 0:
             log.info('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
             BattleUtils.DebugMsg(sm_settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
             return
@@ -83,7 +84,7 @@ class SpotMessanger(object):
         position = MinimapUtils.getOwnPos(player)
 
         messenger = IngameMessanger(commandDelay=self._commandDelay, textDelay=self._textDelay)
-        log.debug('channel found: {}'.format(', '.join(messenger.getKeys())))
+        log.debug('channel found: {}'.format(', '.join(messenger.getChannelLabels())))
 
         #team amount checks
         maxTeamAmount = self._currentParam.get('MaxTeamAmount', 0)
