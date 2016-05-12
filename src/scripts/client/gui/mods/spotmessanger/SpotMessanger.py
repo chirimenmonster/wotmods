@@ -94,36 +94,50 @@ class SpotMessanger(object):
         log.debug('current team amount "{}"'.format(teamAmount))
 
         log.info('command order: {}'.format(sm_settings.get('CommandOrder', [])))
+        self._isDone = {}
         for command in sm_settings.get('CommandOrder', []):
+            log.debug('_isDone: {}'.format(self._isDone))
             if getattr(self, _commandMethod[command])(messenger, pos=position):
                 self._lastActivity = currentTime
 
 
     def _doPing(self, messenger, pos=None):
-        if not pos:
+        if self._isDone.get('ping')or not pos:
             return False
         log.info('action: do ping at {}'.format(pos))
         messenger.doPing(MinimapUtils.name2cell(pos))
+        self._isDone['ping'] = True
         return True
         
     def _doHelp(self, messenger, pos=None):
+        if self._isDone.get('help'):
+            return False
         log.info('action: call help')
         messenger.callHelp()
+        self._isDone['help'] = True
         return True
 
     def _doSendTeamMsg(self, messenger, pos=None):
+        if self._isDone.get('msg'):
+            return False
         msg = sm_settings.get('ImSpotted', '').format(pos=pos)
         if not msg:
             return False
         log.info('action: send message to team channel: "{}"'.format(msg))
-        return messenger.sendTeam(msg)
+        ret = messenger.sendTeam(msg)
+        self._isDone['msg'] = ret
+        return ret
         
     def _doSendSquadMsg(self, messenger, pos=None):
+        if self._isDone.get('msg'):
+            return False
         msg = sm_settings.get('ImSpotted', '').format(pos=pos)
         if not msg:
             return False
         log.info('action: send message to squad channel: "{}"'.format(msg))
-        return messenger.sendSquad(msg)
+        ret = messenger.sendSquad(msg)
+        self._isDone['msg'] = ret
+        return ret
 
 
 sm_control = SpotMessanger()
