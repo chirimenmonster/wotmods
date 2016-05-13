@@ -27,12 +27,15 @@ class IngameMessanger(object):
     _controllers = None
     _commandFactory = None
     
-    def __init__(self, commandDelay=0.5, textDelay=5.0):
+    def __init__(self):
+        self._channelsCtrl = BattleControllers()
+        self._channelsCtrl.init()
+        self.setParam()
+
+    def setParam(self, commandDelay=0.5, textDelay=5.0):
         self._commandDelay = commandDelay
         self._textDelay = textDelay
-        self._channelsCtrl = BattleControllers()
-        self._channelsCtrl.init()   
-
+        
     def _setCallback(self, delay, callback):
         currentTime = BigWorld.time()
         self._cooldDown = max(self._cooldDown, currentTime)

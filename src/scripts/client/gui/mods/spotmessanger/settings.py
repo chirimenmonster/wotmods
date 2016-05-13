@@ -33,13 +33,10 @@ GLOBAL_PARAM_LIST = [ k for k in _templateGlobal.keys() if not k in FALLBACK_PAR
 
 class _Settings(object):
     _settings = {}
-    _currentContext = {}
 
     def get(self, key, default=None):
         if key in GLOBAL_PARAM_LIST:
             return self._settings.get(key, default)
-        if self._currentContext.has_key(key):
-            return self._currentContext.get(key, default)
         if key in FALLBACK_PARAM_LIST:
             return self._settings.get(key, default)
         return default
@@ -52,7 +49,20 @@ class _Settings(object):
             param = self._settings['BattleType']['default']
             log.debug('parameter set for battle type "{}" is none, use default'.format(battleType))
         self._currentContext = param
-            
+
+    def getParamsBattleType(self, battleType):
+        params = self._settings['BattleType'].get(battleType, None)
+        if params:
+            log.debug('parameter set for battle type "{}" is found'.format(battleType))
+        else:
+            log.debug('parameter set for battle type "{}" is none, use default'.format(battleType))
+            params = self._settings['BattleType']['default']
+        for p in params:
+            for k in FALLBACK_PARAM_LIST:
+                if not p.has_key(k):
+                    p[k] = self._settings.get(k, None)
+        return params
+        
     def readConfig(self, file):
         log.info('config file: {}'.format(file))
         section = ResMgr.openSection(file)
@@ -93,7 +103,9 @@ class _Settings(object):
             if value:
                 config[key] = value
         for battleType in self._readElementList(section, 'AssignBattleType', 'BattleType', BATTLE_TYPE.LIST):
-            self._settings['BattleType'][battleType] = config
+            if not self._settings['BattleType'].has_key(battleType):
+                self._settings['BattleType'][battleType] = []
+            self._settings['BattleType'][battleType].append(config)
 
     def _readElementAsFloat(self, section, key):
         if not section.has_key(key):
