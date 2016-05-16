@@ -3,52 +3,59 @@ import copy
 import ResMgr
 from logger import log
 from modconsts import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
-from ModUtils import FileUtils
 
-_templateGlobal = {
-    'Debug': True,
-    'ActiveByDefault': True,
-    'ActivationHotKey': 'KEY_F11',
-    'ReloadConfigKey': 'KEY_NUMPAD4',
-    'ImSpotted': 'An enemy has spotted me at {pos}.',
-    'DisableSystemMsg': 'Sixth Sense Message disabled',
-    'EnableSystemMsg': 'Sixth Sense Message enabled',
-    'CooldownInterval': 60,
-    'CooldownMsg': 'SpotMessanger: cooldown, rest {sec} sec.',
-    'TextDelay': 0.5,
-    'CommandDelay': 5
-}
 
-_templateBattleType = {
-    'MaxTeamAmount': 0,
-}
+INFO_TAG = 0
+INFO_TYPE = 1
+INFO_ISREQUIRED = 2
+INFO_DEFAULTVALUE = 3
+INFO_CHILDTAG = 3
+INFO_CHILDVALUES = 4
 
-FALLBACK_PARAM_LIST = [
-    'CooldownInterval',
-    'CommandDelay',
-    'TextDelay'
+GLOBAL_PARAM_DEF = [
+    [ 'Debug',              'Bool',     False,  True            ],
+    [ 'ActiveByDefault',    'Bool',     False,  True            ],
+    [ 'ActivationHotKey',   'String',   False,  'KEY_F11'       ],
+    [ 'ReloadConfigKey',    'String',   False,  'KEY_NUMPAD4'   ],
+    [ 'ImSpotted',          'String',   False,  'An enemy has spotted me at {pos}.'         ],
+    [ 'DisableSystemMsg',   'String',   False,  'Sixth Sense Message disabled'              ],
+    [ 'EnableSystemMsg',    'String',   False,  'Sixth Sense Message enabled'               ],
+    [ 'CooldownMsg',        'String',   False,  'SpotMessanger: cooldown, rest {sec} sec.'  ]
 ]
 
-GLOBAL_PARAM_LIST = [ k for k in _templateGlobal.keys() if not k in FALLBACK_PARAM_LIST ]
+FALLBACK_PARAM_DEF = [
+    [ 'CooldownInterval',   'Float',    False,  60  ],
+    [ 'CommandDelay',       'Float',    False,  0.5 ],
+    [ 'TextDelay',          'Float',    False,  5   ]
+]
+
+BATTLETYPE_PARAM_DEF = [
+    [ 'AssignBattleType',   'List',     True,   'BattleType',   BATTLE_TYPE.LIST    ],
+    [ 'CommandOrder',       'List',     True,   'Command',      COMMAND_TYPE.LIST   ],
+    [ 'MaxTeamAmount',      'Int',      False   ],
+    [ 'EnableVehicleType',  'List',     False,  'VehicleType',  VEHICLE_TYPE.LIST   ],
+    [ 'BattleType',         'String',   False   ],
+    [ 'Command',            'String',   False   ],
+    [ 'VehicleType',        'String',   False   ]
+]
+
+DEFAULT_BATTLETYPE_SETTINGS = {
+    'CommmandOrder':    [ 'help', 'teammsg' ]
+}
+
+GLOBAL_PARAM_LIST = [ v[INFO_TAG] for v in GLOBAL_PARAM_DEF + FALLBACK_PARAM_DEF ]
+FALLBACK_PARAM_LIST = [ v[INFO_TAG] for v in FALLBACK_PARAM_DEF ]
+
+ALL_PARAM_INFO = { v[INFO_TAG]: v for v in GLOBAL_PARAM_DEF + FALLBACK_PARAM_DEF + BATTLETYPE_PARAM_DEF }
+BATTLETYPE_PARAM_INFO = { v[INFO_TAG]: v for v in BATTLETYPE_PARAM_DEF + FALLBACK_PARAM_DEF }
+
 
 class _Settings(object):
     _settings = {}
 
     def get(self, key, default=None):
-        if key in GLOBAL_PARAM_LIST:
-            return self._settings.get(key, default)
-        if key in FALLBACK_PARAM_LIST:
-            return self._settings.get(key, default)
-        return default
+        return self._settings.get(key, default)
 
-    def setBattleType(self, battleType):
-        param = self._settings['BattleType'].get(battleType, None)
-        if param:
-            log.debug('parameter set for battle type "{}" is found'.format(battleType))
-        else:
-            param = self._settings['BattleType']['default']
-            log.debug('parameter set for battle type "{}" is none, use default'.format(battleType))
-        self._currentContext = param
 
     def getParamsBattleType(self, battleType):
         params = self._settings['BattleType'].get(battleType, None)
@@ -57,81 +64,99 @@ class _Settings(object):
         else:
             log.debug('parameter set for battle type "{}" is none, use default'.format(battleType))
             params = self._settings['BattleType']['default']
-        for p in params:
-            for k in FALLBACK_PARAM_LIST:
-                if not p.has_key(k):
-                    p[k] = self._settings.get(k, None)
         return params
-        
-    def readConfig(self, file):
-        log.info('config file: {}'.format(file))
-        section = ResMgr.openSection(file)
 
-        log.debug('GLOBAL_PARAM_LIST: {}'.format(GLOBAL_PARAM_LIST))
-        log.debug('FALLBACK_PARAM_LIST: {}'.format(FALLBACK_PARAM_LIST))
-        
-        debug = _templateGlobal['Debug']
+
+    def readConfig(self, file):
+        debug = ALL_PARAM_INFO['Debug'][INFO_DEFAULTVALUE]
+        log.setDebug(debug)
+
+        log.info('config file: {}'.format(file))
+
+        section = ResMgr.openSection(file)
         if section:
             debug = section.readBool('Debug', debug)
-        log.setDebug(debug)
+            log.setDebug(debug)
+
+        log.debug('GLOBAL_PARAM_LIST: {}'.format(GLOBAL_PARAM_LIST))
         
         if not section:
             log.warning('cannot open config file: {}'.format(file))
-            self._settings = copy.copy(_templateGlobal)
-            self._settings['default'] = copy.copy(_templateBattleType)
+            config = {}
+            for key in GLOBAL_PARAM_LIST:
+                config[key] = ALL_PARAM_INFO[key][INFO_DEFAULTVALUE]
+            config['BattleType']['default'] = [ DEFAULT_BATTLETYPE_SETTINGS ]
+            self._settings = config
         else:
-            self._settings = FileUtils.readElement(section, _templateGlobal, file)
-            self._settings['BattleType'] = {}
+            self._setGlobalSettings(section)
             log.info('available battletype tags: {}'.format(BATTLE_TYPE.LIST))
             for key, param in section['BattleTypeParameterList'].items():
-                log.debug('key={}'.format(key))
+                log.debug('found tag "{}" in BattleTypeParameterList'.format(key))
                 if key == 'BattleTypeParameter':
                     self._setBattleTypeSettings(param)
-            log.info('found battletype settings: {}'.format(self._settings['BattleType'].keys()))
+            log.info('found battle type settings: {}'.format(self._settings['BattleType'].keys()))
 
         log.debug('settings = {}'.format(self._settings))
         return self._settings
 
+        
+    def _setGlobalSettings(self, section):
+        log.debug('found tags in global: {}'.format(section.keys()))
+        config = {}
+        for key in GLOBAL_PARAM_LIST:
+            self._setElementFromSettings(section, config, key, True)
+        self._settings = config
+        self._settings['BattleType'] = {}
+
 
     def _setBattleTypeSettings(self, section):
-        log.debug('key: {}'.format(section.keys()))
-        config = FileUtils.readElement(section, _templateBattleType)
-        config['CommandOrder'] = self._readElementList(section, 'CommandOrder', 'Command', COMMAND_TYPE.LIST)
-        config['EnableVehicleType'] = self._readElementList(section, 'EnableVehicleType', 'VehicleType', VEHICLE_TYPE.LIST)
-        for key in FALLBACK_PARAM_LIST:
-            value = self._readElementAsFloat(section, key)
-            if value:
-                config[key] = value
-        for battleType in self._readElementList(section, 'AssignBattleType', 'BattleType', BATTLE_TYPE.LIST):
-            if not self._settings['BattleType'].has_key(battleType):
-                self._settings['BattleType'][battleType] = []
-            self._settings['BattleType'][battleType].append(config)
-
-    def _readElementAsFloat(self, section, key):
-        if not section.has_key(key):
-            return None
-        try:
-            value = section[key].asFloat
-            return value
-        except:
-            log.current_exception()
-
-    def _readElementList(self, section, parent, tag, items):
-        list = []
-        if not section.has_key(parent):
-            log.warning('section "{}" is not found.'.format(parent))
-            return list
-        for key, value in section[parent].items():
-            value = value.asString
-            if key == tag:
-                if value in items:
-                    log.debug('found valid tag "{}" with valid item "{}", append to list.'.format(key, value))
-                    list.append(value)
-                else:
-                    log.waring('found valid tag "{}", but invalid item "{}", available only {}'.format(key, value, items))
+        log.debug('found tags in battletype: {}'.format(section.keys()))
+        config = {}
+        for key in [ 'CommandOrder', 'EnableVehicleType', 'MaxTeamAmount' ] + FALLBACK_PARAM_LIST:
+            self._setElementFromSettings(section, config, key)
+        battleTypeList = self._readElement(section['AssignBattleType'], 'AssignBattleType')
+        log.debug('found AssignBattleType: {}'.format(battleTypeList))
+        for battleType in self._readElement(section['AssignBattleType'], 'AssignBattleType'):
+            if self._settings['BattleType'].has_key(battleType):
+                self._settings['BattleType'][battleType].append(config)
             else:
-                log.waring('found invalid tag "{}", available only "{}"'.format(key, tag))
-        return list
+                self._settings['BattleType'][battleType] = [ config ]
+
+
+    def _setElementFromSettings(self, section, config, key, withDefault=False):
+        info = ALL_PARAM_INFO[key]
+        if section.has_key(key):
+            config[key] = self._readElement(section[key], key)
+        else:
+            if withDefault and info[INFO_TYPE] in [ 'Bool', 'Int', 'Float', 'String' ]:
+                config[key] = info[INFO_DEFAULTVALUE]
+            elif info[INFO_ISREQUIRED]:
+                log.warning('section "{}" is not found.'.format(key))
+
+
+    def _readElement(self, element, key):
+        info = ALL_PARAM_INFO[key]
+        resmgrAttr = { 'Bool': 'asBool', 'Int': 'asInt', 'Float': 'asFloat', 'String': 'asString' }
+        log.debug('read element as "{}" from section'.format(key))
+        if info[INFO_TYPE] in resmgrAttr:
+            try:
+                return getattr(element, resmgrAttr[info[INFO_TYPE]])
+            except:
+                log.current_exception()
+        elif info[INFO_TYPE] in [ 'List' ]:
+            values = []
+            for k, v in element.items():
+                if k in info[INFO_CHILDTAG]:
+                    v = self._readElement(v, info[INFO_CHILDTAG])
+                    if v in info[INFO_CHILDVALUES]:
+                        log.debug('found valid item "{}", append to list.'.format(v))
+                        values.append(v)
+                    else:
+                        log.warning('found invalid item "{}", available only {}'.format(v, info[INFO_CHILDVALUES]))
+                else:
+                    log.warning('found invalid tag "{}", available only "{}"'.format(k, info[INFO_CHILDTAG]))
+            return values
+        return None
 
 
 sm_settings = _Settings()
