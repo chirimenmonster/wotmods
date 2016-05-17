@@ -35,8 +35,8 @@ class SpotMessanger(object):
 
         self._currentParams = []
         cooldownInterval = []
+        count = 0
         for p in sm_settings.getParamsBattleType(arena.battleType):
-            count = len(self._currentParams) + 1
             log.info('[{}]: Command Order: {}'.format(count, p.get('CommandOrder', [])))
             log.info('[{}]: CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(count,
                     p.get('CooldownInterval', 'inherit'),
@@ -44,12 +44,14 @@ class SpotMessanger(object):
                     p.get('TextDelay', 'inherit')))
             log.info('[{}]: Max Team Amount: {}'.format(count, p.get('MaxTeamAmount', 'undef')))
             log.info('[{}]: Enable Vehicle Type: {}'.format(count, p.get('EnableVehicleType', 'undef')))
-            cooldownInterval.append(p.get('CooldownInterval', sm_settings.get('CooldownInterval')))
             if vehicle.classAbbr in p.get('EnableVehicleType', VEHICLE_TYPE.LIST):
-                log.info('current vehicle type is {}, add to list.'.format(vehicle.classAbbr))
+                log.info('[{}]: current vehicle type is {}, add to list.'.format(count, vehicle.classAbbr))
                 self._currentParams.append(p)
+                cooldownInterval.append(p.get('CooldownInterval', sm_settings.get('CooldownInterval')))
             else:
-                log.info('current vehicle type is {}, do nothing.'.format(vehicle.classAbbr))
+                log.info('[{}]: current vehicle type is {}, do nothing.'.format(count, vehicle.classAbbr))
+                self._currentParams.append(None)
+            count += 1
 
         self._cooldownInterval = min(t for t in cooldownInterval)
         log.info('minimal CoolDownInterval: {}'.format(self._cooldownInterval))
@@ -78,10 +80,10 @@ class SpotMessanger(object):
         currentTime = Utils.getTime()
         cooldownTime = self._getCooldownTime(currentTime, self._cooldownInterval)
         if cooldownTime > 0:
-            log.info('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
+            log.info('[time:{:.1f}] invoke sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
             BattleUtils.DebugMsg(sm_settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
             return
-        log.info('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
+        log.info('[time:{:.1f}] invoke sixth sense, do commands.'.format(currentTime))
 
         player = Utils.getPlayer()
         teamAmount = BattleUtils.getTeamAmount(player)
@@ -101,7 +103,7 @@ class SpotMessanger(object):
  
         cooldownTime = self._getCooldownTime(currentTime, cooldownInterval)
         if cooldownTime > 0:
-            log.info('[{}]: [time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(index, currentTime, cooldownTime))
+            log.info('[{}]: [time:{:.1f}] invoke sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(index, currentTime, cooldownTime))
             return
 
         messenger.setParam(commandDelay, textDelay)
@@ -116,7 +118,7 @@ class SpotMessanger(object):
         commandOrder = param.get('CommandOrder', [])
         log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
-            log.debug('already executed commands: {}'.format(self._isDone))
+            log.debug('[{}]: already executed commands: {}'.format(index, self._isDone))
             if getattr(self, _commandMethod[command])(messenger, pos=position):
                 self._lastActivity = currentTime
 
