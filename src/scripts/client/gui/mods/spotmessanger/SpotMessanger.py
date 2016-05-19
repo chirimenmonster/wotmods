@@ -124,7 +124,7 @@ class SpotMessanger(object):
         log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
             log.debug('[{}]: already executed command class: {}'.format(index, self._isDone))
-            getattr(self, _commandMethod[command])(messenger, pos=position):
+            getattr(self, _commandMethod[command])(messenger, pos=position)
 
 
     def _doPing(self, messenger, pos=None):
