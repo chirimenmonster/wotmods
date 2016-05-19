@@ -89,12 +89,12 @@ class _Settings(object):
             self._settings = config
         else:
             self._setGlobalSettings(section)
-            log.info('available battletype tags: {}'.format(BATTLE_TYPE.LIST))
+            log.debug('available battletype tags: {}'.format(BATTLE_TYPE.LIST))
             for key, param in section['BattleTypeParameterList'].items():
                 log.debug('found tag "{}" in BattleTypeParameterList'.format(key))
                 if key == 'BattleTypeParameter':
                     self._setBattleTypeSettings(param)
-            log.info('found battle type settings: {}'.format(self._settings['BattleType'].keys()))
+            log.info('found battle type in settings: {}'.format(self._settings['BattleType'].keys()))
 
         log.debug('settings = {}'.format(self._settings))
         return self._settings
@@ -137,7 +137,7 @@ class _Settings(object):
     def _readElement(self, element, key):
         info = ALL_PARAM_INFO[key]
         resmgrAttr = { 'Bool': 'asBool', 'Int': 'asInt', 'Float': 'asFloat', 'String': 'asString' }
-        log.debug('read element as "{}" from section'.format(key))
+        #log.debug('read element as "{}" from section'.format(key))
         if info[INFO_TYPE] in resmgrAttr:
             try:
                 return getattr(element, resmgrAttr[info[INFO_TYPE]])
@@ -149,7 +149,7 @@ class _Settings(object):
                 if k in info[INFO_CHILDTAG]:
                     v = self._readElement(v, info[INFO_CHILDTAG])
                     if v in info[INFO_CHILDVALUES]:
-                        log.debug('found valid item "{}", append to list.'.format(v))
+                        #log.debug('found valid item "{}", append to list.'.format(v))
                         values.append(v)
                     else:
                         log.warning('found invalid item "{}", available only {}'.format(v, info[INFO_CHILDVALUES]))

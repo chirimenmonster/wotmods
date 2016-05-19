@@ -30,6 +30,7 @@ class SpotMessanger(object):
         arena = ArenaInfo()
         vehicle = VehicleInfo()
 
+        log.info('on battle start')
         log.info('current battle type: {} [{}({}) = "{}"]'.format(arena.battleType, arena.attrLabel, arena.id, arena.name))
         log.info('current vehicle class: {} [{}] ({})'.format(vehicle.classAbbr, vehicle.className, vehicle.name))
 
@@ -83,14 +84,15 @@ class SpotMessanger(object):
             log.info('[time:{:.1f}] invoke sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
             BattleUtils.DebugMsg(sm_settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
             return
-        log.info('[time:{:.1f}] invoke sixth sense, do commands.'.format(currentTime))
+        log.info('[time:{:.1f}] invoke sixth sense.'.format(currentTime))
 
         player = Utils.getPlayer()
         teamAmount = BattleUtils.getTeamAmount(player)
         position = MinimapUtils.getOwnPos(player)
 
         messenger = IngameMessanger()
-        log.debug('channel found: {}'.format(', '.join(messenger.getChannelLabels())))
+        log.info('current chat channel: {}'.format(', '.join(messenger.getChannelLabels())))
+        log.info('current team amount: {}'.format(teamAmount))
 
         self._isDone = {}
         for index, param in enumerate(self._currentParams):
@@ -103,7 +105,7 @@ class SpotMessanger(object):
  
         cooldownTime = self._getCooldownTime(currentTime, cooldownInterval)
         if cooldownTime > 0:
-            log.info('[{}]: [time:{:.1f}] invoke sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(index, currentTime, cooldownTime))
+            log.info('[{}]: now cooldown time, skip. (rest {:.1f}s)'.format(index, cooldownTime))
             return
 
         messenger.setParam(commandDelay, textDelay)
@@ -111,14 +113,13 @@ class SpotMessanger(object):
         if param.has_key('MaxTeamAmount'):
             maxTeamAmount = param['MaxTeamAmount']
             if maxTeamAmount and teamAmount > maxTeamAmount:
-                log.debug('[{}]: current team amount "{}" is greater than "{}", skip.'.format(index, teamAmount, maxTeamAmount))
+                log.info('[{}]: team amount ({}) is too many (> {}), skip.'.format(index, teamAmount, maxTeamAmount))
                 return
-        log.debug('[{}]: current team amount "{}"'.format(index, teamAmount))
 
         commandOrder = param.get('CommandOrder', [])
         log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
-            log.debug('[{}]: already executed commands: {}'.format(index, self._isDone))
+            log.debug('[{}]: already executed command class: {}'.format(index, self._isDone))
             if getattr(self, _commandMethod[command])(messenger, pos=position):
                 self._lastActivity = currentTime
 
