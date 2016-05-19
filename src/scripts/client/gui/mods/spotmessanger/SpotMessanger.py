@@ -156,6 +156,9 @@ class SpotMessanger(object):
         msg = sm_settings.get('ImSpotted', '').format(pos=pos)
         if not msg:
             return False
+        if not 'squad' in messenger.getChannelLabels():
+            log.info('action: no squad channel, skip.')
+            return
         log.info('action: send message to squad channel: "{}"'.format(msg))
         ret = messenger.sendSquad(msg)
         self._isDone['msg'] = ret
