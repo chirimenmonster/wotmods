@@ -97,7 +97,11 @@ class SpotMessanger(object):
         self._isDone = {}
         for index, param in enumerate(self._currentParams):
             self._doSixthSense(index, param, messenger, currentTime, player, position, teamAmount)
-            
+        if self._isDone:
+            log.debug('success commands, update last activity.')
+            self._lastActivity = currentTime
+
+
     def _doSixthSense(self, index, param, messenger, currentTime, player, position, teamAmount):
         cooldownInterval = param.get('CooldownInterval', sm_settings.get('CooldownInterval'))
         commandDelay = param.get('CommandDelay', sm_settings.get('CommandDelay'))
@@ -120,8 +124,8 @@ class SpotMessanger(object):
         log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
             log.debug('[{}]: already executed command class: {}'.format(index, self._isDone))
-            if getattr(self, _commandMethod[command])(messenger, pos=position):
-                self._lastActivity = currentTime
+            getattr(self, _commandMethod[command])(messenger, pos=position):
+
 
     def _doPing(self, messenger, pos=None):
         if self._isDone.get('ping')or not pos:
