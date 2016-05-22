@@ -85,7 +85,7 @@ class _Settings(object):
             config = {}
             for key in GLOBAL_PARAM_LIST:
                 config[key] = ALL_PARAM_INFO[key][INFO_DEFAULTVALUE]
-            config['BattleType']['default'] = [ DEFAULT_BATTLETYPE_SETTINGS ]
+            config['BattleType'] = { 'default': [ DEFAULT_BATTLETYPE_SETTINGS ] }
             self._settings = config
         else:
             self._setGlobalSettings(section)
