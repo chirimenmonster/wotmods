@@ -24,15 +24,16 @@ GLOBAL_PARAM_DEF = [
 ]
 
 FALLBACK_PARAM_DEF = [
-    [ 'CooldownInterval',   'Float',    False,  60  ],
-    [ 'CommandDelay',       'Float',    False,  0.5 ],
-    [ 'TextDelay',          'Float',    False,  5   ]
+    [ 'CooldownInterval',   'Float',    False,  60      ],
+    [ 'CommandDelay',       'Float',    False,  0.5     ],
+    [ 'TextDelay',          'Float',    False,  5       ],
+    [ 'MaxTeamAmount',      'Int',      False,  None    ],
+    [ 'MinTeamAmount',      'Int',      False,  1       ]
 ]
 
 BATTLETYPE_PARAM_DEF = [
     [ 'AssignBattleType',   'List',     True,   'BattleType',   BATTLE_TYPE.LIST    ],
     [ 'CommandOrder',       'List',     True,   'Command',      COMMAND_TYPE.LIST   ],
-    [ 'MaxTeamAmount',      'Int',      False   ],
     [ 'EnableVehicleType',  'List',     False,  'VehicleType',  VEHICLE_TYPE.LIST   ],
     [ 'BattleType',         'String',   False   ],
     [ 'Command',            'String',   False   ],
@@ -112,7 +113,7 @@ class _Settings(object):
     def _setBattleTypeSettings(self, section):
         log.debug('found tags in battletype: {}'.format(section.keys()))
         config = {}
-        for key in [ 'CommandOrder', 'EnableVehicleType', 'MaxTeamAmount' ] + FALLBACK_PARAM_LIST:
+        for key in [ 'CommandOrder', 'EnableVehicleType' ] + FALLBACK_PARAM_LIST:
             self._setElementFromSettings(section, config, key)
         battleTypeList = self._readElement(section['AssignBattleType'], 'AssignBattleType')
         log.debug('found AssignBattleType: {}'.format(battleTypeList))

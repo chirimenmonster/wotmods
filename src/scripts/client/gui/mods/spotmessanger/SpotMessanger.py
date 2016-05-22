@@ -40,10 +40,12 @@ class SpotMessanger(object):
         for p in sm_settings.getParamsBattleType(arena.battleType):
             log.info('[{}]: Command Order: {}'.format(count, p.get('CommandOrder', [])))
             log.info('[{}]: CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(count,
-                    p.get('CooldownInterval', 'inherit'),
-                    p.get('CommandDelay', 'inherit'),
-                    p.get('TextDelay', 'inherit')))
-            log.info('[{}]: Max Team Amount: {}'.format(count, p.get('MaxTeamAmount', 'undef')))
+                    p.get('CooldownInterval', 'inherit ({})'.format(sm_settings.get('CooldownInterval'))),
+                    p.get('CommandDelay', 'inherit ({})'.format(sm_settings.get('CommandDelay'))),
+                    p.get('TextDelay', 'inherit ({})'.format(sm_settings.get('TextDelay')))))
+            log.info('[{}]: MinTeamAmount: {}, MaxTeamAmount: {}'.format(count,
+                    p.get('MinTeamAmount', 'inherit ({})'.format(sm_settings.get('MinTeamAmount'))),
+                    p.get('MaxTeamAmount', 'inherit ({})'.format(sm_settings.get('MaxTeamAmount') or 'undef'))))
             log.info('[{}]: Enable Vehicle Type: {}'.format(count, p.get('EnableVehicleType', 'undef')))
             if vehicle.classAbbr in p.get('EnableVehicleType', VEHICLE_TYPE.LIST):
                 log.info('[{}]: current vehicle type is {}, add to list.'.format(count, vehicle.classAbbr))
@@ -89,7 +91,7 @@ class SpotMessanger(object):
         player = Utils.getPlayer()
         teamAmount = BattleUtils.getTeamAmount(player)
         position = MinimapUtils.getOwnPos(player)
-
+        
         messenger = IngameMessanger()
         log.info('current chat channel: {}'.format(', '.join(messenger.getChannelLabels())))
         log.info('current team amount: {}'.format(teamAmount))
@@ -106,6 +108,8 @@ class SpotMessanger(object):
         cooldownInterval = param.get('CooldownInterval', sm_settings.get('CooldownInterval'))
         commandDelay = param.get('CommandDelay', sm_settings.get('CommandDelay'))
         textDelay = param.get('TextDelay', sm_settings.get('TextDelay'))
+        minTeamAmount = param.get('MinTeamAmount', sm_settings.get('MinTeamAmount'))
+        maxTeamAmount = param.get('MaxTeamAmount', sm_settings.get('MaxTeamAmount'))
  
         cooldownTime = self._getCooldownTime(currentTime, cooldownInterval)
         if cooldownTime > 0:
@@ -114,11 +118,12 @@ class SpotMessanger(object):
 
         messenger.setParam(commandDelay, textDelay)
 
-        if param.has_key('MaxTeamAmount'):
-            maxTeamAmount = param['MaxTeamAmount']
-            if maxTeamAmount and teamAmount > maxTeamAmount:
-                log.info('[{}]: team amount ({}) is too many (> {}), skip.'.format(index, teamAmount, maxTeamAmount))
-                return
+        if minTeamAmount and teamAmount <= minTeamAmount:
+            log.info('[{}]: team amount ({}) is too less (<= {}), skip.'.format(index, teamAmount, minTeamAmount))
+            return
+        if maxTeamAmount and teamAmount > maxTeamAmount:
+            log.info('[{}]: team amount ({}) is too many (> {}), skip.'.format(index, teamAmount, maxTeamAmount))
+            return
 
         commandOrder = param.get('CommandOrder', [])
         log.info('[{}]: command order: {}'.format(index, commandOrder))
