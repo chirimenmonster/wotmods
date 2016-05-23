@@ -41,7 +41,7 @@ BATTLETYPE_PARAM_DEF = [
 ]
 
 DEFAULT_BATTLETYPE_SETTINGS = {
-    'CommmandOrder':    [ 'help', 'teammsg' ]
+    'CommandOrder':    [ 'help', 'teammsg' ]
 }
 
 GLOBAL_PARAM_LIST = [ v[INFO_TAG] for v in GLOBAL_PARAM_DEF + FALLBACK_PARAM_DEF ]
