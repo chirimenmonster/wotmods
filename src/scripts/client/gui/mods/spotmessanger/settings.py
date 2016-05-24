@@ -51,6 +51,38 @@ ALL_PARAM_INFO = { v[INFO_TAG]: v for v in GLOBAL_PARAM_DEF + FALLBACK_PARAM_DEF
 BATTLETYPE_PARAM_INFO = { v[INFO_TAG]: v for v in BATTLETYPE_PARAM_DEF + FALLBACK_PARAM_DEF }
 
 
+class _BattleTypeSettings(object):
+
+    def __init__(self, settings, battleType):
+        self._paramGlobal = settings
+        self._paramLocal = battleType
+
+    def __getitem__(self, key):
+        return self.get(key)
+
+    def get(self, key, default=None, enableFallback=True):
+        if key in FALLBACK_PARAM_LIST:
+            value = self._paramLocal.get(key, None)
+            if value is None and enableFallback:
+                value = self._paramGlobal.get(key, None)
+        elif key in GLOBAL_PARAM_LIST:
+            value = self._paramGlobal.get(key, None)
+        else:
+            value = self._paramLocal.get(key, None)
+        if value is None:
+            value = default
+        return value
+
+    def getInfo(self, key, default='undef'):
+        if key in FALLBACK_PARAM_LIST:
+            value = self.get(key, None, enableFallback=False)
+            if value is None:
+                value = 'inherits ({})'.format(self.get(key, default, enableFallback=True))
+        else:
+            value = self.get(key, default)
+        return value
+
+
 class _Settings(object):
     _settings = {}
 
@@ -65,7 +97,8 @@ class _Settings(object):
         else:
             log.debug('parameter set for battle type "{}" is none, use default'.format(battleType))
             params = self._settings['BattleType']['default']
-        return params
+        settings = [ _BattleTypeSettings(self._settings, p) for p in params ]
+        return settings
 
 
     def readConfig(self, file):
