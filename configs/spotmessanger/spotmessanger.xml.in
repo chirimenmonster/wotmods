@@ -25,6 +25,9 @@
     <TextDelay>0.5</TextDelay>
     <CommandDelay>5</CommandDelay>
 
+    <!-- Team Amount parameters -->
+    <MinTeamAmount>1</MinTeamAmount>
+
     <!-- Local settings for each battle types -->
     <BattleTypeParameterList>
 
