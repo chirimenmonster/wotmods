@@ -2,13 +2,14 @@ from functools import partial
 
 import game
 from PlayerEvents import g_playerEvents
+#from gui import g_keyEventHandlers
 from gui.Scaleform.Battle import Battle
 
 from spotmessanger.logger import log
 from spotmessanger.events import overrideMethod
 from spotmessanger.version import MOD_INFO
-from spotmessanger.settings import st_control
-from spotmessanger.inputhandler import im_control
+from spotmessanger.settings import sm_settings
+from spotmessanger.inputhandler import sm_inputKeyManager
 from spotmessanger.SpotMessanger import sm_control
 
 confFile = '../res_mods/configs/spotmessanger/spotmessanger.xml'
@@ -18,30 +19,17 @@ def init():
 
     try:
         log.info(MOD_INFO.NAME + ' ' + MOD_INFO.VERSION_LONG)
-        settings = _readConfig(confFile)
+        sm_settings.readConfig(confFile)
 		
         log.debug('set key event handlers')
-        im_control.addEventHandler(settings['ReloadConfigKey'], partial(_readConfig, confFile))
-        im_control.addEventHandler(settings['ActivationHotKey'], _toggleActive)
+        sm_inputKeyManager.addCallback(sm_settings.get('ReloadConfigKey'), partial(sm_settings.readConfig, confFile))
+        sm_inputKeyManager.addCallback(sm_settings.get('ActivationHotKey'), sm_control.toggleActive)
         
-        g_playerEvents.onAvatarReady += _on_avatar_ready
+        g_playerEvents.onAvatarReady += sm_control.onBattleStart
+        #g_keyEventHandlers.add(sm_inputKeyManager.handleKeyEvent)
         
     except:
         log.current_exception()
-
-
-def _readConfig(file):
-    settings = st_control.readConfig(file)
-    log.debug('settings = {}'.format(str(settings)))
-    sm_control.setConfig(settings)
-    return settings
-
-def _on_avatar_ready():
-    log.debug('onAvatarReady: initialize SpotMessanger')
-    sm_control.initialize()
-
-def _toggleActive():
-    sm_control.toggleActive()
 
 @overrideMethod(Battle, "_showSixthSenseIndicator")
 def showSixthSenseIndicator(orig, *args, **kwargs):
@@ -53,6 +41,6 @@ def showSixthSenseIndicator(orig, *args, **kwargs):
 @overrideMethod(game, "handleKeyEvent")
 def handleKeyEvent(orig, *args, **kwargs):
     ret = orig(*args, **kwargs)
-    im_control.handleKeyEvent(*args, **kwargs)
+    sm_inputKeyManager.handleKeyEvent(*args, **kwargs)
     return ret
 

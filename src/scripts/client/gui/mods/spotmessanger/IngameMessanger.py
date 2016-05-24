@@ -1,46 +1,41 @@
 # -*- coding: utf-8 -*-
 
-# @author: BirrettaMalefica EU
+# @author: BirrettaMalefica EU, Chirimen SEA
 
 from functools import partial
 
 import BigWorld
 from gui.battle_control import g_sessionProvider
-from messenger.gui.Scaleform.channels.bw_chat2.factories import BattleControllersFactory
-from messenger.gui.Scaleform.channels.bw_chat2.battle_controllers import TeamChannelController, CommonChannelController, SquadChannelController
+from messenger.m_constants import BATTLE_CHANNEL, PROTO_TYPE
+from messenger.proto.interfaces import IEntityFindCriteria
+from messenger.gui.scaleform.channels import BattleControllers
 from chat_shared import CHAT_COMMANDS
 
 from logger import log
 
+class _Criteria(IEntityFindCriteria):
+
+    def __init__(self, channelSetting):
+        super(_Criteria, self).__init__()
+        self.__channelSetting = channelSetting
+
+    def filter(self, channel):
+        return channel.getProtoType() is PROTO_TYPE.BW_CHAT2 and channel.getProtoData().settings is self.__channelSetting
+        
 class IngameMessanger(object):
     _cooldDown = 0
     _controllers = None
     _commandFactory = None
     
-    def __init__(self, commandDelay=0.5, textDelay=5.0):
+    def __init__(self):
+        self._channelsCtrl = BattleControllers()
+        self._channelsCtrl.init()
+        self.setParam()
+
+    def setParam(self, commandDelay=0.5, textDelay=5.0):
         self._commandDelay = commandDelay
         self._textDelay = textDelay
-        self._initChannelControllers()
-        self._initCommandfactory()
-    
-    def _initChannelControllers(self):
-        self._controllers = {}
-        controllers = BattleControllersFactory().init()
-        for c in controllers:
-            if isinstance(c, TeamChannelController):
-                self._controllers['team'] = c
-            elif isinstance(c, CommonChannelController):
-                self._controllers['common'] = c
-            elif isinstance(c, SquadChannelController):
-                self._controllers['squad'] = c
-            else:
-                log.warning('unknwon channel controller')
-		
-    def _initCommandfactory(self):
-        self._commandFactory = g_sessionProvider.getChatCommands().proto.battleCmd
-        if self._commandFactory is None:
-            log.error('Commands factory is not defined')
-
+        
     def _setCallback(self, delay, callback):
         currentTime = BigWorld.time()
         self._cooldDown = max(self._cooldDown, currentTime)
@@ -48,24 +43,38 @@ class IngameMessanger(object):
         BigWorld.callback(diff, callback)
         self._cooldDown += delay
 
-    def doPing(self, cellIdx):  
-        delay = self._commandDelay
-        command = self._commandFactory.createByCellIdx(cellIdx)
-        self._setCallback(delay, partial(self._controllers['team'].sendCommand, command))
+    def doPing(self, cellIdx):
+        controller = g_sessionProvider.getChatCommands()
+        self._setCallback(self._commandDelay, partial(controller.sendAttentionToCell, cellIdx))
+        return True
 
     def callHelp(self):
-        delay = self._commandDelay
-        command = self._commandFactory.createByName(CHAT_COMMANDS.HELPME.name())
-        self._setCallback(delay, partial(self._controllers['team'].sendCommand, command))
+        controller = g_sessionProvider.getChatCommands()
+        self._setCallback(self._commandDelay, partial(controller.sendCommand, CHAT_COMMANDS.HELPME.name()))
+        return True
 
     def sendText(self, channel, text):
-        delay = self._textDelay
-        if self.has_channel(channel):
-            self._setCallback(delay, partial(self._controllers[channel]._broadcast, text))
+        controller = self._channelsCtrl.getControllerByCriteria(_Criteria(channel))
+        log.debug('found controller: {}'.format(controller))
+        if not controller:
+            log.debug('not found channel: {}'.format(channel.name))
+            return False
+        log.debug('found channel: {}'.format(channel.name))
+        self._setCallback(self._textDelay, partial(controller.sendMessage, text))
+        return True
 
-    def has_channel(self, channel):
-        return self._controllers.has_key(channel)
+    def sendTeam(self, text):
+        log.debug('send to BATTLE_CHANNEL.TEAM')
+        return self.sendText(BATTLE_CHANNEL.TEAM, text)
 
-    def getKeys(self):
-        return self._controllers.keys()
+    def sendSquad(self, text):
+        log.debug('send to BATTLE_CHANNEL.SQUAD')
+        return self.sendText(BATTLE_CHANNEL.SQUAD, text)
+
+    def getChannelLabels(self):
+        labels = []
+        for channel in BATTLE_CHANNEL.ALL:
+            if self._channelsCtrl.getControllerByCriteria(_Criteria(channel)):
+                labels.append(channel.name)
+        return labels
 

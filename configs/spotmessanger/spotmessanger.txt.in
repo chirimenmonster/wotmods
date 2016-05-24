@@ -63,6 +63,15 @@ Config
         Description: seconds of delay to next command
         Type: float
         Context: root, BattleTypeParameter
+    MaxTeamAmount
+        Description: threshold of maximum team amount for activate sixth sense message.
+        Type: int
+        Context: root, BattleTypeParameter
+    MinTeamAmount
+        Description: threshold of minimum team amount for activate sixth sense message.
+            default value is 1.  nothing to do if you are alone. 
+        Type: int
+        Context: root, BattleTypeParameter
         
  - container
     BattleTypeParameter
@@ -88,11 +97,6 @@ Config
         Description: specify command when sixth sense
         Type: string; one of [ ping | help | teammsg | squadmsg ]
         Context: CommandOrder
-    MaxTeamAmount
-        Description: threshold of team amount for activate sixth sense message,
-            0 is always active sixth sense message
-        Type: int
-        Context: BattleTypeParameter
     EnableVehicleType     
         Description: vehicle type for enable sixth sense message
         Type: list of VehicleType

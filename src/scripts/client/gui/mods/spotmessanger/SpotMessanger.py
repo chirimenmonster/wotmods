@@ -3,56 +3,62 @@
 # @author: BirrettaMalefica EU, Chirimen SEA
 
 import math
-import BigWorld
 
+from modconsts import COMMAND_TYPE, VEHICLE_TYPE
 from ModUtils import BattleUtils, MinimapUtils
+from wotapis import Utils, VehicleInfo, ArenaInfo
 from IngameMessanger import IngameMessanger
-from modconsts import BATTLE_TYPE, VEHICLE_TYPE
+from settings import sm_settings
 from logger import log
+
+_commandMethod = {
+    COMMAND_TYPE.LABELS.PING: '_doPing',
+    COMMAND_TYPE.LABELS.HELP: '_doHelp',
+    COMMAND_TYPE.LABELS.TEAMMSG: '_doSendTeamMsg',
+    COMMAND_TYPE.LABELS.SQUADMSG: '_doSendSquadMsg'
+}
 
 class SpotMessanger(object):
     _isEnabled = True
     _lastActivity = 0
-    _currentParam = {}
-
-    def setConfig(self, settings):
-        self._settings = settings
+    _activeParams = []
+    _currentIndex = 0
+    _currentParam = None
     
-    def getFallbackParam(self, key):
-        value = self._currentParam.get(key, None)
-        if not value:
-            value = self._settings.get(key, None)
-        return value
-
-    def initialize(self):
-        self._isEnabled = self._settings['ActiveByDefault']
+    def onBattleStart(self):
+        self._isEnabled = sm_settings.get('ActiveByDefault')
         self._lastActivity = 0
-        self._player = BattleUtils.getPlayer()
-        self._currentBattleType = _getBattleTypeName(self._player)
-        self._currentVehicleType = _getVehicleTypeName(self._player)
 
-        self._currentParam = self._settings['BattleType'].get(self._currentBattleType, None)
-        if not self._currentParam:
-            log.debug('setting for battle type "{}" is none, use default'.format(self._currentBattleType))
-            self._currentParam = self._settings['BattleType'].get('default')
+        arena = ArenaInfo()
+        vehicle = VehicleInfo()
 
-        self._cooldownInterval = self.getFallbackParam('CooldownInterval')
-        self._commandDelay = self.getFallbackParam('CommandDelay')
-        self._textDelay = self.getFallbackParam('TextDelay')
+        log.info('on battle start')
+        log.info('current battle type: {} [{}({}) = "{}"]'.format(arena.battleType, arena.attrLabel, arena.id, arena.name))
+        log.info('current vehicle class: {} [{}] ({})'.format(vehicle.classAbbr, vehicle.className, vehicle.name))
 
-        self._isEnabledVehicle = self._currentVehicleType in self._currentParam['EnableVehicleType']
-        
+        self._activeParams = []
+        cooldownInterval = []
+        for i, p in enumerate(sm_settings.getParamsBattleType(arena.battleType)):
+            log.info('[{}]: CommandOrder: {}'.format(i, p.getInfo('CommandOrder')))
+            log.info('[{}]: CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(i,
+                    p.getInfo('CooldownInterval'),
+                    p.getInfo('CommandDelay'),
+                    p.getInfo('TextDelay')))
+            log.info('[{}]: MinTeamAmount: {}, MaxTeamAmount: {}'.format(i,
+                    p.getInfo('MinTeamAmount'),
+                    p.getInfo('MaxTeamAmount')))
+            log.info('[{}]: Enable Vehicle Type: {}'.format(i, p.getInfo('EnableVehicleType')))
+            if vehicle.classAbbr in p.get('EnableVehicleType', VEHICLE_TYPE.LIST):
+                log.info('[{}]: current vehicle type is {}, add to list.'.format(i, vehicle.classAbbr))
+                self._activeParams.append(p)
+                cooldownInterval.append(p.get('CooldownInterval'))
+            else:
+                log.info('[{}]: current vehicle type is {}, do nothing.'.format(i, vehicle.classAbbr))
+                self._activeParams.append(None)
+
+        self._cooldownInterval = min(t for t in cooldownInterval)
+        log.info('minimal CoolDownInterval: {}'.format(self._cooldownInterval))
         self.showCurrentMode()
-        log.info('Battle Type: {}'.format(self._currentBattleType))
-        log.info('CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(self._cooldownInterval, self._commandDelay, self._textDelay))
-        log.info('Command Order: {}'.format(self._currentParam.get('CommandOrder', [])))
-        log.info('Max Team Amount: {}'.format(self._currentParam.get('MaxTeamAmount')))
-        log.info('Enable Vehicle Type: {}'.format(self._currentParam.get('EnableVehicleType')))
-        if self._isEnabledVehicle:
-            log.info('current vehicle type is {}, sixth sense message is enable.'.format(self._currentVehicleType))
-        else:
-            log.info('current vehicle type is {}, sixth sense message is disabled.'.format(self._currentVehicleType))
-
 
     def toggleActive(self):
         self._isEnabled = not self._isEnabled
@@ -61,83 +67,111 @@ class SpotMessanger(object):
     def showCurrentMode(self):
         if self._isEnabled:
             log.info('Sixth Sense Message enabled')
-            BattleUtils.DebugMsg(self._settings['EnableSystemMsg'], True)
+            BattleUtils.DebugMsg(sm_settings.get('EnableSystemMsg'), True)
         else:
             log.info('Sixth Sense Message disabled')
-            BattleUtils.DebugMsg(self._settings['DisableSystemMsg'], True)
+            BattleUtils.DebugMsg(sm_settings.get('DisableSystemMsg'), True)
 
-    def _isCooldown(self, currentTime):
-        cooldownTime = self._lastActivity + self._cooldownInterval - currentTime
-        if cooldownTime > 0:
-            log.info('[time:{:.1f}] activate sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
-            BattleUtils.DebugMsg(self._settings['CooldownMsg'].format(rest=int(math.ceil(cooldownTime))))
-            return True
-        return False
+    def _getCooldownTime(self, currentTime, cooldownInterval):
+        cooldownTime = self._lastActivity + cooldownInterval - currentTime
+        return cooldownTime if cooldownTime > 0 else 0
 
     def showSixthSenseIndicator(self):
-        if not self._isEnabled or not self._isEnabledVehicle:
+        if not self._isEnabled or not self._activeParams:
+            log.info('sixth sense message is disabled or nothing to do.')
             return
-
-        currentTime = BigWorld.time()
-        if self._isCooldown(currentTime):
+        currentTime = Utils.getTime()
+        cooldownTime = self._getCooldownTime(currentTime, self._cooldownInterval)
+        if cooldownTime > 0:
+            log.info('[time:{:.1f}] invoke sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
+            BattleUtils.DebugMsg(sm_settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
             return
-        log.debug('[time:{:.1f}] activate sixth sense, do commands.'.format(currentTime))
- 
-        teamAmount = BattleUtils.getTeamAmount(self._player)
-        position = MinimapUtils.getOwnPos(self._player)
+        log.info('[time:{:.1f}] invoke sixth sense.'.format(currentTime))
 
-        messenger = IngameMessanger(commandDelay=self._commandDelay, textDelay=self._textDelay)
-        log.debug('channel found: {}'.format(', '.join(messenger.getKeys())))
-
-        #team amount checks
-        maxTeamAmount = self._currentParam.get('MaxTeamAmount', 0)
-        if maxTeamAmount > 0 and maxTeamAmount < teamAmount:
-            log.debug('current team amount "{}" is greater than "{}", do nothing.'.format(teamAmount, maxTeamAmount))
-            return
-        log.debug('current team amount "{}"'.format(teamAmount))
-
-        msg = self._settings.get('ImSpotted', None)
-        msg = msg.format(pos=position) if msg else None
+        player = Utils.getPlayer()
+        teamAmount = BattleUtils.getTeamAmount(player)
+        position = MinimapUtils.getOwnPos(player)
         
-        commandOrder = self._currentParam.get('CommandOrder', [])
-        if not commandOrder:
-            log.warning('CommandOrder is empty')
+        messenger = IngameMessanger()
+        log.info('current chat channel: {}'.format(messenger.getChannelLabels()))
+        log.info('current team amount: {}'.format(teamAmount))
+
+        self._isDone = {}
+        for index, param in enumerate(self._activeParams):
+            self._currentIndex = index
+            self._currentParam = param
+            self._doSixthSense(messenger, currentTime, player, position, teamAmount)
+        if self._isDone:
+            log.debug('success commands, update last activity.')
+            self._lastActivity = currentTime
+
+
+    def _doSixthSense(self, messenger, currentTime, player, position, teamAmount):
+        index = self._currentIndex
+        param = self._currentParam
+        cooldownInterval = param.get('CooldownInterval')
+        commandDelay = param.get('CommandDelay')
+        textDelay = param.get('TextDelay')
+        minTeamAmount = param.get('MinTeamAmount')
+        maxTeamAmount = param.get('MaxTeamAmount')
+ 
+        cooldownTime = self._getCooldownTime(currentTime, cooldownInterval)
+        if cooldownTime > 0:
+            log.info('[{}]: now cooldown time, skip. (rest {:.1f}s)'.format(index, cooldownTime))
             return
+
+        messenger.setParam(commandDelay, textDelay)
+
+        if minTeamAmount and teamAmount <= minTeamAmount:
+            log.info('[{}]: team amount ({}) is too less (<= {}), skip.'.format(index, teamAmount, minTeamAmount))
+            return
+        if maxTeamAmount and teamAmount > maxTeamAmount:
+            log.info('[{}]: team amount ({}) is too many (> {}), skip.'.format(index, teamAmount, maxTeamAmount))
+            return
+
+        commandOrder = param.get('CommandOrder', [])
+        log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
-            if command == 'ping':
-                log.info('action: "{}", do ping at {}'.format(command, position))
-                self._lastActivity = currentTime
-                messenger.doPing(MinimapUtils.name2cell(position))
-            elif command == 'help':
-                log.info('action: "{}", call help'.format(command))
-                self._lastActivity = currentTime
-                messenger.callHelp()
-            elif command == 'teammsg' and msg and msg != 'None':
-                log.info('action: "{}", send message with team channel: "{}"'.format(command, msg))
-                self._lastActivity = currentTime
-                messenger.sendText('team', msg)
-            elif command == 'squadmsg' and msg and msg != 'None':
-                log.info('action: "{}", send message with squad channel: "{}"'.format(command, msg))
-                if messenger.has_channel('squad'):
-                    self._lastActivity = currentTime
-                    messenger.sendText('squad', msg)
-                else:
-                    log.info('action: "{}", no squad channel found.'.format(command))
+            log.debug('[{}]: already executed command class: {}'.format(index, self._isDone))
+            getattr(self, _commandMethod[command])(messenger, pos=position)
 
 
+    def _doPing(self, messenger, pos=None):
+        if self._isDone.get('ping') or not pos:
+            return
+        log.info('[{}]: action: do ping at {}'.format(self._currentIndex, pos))
+        messenger.doPing(MinimapUtils.name2cell(pos))
+        self._isDone['ping'] = True
+        
+    def _doHelp(self, messenger, pos=None):
+        if self._isDone.get('help'):
+            return
+        log.info('[{}]: action: call help'.format(self._currentIndex))
+        messenger.callHelp()
+        self._isDone['help'] = True
 
-def _getBattleTypeName(player):
-    import constants
-    type = player.arena.guiType
-    name = BATTLE_TYPE.LABELS.get(type, 'others')
-    log.debug('battle type: "{}" (official: {}:{})'.format(name, type, constants.ARENA_GUI_TYPE_LABEL.LABELS[type]))
-    return name
-
-def _getVehicleTypeName(player):
-    type = BattleUtils.getVehicleType(BattleUtils.getCurrentVehicleDesc(player))
-    name = VEHICLE_TYPE.LABELS[type]
-    log.debug('vehicle type: "{}"'.format(name))
-    return name	
+    def _doSendTeamMsg(self, messenger, pos=None):
+        if self._isDone.get('msg'):
+            return
+        msg = self._currentParam.get('ImSpotted').format(pos=pos)
+        if not msg:
+            return
+        log.info('[{}]: action: send message to team channel: "{}"'.format(self._currentIndex, msg))
+        ret = messenger.sendTeam(msg)
+        self._isDone['msg'] = ret
+        
+    def _doSendSquadMsg(self, messenger, pos=None):
+        if self._isDone.get('msg'):
+            return
+        msg = self._currentParam.get('ImSpotted').format(pos=pos)
+        if not msg:
+            return
+        if not 'squad' in messenger.getChannelLabels():
+            log.info('[{}]: action: no squad channel, skip.'.format(self._currentIndex))
+            return
+        log.info('[{}]: action: send message to squad channel: "{}"'.format(self._currentIndex, msg))
+        ret = messenger.sendSquad(msg)
+        self._isDone['msg'] = ret
 
 
 sm_control = SpotMessanger()
