@@ -1,7 +1,7 @@
 SpotMessanger
 =============
 Send message to team or platoon, eventually with a "help" or "ping"
-command,if you are spotted and under some conditions.
+command, if you are spotted and under some conditions.
 
 This mod aim to inform your CW-TC-ESL team if you are spotted but only
 if they want that informations:
@@ -22,14 +22,15 @@ Feature
 + can disable function for some tank types if you want
 + can enable function only when team amount is small, default is always
 + can be different settings for each battle type
++ allows multiple settings for same battle type
 
 
 Default settings
 ----------------
 
-+ the message contains the words "An enemy ha spotted me at A8"
++ the message contains the words "An enemy has spotted me at A8"
 + don't ping the minimap
-+ use F7
++ use F7 (HELP)
 + F11 to activate/disable the mod
 + NUMPAD4 to reload config
 + enabled for every tank types
@@ -45,6 +46,11 @@ Customize
 
 ChangeLog
 ---------
+### 0.3.0
++ for WoT version 0.9.15.
++ allows multiple settings about same battle type.
++ add new parameter MinTeamAmount, default is 1.
+
 ### 0.2.0
 + for WoT version 0.9.14.1.
 + changed style config file.
