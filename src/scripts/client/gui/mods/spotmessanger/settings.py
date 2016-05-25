@@ -84,20 +84,22 @@ class _BattleTypeSettings(object):
 
 
 class _Settings(object):
-    _settings = {}
+    _paramGlobal = {}
+    _paramBattleType = {} 
+
 
     def get(self, key, default=None):
-        return self._settings.get(key, default)
+        return self._paramGlobal.get(key, default)
 
 
     def getParamsBattleType(self, battleType):
-        params = self._settings['BattleType'].get(battleType, None)
+        params = self._paramBattleType.get(battleType, None)
         if params:
             log.debug('parameter set for battle type "{}" is found'.format(battleType))
         else:
             log.debug('parameter set for battle type "{}" is none, use default'.format(battleType))
-            params = self._settings['BattleType']['default']
-        settings = [ _BattleTypeSettings(self._settings, p) for p in params ]
+            params = self._paramBattleType['default']
+        settings = [ _BattleTypeSettings(self._paramGlobal, p) for p in params ]
         return settings
 
 
@@ -114,13 +116,13 @@ class _Settings(object):
 
         log.debug('GLOBAL_PARAM_LIST: {}'.format(GLOBAL_PARAM_LIST))
         
+        self._paramGlobal = {}
+        self._paramBattleType = {} 
         if not section:
-            log.warning('cannot open config file: {}'.format(file))
-            config = {}
+            log.warning('cannot open config file: {}, use internal default settings.'.format(file))
             for key in GLOBAL_PARAM_LIST:
-                config[key] = ALL_PARAM_INFO[key][INFO_DEFAULTVALUE]
-            config['BattleType'] = { 'default': [ DEFAULT_BATTLETYPE_SETTINGS ] }
-            self._settings = config
+                self._paramGlobal[key] = ALL_PARAM_INFO[key][INFO_DEFAULTVALUE]
+            self._paramBattleType = { 'default': [ DEFAULT_BATTLETYPE_SETTINGS ] }
         else:
             self._setGlobalSettings(section)
             log.debug('available battletype tags: {}'.format(BATTLE_TYPE.LIST))
@@ -128,33 +130,34 @@ class _Settings(object):
                 log.debug('found tag "{}" in BattleTypeParameterList'.format(key))
                 if key == 'BattleTypeParameter':
                     self._setBattleTypeSettings(param)
-            log.info('found battle type in settings: {}'.format(self._settings['BattleType'].keys()))
+            log.info('found battle type in settings: {}'.format(self._paramBattleType.keys()))
 
-        log.debug('settings = {}'.format(self._settings))
-        return self._settings
+        log.debug('_paramGlobal: {}'.format(self._paramGlobal))
+        for key, param in self._paramBattleType.items():
+            for i, p in enumerate(param):
+                log.debug('_paramBattleType[\'{}\'][{}]: {}'.format(key, i, p))
 
         
     def _setGlobalSettings(self, section):
         log.debug('found tags in global: {}'.format(section.keys()))
-        config = {}
         for key in GLOBAL_PARAM_LIST:
-            self._setElementFromSettings(section, config, key, True)
-        self._settings = config
-        self._settings['BattleType'] = {}
+            self._setElementFromSettings(section, self._paramGlobal, key, True)
 
 
     def _setBattleTypeSettings(self, section):
         log.debug('found tags in battletype: {}'.format(section.keys()))
+        if not section.has_key('AssignBattleType'):
+            log.warning('section "{}" is not found.'.format(key))
+            return
+        battleTypeList = self._readElement(section['AssignBattleType'], 'AssignBattleType')
+        log.debug('found AssignBattleType: {}'.format(battleTypeList))
         config = {}
         for key in [ 'CommandOrder', 'EnableVehicleType' ] + FALLBACK_PARAM_LIST:
             self._setElementFromSettings(section, config, key)
-        battleTypeList = self._readElement(section['AssignBattleType'], 'AssignBattleType')
-        log.debug('found AssignBattleType: {}'.format(battleTypeList))
-        for battleType in self._readElement(section['AssignBattleType'], 'AssignBattleType'):
-            if self._settings['BattleType'].has_key(battleType):
-                self._settings['BattleType'][battleType].append(config)
-            else:
-                self._settings['BattleType'][battleType] = [ config ]
+        for battleType in battleTypeList:
+            if not self._paramBattleType.has_key(battleType):
+                self._paramBattleType[battleType] = []
+            self._paramBattleType[battleType].append(config)
 
 
     def _setElementFromSettings(self, section, config, key, withDefault=False):
