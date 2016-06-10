@@ -16,6 +16,10 @@ Config
         Description: flag if enable output debug message to python.log
         Type: bool
         Context: root
+    LogLevel
+        Description: keyword for log level
+        Type: string; one of [ debug | info | notice | warning | error ]
+        Context: root
     ActiveByDefault
         Description: flag if enable SpotMessanger when battle startup
         Type: bool

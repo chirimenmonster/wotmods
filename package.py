@@ -7,7 +7,7 @@ import shutil
 import argparse
 import re
 
-WOT_VERSION          = "0.9.15"
+WOT_VERSION          = "0.9.15.0.1"
 SUPPORT_URL          = ""
 ROOT_DIR             = os.path.dirname(os.path.realpath(__file__))
 SRC_DIR              = os.path.join(ROOT_DIR, "src")
@@ -36,14 +36,10 @@ def main():
     parser.add_argument('--mod-version', default=MOD_INFO.VERSION)
     parser.add_argument('--mod-debug',   default=MOD_INFO.DEBUG)
     args = parser.parse_args()
-    in_file_parameters = {
-        "spotmessanger.txt.in": dict(
-            SUPPORT_URL = SUPPORT_URL
-        ),
-        "spotmessanger.xml.in": dict(
-            DEBUG = args.mod_debug
-        )
-    }
+    in_file_parameters = dict(
+        SUPPORT_URL = SUPPORT_URL,
+        DEBUG = args.mod_debug
+    )
     package_name = "{name}-{version}.zip".format(name=args.mod_name.lower(), version=args.mod_version)
     packager = Packager(
         root_dir              = ROOT_DIR,
@@ -165,7 +161,7 @@ class Packager(object):
     @accepts_extensions([".in"])
     def __run_template_file(self, src_filepath):
         build_filepath = src_filepath[:-3]
-        parameters = self.__in_file_parameters[os.path.basename(src_filepath)]
+        parameters = self.__in_file_parameters
         # run 'parameters' through in-template and produce temporary output file
         with open(src_filepath, "r") as in_file, open(build_filepath, "w") as out_file:
             out_file.write(in_file.read().format(**parameters))

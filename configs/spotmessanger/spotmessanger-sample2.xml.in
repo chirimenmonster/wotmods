@@ -1,0 +1,61 @@
+<!-- -*- mode: xml; -*- -->
+<!-- only for clan, nothing to do for random battle -->
+
+<root>
+
+    <Debug>{DEBUG}</Debug>
+    <LogLevel>notice</LogLevel>
+
+    <!-- Global settings -->
+    
+    <!-- Activation options -->
+    <ActiveByDefault>true</ActiveByDefault>
+    <ActivationHotKey>KEY_F11</ActivationHotKey>
+    <ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey>
+
+    <!-- Message options -->
+    <ImSpotted>An enemy has spotted me at {{pos}}.</ImSpotted>
+    <DisableSystemMsg>Sixth Sense Message disabled</DisableSystemMsg>
+    <EnableSystemMsg>Sixth Sense Message enabled</EnableSystemMsg>
+    <CooldownMsg>Sixth Sense Message cooldown, rest {{rest}} sec.</CooldownMsg>
+ 
+    <!-- Cooldown parameters -->
+    <CooldownInterval>60</CooldownInterval>
+ 
+    <!-- Local settings for each battle types -->
+    <BattleTypeParameterList>
+
+        <!-- default settings -->
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>default</BattleType> <!-- default when battle type is not found -->
+            </AssignBattleType>
+            <CommandOrder>
+                <Command>help</Command> <!-- Send "Help!" quick command (F7) when the perk activates. -->
+                <Command>teammsg</Command> <!-- Send Message to team chat. -->
+            </CommandOrder>
+        </BattleTypeParameter>
+
+        <!-- for Random Battle: do nothing -->
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>Random</BattleType> <!-- for Random Battle (Regular) -->
+            </AssignBattleType>
+        </BattleTypeParameter>
+
+        <!-- for Clan Battle -->
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>GlobalMap</BattleType> <!-- for Global Map -->
+                <BattleType>Fortifications</BattleType> <!-- for Skirmish or Stronghold -->
+            </AssignBattleType>
+            <CommandOrder>
+                <Command>help</Command> <!-- Send "Help!" quick command (F7) when the perk activates. -->
+                <Command>teammsg</Command> <!-- Send Message to team chat. -->
+            </CommandOrder>
+            <CooldownInterval>30</CooldownInterval>
+        </BattleTypeParameter>
+
+    </BattleTypeParameterList>
+    
+</root>
