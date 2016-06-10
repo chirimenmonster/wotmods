@@ -3,6 +3,7 @@
 <root>
 
     <Debug>{DEBUG}</Debug>
+    <LogLevel>info</LogLevel>
 
     <!-- Global settings -->
     

@@ -1,7 +1,7 @@
 
 import copy
 import ResMgr
-from logger import log
+from logger import log, LOGLEVEL
 from modconsts import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
 
 
@@ -11,9 +11,14 @@ INFO_ISREQUIRED = 2
 INFO_DEFAULTVALUE = 3
 INFO_CHILDTAG = 3
 INFO_CHILDVALUES = 4
+INFO_ENUMVALUES = 4
+
+DEBUG_PARAM_DEF = [
+    [ 'Debug',              'Bool',     False,  True            ],
+    [ 'LogLevel',           'Enum',     False,  'info',         LOGLEVEL.LIST       ]
+]
 
 GLOBAL_PARAM_DEF = [
-    [ 'Debug',              'Bool',     False,  True            ],
     [ 'ActiveByDefault',    'Bool',     False,  True            ],
     [ 'ActivationHotKey',   'String',   False,  'KEY_F11'       ],
     [ 'ReloadConfigKey',    'String',   False,  'KEY_NUMPAD4'   ],
@@ -32,23 +37,27 @@ FALLBACK_PARAM_DEF = [
 ]
 
 BATTLETYPE_PARAM_DEF = [
-    [ 'AssignBattleType',   'List',     True,   'BattleType',   BATTLE_TYPE.LIST    ],
-    [ 'CommandOrder',       'List',     True,   'Command',      COMMAND_TYPE.LIST   ],
-    [ 'EnableVehicleType',  'List',     False,  'VehicleType',  VEHICLE_TYPE.LIST   ],
-    [ 'BattleType',         'String',   False   ],
-    [ 'Command',            'String',   False   ],
-    [ 'VehicleType',        'String',   False   ]
+    [ 'AssignBattleType',   'List',     True,   'BattleType'    ],
+    [ 'CommandOrder',       'List',     True,   'Command'       ],
+    [ 'EnableVehicleType',  'List',     False,  'VehicleType'   ]
+]
+
+OTHER_PARAM_DEF = [
+    [ 'BattleType',         'Enum',     False,  None,           BATTLE_TYPE.LIST    ],
+    [ 'Command',            'Enum',     False,  None,           COMMAND_TYPE.LIST   ],
+    [ 'VehicleType',        'Enum',     False,  None,           VEHICLE_TYPE.LIST   ]
 ]
 
 DEFAULT_BATTLETYPE_SETTINGS = {
     'CommandOrder':    [ 'help', 'teammsg' ]
 }
 
+DEBUG_PARAM_LIST = [ v[INFO_TAG] for v in DEBUG_PARAM_DEF ]
 GLOBAL_PARAM_LIST = [ v[INFO_TAG] for v in GLOBAL_PARAM_DEF + FALLBACK_PARAM_DEF ]
 FALLBACK_PARAM_LIST = [ v[INFO_TAG] for v in FALLBACK_PARAM_DEF ]
+BATTLETYPE_PARAM_LIST = [ v[INFO_TAG] for v in BATTLETYPE_PARAM_DEF + FALLBACK_PARAM_DEF ]
 
-ALL_PARAM_INFO = { v[INFO_TAG]: v for v in GLOBAL_PARAM_DEF + FALLBACK_PARAM_DEF + BATTLETYPE_PARAM_DEF }
-BATTLETYPE_PARAM_INFO = { v[INFO_TAG]: v for v in BATTLETYPE_PARAM_DEF + FALLBACK_PARAM_DEF }
+ALL_PARAM_INFO = { v[INFO_TAG]: v for v in DEBUG_PARAM_DEF + GLOBAL_PARAM_DEF + FALLBACK_PARAM_DEF + BATTLETYPE_PARAM_DEF + OTHER_PARAM_DEF }
 
 
 class _BattleTypeSettings(object):
@@ -107,17 +116,18 @@ class _Settings(object):
         debug = ALL_PARAM_INFO['Debug'][INFO_DEFAULTVALUE]
         log.setDebug(debug)
 
-        log.info('config file: {}'.format(file))
-
-        section = ResMgr.openSection(file)
-        if section:
-            debug = section.readBool('Debug', debug)
-            log.setDebug(debug)
-
-        log.debug('GLOBAL_PARAM_LIST: {}'.format(GLOBAL_PARAM_LIST))
-        
         self._paramGlobal = {}
         self._paramBattleType = {} 
+
+        log.debug('config file: {}'.format(file))
+        section = ResMgr.openSection(file)
+        if section:
+            for key in DEBUG_PARAM_LIST:
+                self._setElementFromSettings(section, self._paramGlobal, key, True)
+            log.setDebug(self._paramGlobal['Debug'])
+            log.setLogLevel(self._paramGlobal['LogLevel'])
+
+        log.debug('GLOBAL_PARAM_LIST: {}'.format(GLOBAL_PARAM_LIST))       
         if not section:
             log.warning('cannot open config file: {}, use internal default settings.'.format(file))
             for key in GLOBAL_PARAM_LIST:
@@ -152,7 +162,7 @@ class _Settings(object):
         battleTypeList = self._readElement(section['AssignBattleType'], 'AssignBattleType')
         log.debug('found AssignBattleType: {}'.format(battleTypeList))
         config = {}
-        for key in [ 'CommandOrder', 'EnableVehicleType' ] + FALLBACK_PARAM_LIST:
+        for key in BATTLETYPE_PARAM_LIST:
             self._setElementFromSettings(section, config, key)
         for battleType in battleTypeList:
             if not self._paramBattleType.has_key(battleType):
@@ -165,7 +175,7 @@ class _Settings(object):
         if section.has_key(key):
             config[key] = self._readElement(section[key], key)
         else:
-            if withDefault and info[INFO_TYPE] in [ 'Bool', 'Int', 'Float', 'String' ]:
+            if withDefault and info[INFO_TYPE] in [ 'Bool', 'Int', 'Float', 'String', 'Enum' ]:
                 config[key] = info[INFO_DEFAULTVALUE]
             elif info[INFO_ISREQUIRED]:
                 log.warning('section "{}" is not found.'.format(key))
@@ -180,16 +190,23 @@ class _Settings(object):
                 return getattr(element, resmgrAttr[info[INFO_TYPE]])
             except:
                 log.current_exception()
-        elif info[INFO_TYPE] in [ 'List' ]:
+        elif info[INFO_TYPE] == 'Enum':
+            try:
+                v = element.asString
+                if v in info[INFO_ENUMVALUES]:
+                    return v
+                else:
+                    log.warning('found invalid item "{}", available only {}'.format(v, info[INFO_ENUMVALUES]))
+                    return None
+            except:
+                log.current_exception()
+        elif info[INFO_TYPE] == 'List':
             values = []
             for k, v in element.items():
-                if k in info[INFO_CHILDTAG]:
+                if k == info[INFO_CHILDTAG]:
                     v = self._readElement(v, info[INFO_CHILDTAG])
-                    if v in info[INFO_CHILDVALUES]:
-                        #log.debug('found valid item "{}", append to list.'.format(v))
+                    if v:
                         values.append(v)
-                    else:
-                        log.warning('found invalid item "{}", available only {}'.format(v, info[INFO_CHILDVALUES]))
                 else:
                     log.warning('found invalid tag "{}", available only "{}"'.format(k, info[INFO_CHILDTAG]))
             return values
