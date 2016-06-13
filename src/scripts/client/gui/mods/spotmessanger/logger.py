@@ -30,6 +30,7 @@ class LOGLEVEL:
         LABELS.INFO,
         LABELS.DEBUG
     ]
+    REV = { v: k for k, v in VALUES.items() }
 
 class Logger(object):
     _enableDebug = False
@@ -44,7 +45,7 @@ class Logger(object):
         else:
             if label in LOGLEVEL.VALUES:
                 self._logLevel = LOGLEVEL.VALUES[label]
-        log.debug('set log level: {}'.format(self._logLevel))
+        log.debug('set log level: {}'.format(LOGLEVEL.REV[self._logLevel]))
 
     def _addLineNo(self, msg):
         frame = inspect.currentframe(2)
