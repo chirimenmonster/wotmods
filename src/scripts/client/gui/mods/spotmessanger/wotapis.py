@@ -4,27 +4,38 @@ import BigWorld
 from items.vehicles import getVehicleClass
 from gui.battle_control import avatar_getter, arena_info, minimap_utils
 from gui.battle_control.minimap_utils import MINIMAP_SIZE
+from messenger import MessengerEntry
 
 from modconsts import VEHICLE_TYPE, BATTLE_TYPE
 from logger import log
 
-class Utils(object):
+class Utils:
 
-    @classmethod
-    def getTime(cls):
+    @staticmethod
+    def getTime():
         return BigWorld.time()
 
-    @classmethod
-    def getPlayer(cls):
+    @staticmethod
+    def getPlayer():
         return BigWorld.player()
 
-    @classmethod
-    def getPos(cls, avatar = None):
+    @staticmethod
+    def getPos(avatar = None):
         if not avatar:
-            avatar = cls.getPlayer()
+            avatar = BigWorld.player()
         position = BigWorld.entities[avatar.playerVehicleID].position
         log.debug('position = {}'.format(position))
         return position
+
+    @staticmethod
+    def getTeamAmount(avatar = None):
+        arena = avatar_getter.getArena(avatar)
+        team = avatar_getter.getPlayerTeam(avatar)
+        return len([ k for k, v in arena.vehicles.items() if v['team'] == team and v['isAlive'] ])
+
+    @staticmethod
+    def addClientMessage(message, isCurrentPlayer = False):
+        MessengerEntry.g_instance.gui.addClientMessage(message, isCurrentPlayer)
 
 
 class VehicleInfo(object):

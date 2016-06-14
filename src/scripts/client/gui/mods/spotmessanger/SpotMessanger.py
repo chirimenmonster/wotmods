@@ -18,6 +18,7 @@ _commandMethod = {
     COMMAND_TYPE.LABELS.SQUADMSG: '_doSendSquadMsg'
 }
 
+
 class SpotMessanger(object):
     _isEnabled = True
     _lastActivity = 0
@@ -60,21 +61,25 @@ class SpotMessanger(object):
         log.info('minimal CoolDownInterval: {}'.format(self._cooldownInterval))
         self.showCurrentMode()
 
+
     def toggleActive(self):
         self._isEnabled = not self._isEnabled
         self.showCurrentMode()
 
+
     def showCurrentMode(self):
         if self._isEnabled:
             log.info('Sixth Sense Message enabled')
-            BattleUtils.DebugMsg(sm_settings.get('EnableSystemMsg'), True)
+            Utils.addClientMessage(sm_settings.get('EnableSystemMsg'), True)
         else:
             log.info('Sixth Sense Message disabled')
-            BattleUtils.DebugMsg(sm_settings.get('DisableSystemMsg'), True)
+            Utils.addClientMessage(sm_settings.get('DisableSystemMsg'), True)
+
 
     def _getCooldownTime(self, currentTime, cooldownInterval):
         cooldownTime = self._lastActivity + cooldownInterval - currentTime
         return cooldownTime if cooldownTime > 0 else 0
+
 
     def showSixthSenseIndicator(self):
         if not self._isEnabled or not self._activeParams:
@@ -84,15 +89,17 @@ class SpotMessanger(object):
         cooldownTime = self._getCooldownTime(currentTime, self._cooldownInterval)
         if cooldownTime > 0:
             log.info('[time:{:.1f}] invoke sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
-            BattleUtils.DebugMsg(sm_settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
+            Utils.addClientMessage(sm_settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
             return
         log.info('[time:{:.1f}] invoke sixth sense.'.format(currentTime))
 
         player = Utils.getPlayer()
         teamAmount = BattleUtils.getTeamAmount(player)
+        teamAmount_new = Utils.getTeamAmount()
         position = MinimapUtils.getOwnPos(player)
         cellIndex = MinimapInfo.getCellIndexByPosition(Utils.getPos())
         
+        log.debug('teamAmount old = {}, new = {}'.format(teamAmount, teamAmount_new))
         log.debug('cellIndex old = {}, new = {}'.format(MinimapUtils.name2cell(position), cellIndex))
         
         messenger = IngameMessanger()
