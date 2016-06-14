@@ -169,7 +169,7 @@ class SpotMessanger(object):
     def _doSendSquadMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
             return
-        msg = self._currentParam.get('ImSpotted').format(pos=minimapInfo.getCellName(cellIndex))
+        msg = self._currentParam.get('ImSpotted').format(pos=MinimapInfo.getCellName(cellIndex))
         if not msg:
             return
         if not 'squad' in messenger.getChannelLabels():

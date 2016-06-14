@@ -85,6 +85,8 @@ class MinimapInfo(object):
         centerPos = (upperRight + bottomLeft) * 0.5
         localX = (position[0] - centerPos[0]) / spaceSize[0] * MINIMAP_SIZE[0] + MINIMAP_SIZE[0] * 0.5
         localY = -(position[2] - centerPos[1]) / spaceSize[1] * MINIMAP_SIZE[1] + MINIMAP_SIZE[1] * 0.5
+        localX = max(min(localX, MINIMAP_SIZE[0] - 0.1), 0)
+        localY = max(min(localY, MINIMAP_SIZE[1] - 0.1), 0)
         return (localX, localY)
 
 
