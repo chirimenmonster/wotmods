@@ -6,7 +6,7 @@ import math
 
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
 from ModUtils import BattleUtils, MinimapUtils
-from wotapis import Utils, VehicleInfo, ArenaInfo
+from wotapis import Utils, VehicleInfo, ArenaInfo, MinimapInfo
 from IngameMessanger import IngameMessanger
 from settings import sm_settings
 from logger import log
@@ -91,6 +91,9 @@ class SpotMessanger(object):
         player = Utils.getPlayer()
         teamAmount = BattleUtils.getTeamAmount(player)
         position = MinimapUtils.getOwnPos(player)
+        cellIndex = MinimapInfo.getCellIndexByPosition(Utils.getPos())
+        
+        log.debug('cellIndex old = {}, new = {}'.format(MinimapUtils.name2cell(position), cellIndex))
         
         messenger = IngameMessanger()
         log.info('current chat channel: {}'.format(messenger.getChannelLabels()))
@@ -100,13 +103,13 @@ class SpotMessanger(object):
         for index, param in enumerate(self._activeParams):
             self._currentIndex = index
             self._currentParam = param
-            self._doSixthSense(messenger, currentTime, player, position, teamAmount)
+            self._doSixthSense(messenger, currentTime, player, cellIndex, teamAmount)
         if self._isDone:
             log.debug('success commands, update last activity.')
             self._lastActivity = currentTime
 
 
-    def _doSixthSense(self, messenger, currentTime, player, position, teamAmount):
+    def _doSixthSense(self, messenger, currentTime, player, cellIndex, teamAmount):
         index = self._currentIndex
         param = self._currentParam
         cooldownInterval = param.get('CooldownInterval')
@@ -133,37 +136,40 @@ class SpotMessanger(object):
         log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
             log.debug('[{}]: already executed command class: {}'.format(index, self._isDone))
-            getattr(self, _commandMethod[command])(messenger, pos=position)
+            getattr(self, _commandMethod[command])(messenger, cellIndex=cellIndex)
 
 
-    def _doPing(self, messenger, pos=None):
-        if self._isDone.get('ping') or not pos:
+    def _doPing(self, messenger, cellIndex=None):
+        if self._isDone.get('ping') or not cellIndex:
             return
-        log.info('[{}]: action: do ping at {}'.format(self._currentIndex, pos))
-        messenger.doPing(MinimapUtils.name2cell(pos))
+        log.info('[{}]: action: do ping at {}'.format(self._currentIndex, MinimapInfo.getCellName(cellIndex)))
+        messenger.doPing(cellIndex)
         self._isDone['ping'] = True
-        
-    def _doHelp(self, messenger, pos=None):
+
+
+    def _doHelp(self, messenger, cellIndex=None):
         if self._isDone.get('help'):
             return
         log.info('[{}]: action: call help'.format(self._currentIndex))
         messenger.callHelp()
         self._isDone['help'] = True
 
-    def _doSendTeamMsg(self, messenger, pos=None):
+
+    def _doSendTeamMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
             return
-        msg = self._currentParam.get('ImSpotted').format(pos=pos)
+        msg = self._currentParam.get('ImSpotted').format(pos=MinimapInfo.getCellName(cellIndex))
         if not msg:
             return
         log.info('[{}]: action: send message to team channel: "{}"'.format(self._currentIndex, msg))
         ret = messenger.sendTeam(msg)
         self._isDone['msg'] = ret
-        
-    def _doSendSquadMsg(self, messenger, pos=None):
+
+
+    def _doSendSquadMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
             return
-        msg = self._currentParam.get('ImSpotted').format(pos=pos)
+        msg = self._currentParam.get('ImSpotted').format(pos=minimapInfo.getCellName(cellIndex))
         if not msg:
             return
         if not 'squad' in messenger.getChannelLabels():
