@@ -103,8 +103,8 @@ class MinimapInfo(object):
 
     @classmethod
     def getCellIndexByPosition(cls, position):      
-        arenaType = arena_info.getArenaType()
-        bottomLeft, upperRight = arenaType.boundingBox
+        # ref.  xvm/src/xpm/xvm_main/utils.py: getMapSize() 
+        bottomLeft, upperRight = Utils.getPlayer().arena.arenaType.boundingBox
         localPos = cls.getLocalByPosition(position, bottomLeft, upperRight)
         cellIndex = cls.makeCellIndex(localPos[0], localPos[1])
         cellName = cls.getCellName(cellIndex)
