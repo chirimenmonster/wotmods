@@ -36,7 +36,10 @@ def init():
 def showSixthSenseIndicator(orig, *args, **kwargs):
     log.debug('activate sixth sense.')
     ret = orig(*args, **kwargs)
-    sm_control.showSixthSenseIndicator()
+    try:
+        sm_control.showSixthSenseIndicator()
+    except:
+        log.current_exception()
     return ret
 
 @overrideMethod(game, "handleKeyEvent")

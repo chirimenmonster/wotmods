@@ -44,12 +44,12 @@ class IngameMessanger(object):
         self._cooldDown += delay
 
     def doPing(self, cellIdx):
-        controller = g_sessionProvider.getChatCommands()
+        controller = g_sessionProvider.shared.chatCommands
         self._setCallback(self._commandDelay, partial(controller.sendAttentionToCell, cellIdx))
         return True
 
     def callHelp(self):
-        controller = g_sessionProvider.getChatCommands()
+        controller = g_sessionProvider.shared.chatCommands
         self._setCallback(self._commandDelay, partial(controller.sendCommand, CHAT_COMMANDS.HELPME.name()))
         return True
 
