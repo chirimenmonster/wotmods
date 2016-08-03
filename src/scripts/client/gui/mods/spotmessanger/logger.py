@@ -41,11 +41,12 @@ class Logger(object):
 
     def setLogLevel(self, label):
         if self._enableDebug:
-            self._logLevel = LOGLEVEL.DEBUG
+            newLogLevel = LOGLEVEL.DEBUG
         else:
             if label in LOGLEVEL.VALUES:
-                self._logLevel = LOGLEVEL.VALUES[label]
-        log.debug('set log level: {}'.format(LOGLEVEL.REV[self._logLevel]))
+                newLogLevel = LOGLEVEL.VALUES[label]
+        log.debug('set log level: {}'.format(LOGLEVEL.REV[newLogLevel]))
+        self._logLevel = newLogLevel
 
     def _addLineNo(self, msg):
         frame = inspect.currentframe(2)
