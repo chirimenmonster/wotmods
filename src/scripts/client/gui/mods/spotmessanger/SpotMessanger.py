@@ -5,7 +5,6 @@
 import math
 
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
-from ModUtils import BattleUtils, MinimapUtils
 from wotapis import Utils, VehicleInfo, ArenaInfo, MinimapInfo
 from IngameMessanger import IngameMessanger
 from settings import sm_settings
@@ -94,13 +93,8 @@ class SpotMessanger(object):
         log.info('[time:{:.1f}] invoke sixth sense.'.format(currentTime))
 
         player = Utils.getPlayer()
-        teamAmount = BattleUtils.getTeamAmount(player)
-        teamAmount_new = Utils.getTeamAmount()
-        position = MinimapUtils.getOwnPos(player)
+        teamAmount = Utils.getTeamAmount()
         cellIndex = MinimapInfo.getCellIndexByPosition(Utils.getPos())
-        
-        log.debug('teamAmount old = {}, new = {}'.format(teamAmount, teamAmount_new))
-        log.debug('cellIndex old = {}, new = {}'.format(MinimapUtils.name2cell(position), cellIndex))
         
         messenger = IngameMessanger()
         log.info('current chat channel: {}'.format(messenger.getChannelLabels()))
