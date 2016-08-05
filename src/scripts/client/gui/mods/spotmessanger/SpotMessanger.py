@@ -5,8 +5,7 @@
 import math
 
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
-from ModUtils import BattleUtils, MinimapUtils
-from wotapis import Utils, VehicleInfo, ArenaInfo
+from wotapis import Utils, VehicleInfo, ArenaInfo, MinimapInfo
 from IngameMessanger import IngameMessanger
 from settings import sm_settings
 from logger import log
@@ -17,6 +16,7 @@ _commandMethod = {
     COMMAND_TYPE.LABELS.TEAMMSG: '_doSendTeamMsg',
     COMMAND_TYPE.LABELS.SQUADMSG: '_doSendSquadMsg'
 }
+
 
 class SpotMessanger(object):
     _isEnabled = True
@@ -60,21 +60,25 @@ class SpotMessanger(object):
         log.info('minimal CoolDownInterval: {}'.format(self._cooldownInterval))
         self.showCurrentMode()
 
+
     def toggleActive(self):
         self._isEnabled = not self._isEnabled
         self.showCurrentMode()
 
+
     def showCurrentMode(self):
         if self._isEnabled:
             log.info('Sixth Sense Message enabled')
-            BattleUtils.DebugMsg(sm_settings.get('EnableSystemMsg'), True)
+            Utils.addClientMessage(sm_settings.get('EnableSystemMsg'), True)
         else:
             log.info('Sixth Sense Message disabled')
-            BattleUtils.DebugMsg(sm_settings.get('DisableSystemMsg'), True)
+            Utils.addClientMessage(sm_settings.get('DisableSystemMsg'), True)
+
 
     def _getCooldownTime(self, currentTime, cooldownInterval):
         cooldownTime = self._lastActivity + cooldownInterval - currentTime
         return cooldownTime if cooldownTime > 0 else 0
+
 
     def showSixthSenseIndicator(self):
         if not self._isEnabled or not self._activeParams:
@@ -84,13 +88,13 @@ class SpotMessanger(object):
         cooldownTime = self._getCooldownTime(currentTime, self._cooldownInterval)
         if cooldownTime > 0:
             log.info('[time:{:.1f}] invoke sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
-            BattleUtils.DebugMsg(sm_settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
+            Utils.addClientMessage(sm_settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
             return
         log.info('[time:{:.1f}] invoke sixth sense.'.format(currentTime))
 
         player = Utils.getPlayer()
-        teamAmount = BattleUtils.getTeamAmount(player)
-        position = MinimapUtils.getOwnPos(player)
+        teamAmount = Utils.getTeamAmount()
+        cellIndex = MinimapInfo.getCellIndexByPosition(Utils.getPos())
         
         messenger = IngameMessanger()
         log.info('current chat channel: {}'.format(messenger.getChannelLabels()))
@@ -100,13 +104,13 @@ class SpotMessanger(object):
         for index, param in enumerate(self._activeParams):
             self._currentIndex = index
             self._currentParam = param
-            self._doSixthSense(messenger, currentTime, player, position, teamAmount)
+            self._doSixthSense(messenger, currentTime, player, cellIndex, teamAmount)
         if self._isDone:
             log.debug('success commands, update last activity.')
             self._lastActivity = currentTime
 
 
-    def _doSixthSense(self, messenger, currentTime, player, position, teamAmount):
+    def _doSixthSense(self, messenger, currentTime, player, cellIndex, teamAmount):
         index = self._currentIndex
         param = self._currentParam
         cooldownInterval = param.get('CooldownInterval')
@@ -133,37 +137,40 @@ class SpotMessanger(object):
         log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
             log.debug('[{}]: already executed command class: {}'.format(index, self._isDone))
-            getattr(self, _commandMethod[command])(messenger, pos=position)
+            getattr(self, _commandMethod[command])(messenger, cellIndex=cellIndex)
 
 
-    def _doPing(self, messenger, pos=None):
-        if self._isDone.get('ping') or not pos:
+    def _doPing(self, messenger, cellIndex=None):
+        if self._isDone.get('ping') or not cellIndex:
             return
-        log.info('[{}]: action: do ping at {}'.format(self._currentIndex, pos))
-        messenger.doPing(MinimapUtils.name2cell(pos))
+        log.info('[{}]: action: do ping at {}'.format(self._currentIndex, MinimapInfo.getCellName(cellIndex)))
+        messenger.doPing(cellIndex)
         self._isDone['ping'] = True
-        
-    def _doHelp(self, messenger, pos=None):
+
+
+    def _doHelp(self, messenger, cellIndex=None):
         if self._isDone.get('help'):
             return
         log.info('[{}]: action: call help'.format(self._currentIndex))
         messenger.callHelp()
         self._isDone['help'] = True
 
-    def _doSendTeamMsg(self, messenger, pos=None):
+
+    def _doSendTeamMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
             return
-        msg = self._currentParam.get('ImSpotted').format(pos=pos)
+        msg = self._currentParam.get('ImSpotted').format(pos=MinimapInfo.getCellName(cellIndex))
         if not msg:
             return
         log.info('[{}]: action: send message to team channel: "{}"'.format(self._currentIndex, msg))
         ret = messenger.sendTeam(msg)
         self._isDone['msg'] = ret
-        
-    def _doSendSquadMsg(self, messenger, pos=None):
+
+
+    def _doSendSquadMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
             return
-        msg = self._currentParam.get('ImSpotted').format(pos=pos)
+        msg = self._currentParam.get('ImSpotted').format(pos=MinimapInfo.getCellName(cellIndex))
         if not msg:
             return
         if not 'squad' in messenger.getChannelLabels():

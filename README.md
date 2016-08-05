@@ -46,6 +46,10 @@ Customize
 
 ChangeLog
 ---------
+### 0.5.0
++ for WoT version 0.9.15.1
++ many internal changes
+
 ### 0.4.0
 + for WoT version 0.9.15.0.1
 + add new parameter LogLevel, for control log output.

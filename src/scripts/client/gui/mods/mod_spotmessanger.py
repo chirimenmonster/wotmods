@@ -3,7 +3,7 @@ from functools import partial
 import game
 from PlayerEvents import g_playerEvents
 #from gui import g_keyEventHandlers
-from gui.Scaleform.Battle import Battle
+from gui.Scaleform.daapi.view.battle.shared.indicators import SixthSenseIndicator
 
 from spotmessanger.logger import log
 from spotmessanger.events import overrideMethod
@@ -31,11 +31,15 @@ def init():
     except:
         log.current_exception()
 
-@overrideMethod(Battle, "_showSixthSenseIndicator")
+# referring to xvm/src/xpm/xvm_sounds/sixthSense.py 
+@overrideMethod(SixthSenseIndicator, "as_showS")
 def showSixthSenseIndicator(orig, *args, **kwargs):
     log.debug('activate sixth sense.')
     ret = orig(*args, **kwargs)
-    sm_control.showSixthSenseIndicator()
+    try:
+        sm_control.showSixthSenseIndicator()
+    except:
+        log.current_exception()
     return ret
 
 @overrideMethod(game, "handleKeyEvent")
