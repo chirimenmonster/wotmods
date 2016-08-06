@@ -48,6 +48,7 @@
             <MaxTeamAmount>0</MaxTeamAmount>
             <!-- List of available tanks -->
             <!-- VehicleType may LT/MT/HT/TD/SPG -->
+            <!-- if not this section, enable for all tanks -->
             <EnableVehicleType>
                 <VehicleType>LT</VehicleType> <!-- Send message when driving a light tank -->
                 <VehicleType>MT</VehicleType> <!-- Send message when driving a medium tank -->
@@ -70,17 +71,6 @@
             <CommandOrder>
                 <Command>squadmsg</Command>  <!-- Send Message to platoon chat. -->
             </CommandOrder>
-            <EnableVehicleType>
-                <VehicleType>LT</VehicleType>
-                <VehicleType>MT</VehicleType>
-                <VehicleType>HT</VehicleType>
-                <VehicleType>TD</VehicleType>
-                <VehicleType>SPG</VehicleType>
-            </EnableVehicleType>
-            <MaxTeamAmount>0</MaxTeamAmount>
-            <CooldownInterval>60</CooldownInterval>
-            <TextDelay>0.5</TextDelay>
-            <CommandDelay>5</CommandDelay>
         </BattleTypeParameter>
 
         <!-- for Clan Battle -->
@@ -93,19 +83,22 @@
                 <Command>help</Command>
                 <Command>teammsg</Command>
             </CommandOrder>
-            <EnableVehicleType>
-                <VehicleType>LT</VehicleType>
-                <VehicleType>MT</VehicleType>
-                <VehicleType>HT</VehicleType>
-                <VehicleType>TD</VehicleType>
-                <VehicleType>SPG</VehicleType>
-            </EnableVehicleType>
-            <MaxTeamAmount>0</MaxTeamAmount>
             <CooldownInterval>30</CooldownInterval>
-            <TextDelay>0.5</TextDelay>
-            <CommandDelay>5</CommandDelay>
         </BattleTypeParameter>
 
+        <!-- for SandBox -->
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>ProvingGround</BattleType> <!-- for SandBox -->
+            </AssignBattleType>
+            <CommandOrder>
+                <Command>help</Command>
+                <Command>ping</Command>
+                <Command>teammsg</Command>
+            </CommandOrder>
+            <CooldownInterval>10</CooldownInterval>
+        </BattleTypeParameter>
+        
     </BattleTypeParameterList>
     
 </root>
