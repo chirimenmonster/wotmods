@@ -46,6 +46,9 @@ Customize
 
 ChangeLog
 ---------
+### 0.5.1
++ for WoT version 0.9.15.2
+
 ### 0.5.0
 + for WoT version 0.9.15.1
 + many internal changes
