@@ -49,6 +49,7 @@ class IngameMessanger(object):
 
     def callHelp(self):
         self._setCallback(self._commandDelay, self._callHelp)
+        return True
     
 
     def sendText(self, channel, text):
@@ -59,6 +60,7 @@ class IngameMessanger(object):
             return False
         log.debug('found channel: {}'.format(channel.name))
         self._setCallback(self._textDelay, partial(self._sendText, channelCtrl, text))
+        return True
 
 
     def sendTeam(self, text):
