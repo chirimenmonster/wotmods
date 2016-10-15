@@ -88,17 +88,32 @@ class IngameMessanger(object):
         BigWorld.callback(diff, callback)
         self._cooldDown += delay
 
+
+    def _checkEnableArena(self):
+        if g_sessionProvider.getArenaDP():
+            log.debug('found Arena')
+            return True
+        else:
+            log.debug('not found Arena')
+            return False
+        
         
     def _doPing(self, cellIdx):
+        if not self._checkEnableArena():
+            return
         avatar_getter.setForcedGuiControlMode(True)
         g_sessionProvider.shared.chatCommands.sendAttentionToCell(cellIdx)
         avatar_getter.setForcedGuiControlMode(False)
 
 
     def _callHelp(self):
+        if not self._checkEnableArena():
+            return
         g_sessionProvider.shared.chatCommands.sendCommand(CHAT_COMMANDS.HELPME.name())
 
 
     def _sendText(self, channelCtrl, text):
+        if not self._checkEnableArena():
+            return
         channelCtrl.sendMessage(text)
 
