@@ -5,7 +5,7 @@
 from functools import partial
 
 import BigWorld
-from gui.battle_control import g_sessionProvider, avatar_getter
+from gui.battle_control import avatar_getter
 from messenger.m_constants import BATTLE_CHANNEL, PROTO_TYPE
 from messenger.proto.interfaces import IEntityFindCriteria
 from messenger.gui.scaleform.channels import BattleControllers
@@ -90,7 +90,7 @@ class IngameMessanger(object):
 
 
     def _checkEnableArena(self):
-        if g_sessionProvider.getArenaDP():
+        if avatar_getter.isPlayerOnArena():
             log.debug('found Arena')
             return True
         else:
@@ -101,15 +101,17 @@ class IngameMessanger(object):
     def _doPing(self, cellIdx):
         if not self._checkEnableArena():
             return
+        avatar = BigWorld.player()
         avatar_getter.setForcedGuiControlMode(True)
-        g_sessionProvider.shared.chatCommands.sendAttentionToCell(cellIdx)
+        avatar.guiSessionProvider.shared.chatCommands.sendAttentionToCell(cellIdx)
         avatar_getter.setForcedGuiControlMode(False)
 
 
     def _callHelp(self):
         if not self._checkEnableArena():
             return
-        g_sessionProvider.shared.chatCommands.sendCommand(CHAT_COMMANDS.HELPME.name())
+        avatar = BigWorld.player()
+        avatar.guiSessionProvider.shared.chatCommands.sendCommand(CHAT_COMMANDS.HELPME.name())
 
 
     def _sendText(self, channelCtrl, text):
