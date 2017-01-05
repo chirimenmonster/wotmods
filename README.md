@@ -46,6 +46,9 @@ Customize
 
 ChangeLog
 ---------
+### 0.7.0
++ for WoT version 0.9.17.0
+
 ### 0.6.0
 + for WoT version 0.9.16
 + fix bug
