@@ -12,7 +12,7 @@ from spotmessanger.settings import sm_settings
 from spotmessanger.inputhandler import sm_inputKeyManager
 from spotmessanger.SpotMessanger import sm_control
 
-confFile = '../res_mods/configs/spotmessanger/spotmessanger.xml'
+confFile = 'configs/spotmessanger/spotmessanger.xml'
 
 def init():
     '''Mod's main entry point.  Called by WoT's built-in mod loader.'''

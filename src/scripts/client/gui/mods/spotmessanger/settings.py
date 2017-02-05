@@ -122,8 +122,21 @@ class _Settings(object):
         self._paramGlobal = {}
         self._paramBattle = {} 
 
-        log.debug('config file: {}'.format(file))
-        section = ResMgr.openSection(file)
+        section = False
+        
+        if not section:
+            file2 = '../res_mods/' + file
+            section = ResMgr.openSection(file2)
+            if section:
+                log.debug('config file: {}'.format(file2))
+        
+        if not section:
+            section = ResMgr.openSection(file)
+            if section:
+                log.debug('config file: {}'.format(file))
+                
+        if not section:
+            log.debug('config file is not found')
         
         if section:
             self._paramGlobal.update(self._readSettings(section, PARAM_LIST_DEBUG, True))

@@ -7,6 +7,7 @@ import shutil
 import argparse
 import re
 
+CWD                  = os.getcwd()
 WOT_VERSION          = "0.9.17.0"
 SUPPORT_URL          = ""
 ROOT_DIR             = os.path.dirname(os.path.realpath(__file__))
@@ -15,7 +16,7 @@ CONF_DIR             = os.path.join(ROOT_DIR, "configs")
 PACKAGE_ROOT_DIR     = ""
 PACKAGE_SCRIPT_DIR   = os.path.join(PACKAGE_ROOT_DIR, "res_mods", WOT_VERSION)
 PACKAGE_CONF_DIR     = os.path.join(PACKAGE_ROOT_DIR, "res_mods", "configs")
-BUILD_DIR            = os.path.join(os.getcwd(), "build")
+BUILD_DIR            = os.path.join(CWD, "build")
 BUILD_SCRIPT_DIR     = os.path.join(BUILD_DIR, "res_mods", WOT_VERSION)
 BUILD_CONF_DIR       = os.path.join(BUILD_DIR, "res_mods", "configs")
 
@@ -23,7 +24,8 @@ MOD_BASE_DIR         = os.path.join(SRC_DIR, "scripts", "client", "gui", "mods")
 
 DIRECT_FILES = [
     os.path.join(ROOT_DIR, "LICENSE"),
-    os.path.join(ROOT_DIR, "README.md")
+    os.path.join(ROOT_DIR, "README.md"),
+    os.path.join(ROOT_DIR, "meta.xml")
 ]
 
 sys.dont_write_bytecode = True
@@ -40,25 +42,61 @@ def main():
         SUPPORT_URL = SUPPORT_URL,
         DEBUG = args.mod_debug
     )
+
+    shutil.rmtree(os.path.join(CWD, "build"))
+    
     package_name = "{name}-{version}.zip".format(name=args.mod_name.lower(), version=args.mod_version)
+    build_stage1 = os.path.join(CWD, "build", "stage1")
+    stage1_script_dir = os.path.join(build_stage1, "res", "scripts")
+    stage1_conf_dir = os.path.join(build_stage1, "res", "configs")
+    
     packager = Packager(
         root_dir              = ROOT_DIR,
         src_dir               = SRC_DIR,
         conf_dir              = CONF_DIR,
         direct_files          = DIRECT_FILES,
-        build_dir             = BUILD_DIR,
-        build_script_dir      = BUILD_SCRIPT_DIR,
-        build_conf_dir        = BUILD_CONF_DIR,
-        package_path          = os.path.join(os.getcwd(), package_name),
+        build_dir             = build_stage1,
+        build_script_dir      = os.path.join(build_stage1, "res"),
+        build_conf_dir        = os.path.join(build_stage1, "res", "configs"),
+        package_path          = os.path.join(CWD, package_name),
         package_root_dir      = PACKAGE_ROOT_DIR,
         package_script_dir    = PACKAGE_SCRIPT_DIR,
         package_conf_dir      = PACKAGE_CONF_DIR,
         in_file_parameters    = in_file_parameters,
         ignored_file_patterns = [".+_test.py"]
     )
-    packager.create()
-    print "Package file path:", packager.get_package_path()
+    packager.build()
+    print "build: stage1"
 
+    build_stage2 = os.path.join(CWD, "build", "stage2")
+    os.makedirs(build_stage2)
+    shutil.copytree(stage1_conf_dir, os.path.join(build_stage2, "configs"))
+    for file in DIRECT_FILES:
+        shutil.copy2(file, build_stage2)
+    package_name = "{name}-{version}.wotmod".format(name=args.mod_name.lower(), version=args.mod_version)
+    file = os.path.join(build_stage2, package_name)
+    createPackage(os.path.join(CWD, "build", "stage1"), file, zipfile.ZIP_STORED)
+    print "build: stage2"
+    
+    build_stage3 = os.path.join(CWD, "build", "stage3")
+    os.makedirs(build_stage3)
+    shutil.copytree(stage1_script_dir, os.path.join(build_stage3, "res_mods", WOT_VERSION, "scripts"))
+    shutil.copytree(stage1_conf_dir, os.path.join(build_stage3, "res_mods", "configs"))
+    for file in DIRECT_FILES:
+        shutil.copy2(file, build_stage3)
+    print "build: stage3"
+    
+    package_name = "{name}-{version}.wotmod.zip".format(name=args.mod_name.lower(), version=args.mod_version)
+    file = os.path.join(CWD, "build", package_name)
+    createPackage(build_stage2, file, zipfile.ZIP_DEFLATED)
+    print "create package: " + package_name
+
+    package_name = "{name}-{version}.zip".format(name=args.mod_name.lower(), version=args.mod_version)
+    file = os.path.join(CWD, "build", package_name)
+    createPackage(build_stage3, file, zipfile.ZIP_DEFLATED)
+    print "create package: " + package_name
+
+    
 def accepts_extensions(extensions):
     '''Decorator function which allows call to pass to the decorated function
     if passed filepath has extension in list of given 'extensions'.
@@ -108,6 +146,19 @@ class Packager(object):
     def get_package_root_path(self):
         return self.__package_root_dir
 
+    def build(self):
+        self.__remove_build_dir()
+        self.__remove_old_package()
+        self.__build_files(self.__iterate_src_filepaths(self.__src_dir))
+        self.__build_files(self.__iterate_src_filepaths(self.__conf_dir))
+        self.__build_files(DIRECT_FILES)    
+
+    def build_files(self, dir):
+        self.__build_files(self.__iterate_src_filepaths(dir))
+        
+    def pack(self):
+        self.__package_files()
+    
     def create(self):
         self.__remove_build_dir()
         self.__remove_old_package()
@@ -150,7 +201,7 @@ class Packager(object):
         # compile source py-file into bytecode pyc-file
         py_compile.compile(file=src_filepath, cfile=build_filepath, dfile=debug_filepath, doraise=True)
 
-    @accepts_extensions([".swf", ".txt", ".json", ".xml", ".png"] + map(os.path.basename, DIRECT_FILES))
+    @accepts_extensions([".swf", ".txt", ".json", ".xml", ".png", ".pyc"] + map(os.path.basename, DIRECT_FILES))
     def __copy_file(self, src_filepath):
         '''Simply copies file at 'src_filepath' to build dir.'''
         build_filepath = self.__src_path_to_build_path(src_filepath)
@@ -191,12 +242,31 @@ class Packager(object):
         paths = []
         for root, dirs, files in os.walk(self.__build_dir):
             target_dirpath = root.replace(self.__build_dir, self.__package_root_dir)
+            if target_dirpath:
+                paths.append((root, target_dirpath))
             for filename in files:
                 paths.append((os.path.join(root, filename), os.path.join(target_dirpath, filename)))
-
-        with zipfile.ZipFile(self.__package_path, "w") as package_file:
+        with zipfile.ZipFile(self.__package_path, "w", zipfile.ZIP_STORED) as package_file:
             for source, target in paths:
-                package_file.write(source, target)
+                package_file.write(source, target, zipfile.ZIP_STORED)
 
+def createPackage(src, name, compression):
+    try:
+        os.remove(name)    
+    except:
+        pass
+            
+    paths = []
+    for root, dirs, files in os.walk(src):
+        target_dirpath = root.replace(src, "")
+        if target_dirpath:
+            paths.append((root, target_dirpath))
+        for filename in files:
+            paths.append((os.path.join(root, filename), os.path.join(target_dirpath, filename)))
+    with zipfile.ZipFile(name, "w", compression) as package_file:
+        for source, target in paths:
+            package_file.write(source, target, compression)
+
+                
 if __name__ == "__main__":
     sys.exit(main())
