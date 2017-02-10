@@ -62,26 +62,24 @@ def main():
     stage0_config_dir = os.path.join(stage0_root, "config")
     stage0_meta_dir = os.path.join(stage0_root, "meta")
     stage0_doc_dir = os.path.join(stage0_root, "doc")
-    packager.gen_recursive(src_script_dir, stage0_script_dir)
-    packager.gen_recursive(src_config_dir, stage0_config_dir)
-    for file in META_FILES:
-        packager.gen_file(file, stage0_meta_dir)
-    for file in DOC_FILES:
-        packager.gen_file(file, stage0_doc_dir)
+    packager.generate(src_script_dir, stage0_script_dir)
+    packager.generate(src_config_dir, stage0_config_dir)
+    packager.generate(META_FILES, stage0_meta_dir)
+    packager.generate(DOC_FILES, stage0_doc_dir)
     print "build: stage0"
     
     stage1_root = os.path.join(BUILD_DIR, "stage1")
     stage1_script_dir = os.path.join(stage1_root, "res", "scripts")
     stage1_config_dir = os.path.join(stage1_root, "res", "configs")
-    packager.gen_recursive(stage0_script_dir, stage1_script_dir)
-    packager.gen_recursive(stage0_config_dir, stage1_config_dir)
-    packager.gen_recursive(stage0_meta_dir, stage1_root)
+    packager.generate(stage0_script_dir, stage1_script_dir)
+    packager.generate(stage0_config_dir, stage1_config_dir)
+    packager.generate(stage0_meta_dir, stage1_root)
     print "build: stage1"
 
     stage2_root = os.path.join(BUILD_DIR, "stage2")
     stage2_config_dir = os.path.join(stage2_root, "res_mods", "configs")
-    packager.gen_recursive(stage0_config_dir, stage2_config_dir)
-    packager.gen_recursive(stage0_doc_dir, stage2_root)
+    packager.generate(stage0_config_dir, stage2_config_dir)
+    packager.generate(stage0_doc_dir, stage2_root)
     package_name = "{name}-{version}.wotmod".format(name=args.mod_name.lower(), version=args.mod_version)
     createPackage(stage1_root, os.path.join(stage2_root, "mods", WOT_VERSION, package_name), zipfile.ZIP_STORED)
     print "build: stage2"
@@ -89,9 +87,9 @@ def main():
     stage3_root = os.path.join(BUILD_DIR, "stage3")
     stage3_script_dir = os.path.join(stage3_root, "res_mods", WOT_VERSION, "scripts")
     stage3_config_dir = os.path.join(stage3_root, "res_mods", "config")
-    packager.gen_recursive(stage0_script_dir, stage3_script_dir)
-    packager.gen_recursive(stage0_config_dir, stage3_config_dir)
-    packager.gen_recursive(stage0_doc_dir, stage3_root)
+    packager.generate(stage0_script_dir, stage3_script_dir)
+    packager.generate(stage0_config_dir, stage3_config_dir)
+    packager.generate(stage0_doc_dir, stage3_root)
     print "build: stage3"
     
     package_name = "{name}-{version}.wotmod.zip".format(name=args.mod_name.lower(), version=args.mod_version)
@@ -115,6 +113,7 @@ def accepts_extensions(extensions):
         return wrapper
     return decorator
 
+
 class CallbackList(object):
 
     def __init__(self, *callbacks):
@@ -123,6 +122,7 @@ class CallbackList(object):
     def __call__(self, *args, **kwargs):
         for callback in self.__callbacks:
             callback(*args, **kwargs)
+
 
 class Packager(object):
 
@@ -136,14 +136,20 @@ class Packager(object):
             self.__run_template_file
         )
 
-    def gen_recursive(self, src_dir, dest_dir):
-        for src_filepath in self.__iterate_src_filepaths(src_dir):
-            dest_filepath = src_filepath.replace(src_dir, dest_dir)
-            self.__builders(src_filepath, dest_filepath)
-
-    def gen_file(self, src_filepath, dest_dir):
-        dest_filepath = os.path.join(dest_dir, os.path.basename(src_filepath))
-        self.__builders(src_filepath, dest_filepath)
+    def generate(self, src, dest_dir):
+        if os.path.isfile(dest_dir):
+            print "file {} is exist.".format(dest_dir)
+            raise
+        if isinstance(src, tuple) or isinstance(src, list):
+            for item in src:
+                self.generate(item, dest_dir)
+        elif os.path.isdir(src):
+            for item in self.__iterate_src_filepaths(src):
+                dest = item.replace(src, dest_dir)
+                self.__builders(item, dest)
+        else:
+            dest = src.replace(os.path.dirname(src), dest_dir)
+            self.__builders(src, dest)
 
     def __iterate_src_filepaths(self, path):
         '''Returns an iterator which returns paths to all files within source dir.'''
