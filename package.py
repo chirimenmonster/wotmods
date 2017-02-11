@@ -42,65 +42,57 @@ def main():
         MOD_VERSION = args.mod_version
     )
 
-    try:
-        shutil.rmtree(BUILD_DIR)
-    except:
-        pass
-
     packager = Packager(
         src_dir               = SRC_DIR,
         in_file_parameters    = in_file_parameters,
         ignored_file_patterns = [".+_test.py"]
     )
+    
+    stage0 = os.path.join(BUILD_DIR, "stage0")
+    stage1 = os.path.join(BUILD_DIR, "stage1")
+    stage2 = os.path.join(BUILD_DIR, "stage2")
+    stage3 = os.path.join(BUILD_DIR, "stage3")
+    
+    mod_name = args.mod_name.lower()
+    mod_version = args.mod_version
+    pack_wotmod = "{name}-{version}.wotmod".format(name=mod_name, version=mod_version)
+    zip_wotmod = "{name}-{version}.wotmod.zip".format(name=mod_name, version=mod_version)
+    zip_resmod = "{name}-{version}.zip".format(name=mod_name, version=mod_version)
+    
+    stage_all = [
+        # stage0
+        [ SCRIPT_DIR,   os.path.join(stage0, "scripts") ],
+        [ CONFIG_DIR,   os.path.join(stage0, "config")  ],
+        [ META_FILES,   os.path.join(stage0, "meta")    ],
+        [ DOC_FILES,    os.path.join(stage0, "doc")     ],
+        # stage1
+        [ os.path.join(stage0, "scripts"),  os.path.join(stage1, "res", "scripts")  ],
+        [ os.path.join(stage0, "config"),   os.path.join(stage1, "res", "configs")  ],
+        [ os.path.join(stage0, "meta"),     stage1                                  ],
+        # stage2
+        [ os.path.join(stage0, "config"),   os.path.join(stage2, "res_mods", "configs") ],
+        [ stage1,   os.path.join(stage2, "mods", WOT_VERSION, pack_wotmod)              ],
+        # stage3
+        [ os.path.join(stage0, "scripts"),  os.path.join(stage3, "res_mods", WOT_VERSION, "scripts")    ],
+        [ os.path.join(stage0, "config"),   os.path.join(stage3, "res_mods", "config")                  ],
+        [ os.path.join(stage0, "doc"),      stage3                                                      ],
+        # stage4
+        [ stage2,   os.path.join(BUILD_DIR, zip_wotmod) ],
+        [ stage3,   os.path.join(BUILD_DIR, zip_resmod) ]
+    ]
+
+    try:
+        shutil.rmtree(BUILD_DIR)
+    except:
+        pass
+
+    for task in stage_all:
+        packager.generate(*task)
+
+    print "build: {}".format(zip_wotmod)
+    print "build: {}".format(zip_resmod)
+
         
-    os.makedirs(BUILD_DIR)
-
-    src_script_dir = SCRIPT_DIR
-    src_config_dir = CONFIG_DIR
-    stage0_root = os.path.join(BUILD_DIR, "stage0")
-    stage0_script_dir = os.path.join(stage0_root, "scripts")
-    stage0_config_dir = os.path.join(stage0_root, "config")
-    stage0_meta_dir = os.path.join(stage0_root, "meta")
-    stage0_doc_dir = os.path.join(stage0_root, "doc")
-    packager.generate(src_script_dir, stage0_script_dir)
-    packager.generate(src_config_dir, stage0_config_dir)
-    packager.generate(META_FILES, stage0_meta_dir)
-    packager.generate(DOC_FILES, stage0_doc_dir)
-    print "build: stage0"
-    
-    stage1_root = os.path.join(BUILD_DIR, "stage1")
-    stage1_script_dir = os.path.join(stage1_root, "res", "scripts")
-    stage1_config_dir = os.path.join(stage1_root, "res", "configs")
-    packager.generate(stage0_script_dir, stage1_script_dir)
-    packager.generate(stage0_config_dir, stage1_config_dir)
-    packager.generate(stage0_meta_dir, stage1_root)
-    print "build: stage1"
-
-    stage2_root = os.path.join(BUILD_DIR, "stage2")
-    stage2_config_dir = os.path.join(stage2_root, "res_mods", "configs")
-    packager.generate(stage0_config_dir, stage2_config_dir)
-    packager.generate(stage0_doc_dir, stage2_root)
-    package_name = "{name}-{version}.wotmod".format(name=args.mod_name.lower(), version=args.mod_version)
-    createPackage(stage1_root, os.path.join(stage2_root, "mods", WOT_VERSION, package_name), zipfile.ZIP_STORED)
-    print "build: stage2"
-    
-    stage3_root = os.path.join(BUILD_DIR, "stage3")
-    stage3_script_dir = os.path.join(stage3_root, "res_mods", WOT_VERSION, "scripts")
-    stage3_config_dir = os.path.join(stage3_root, "res_mods", "config")
-    packager.generate(stage0_script_dir, stage3_script_dir)
-    packager.generate(stage0_config_dir, stage3_config_dir)
-    packager.generate(stage0_doc_dir, stage3_root)
-    print "build: stage3"
-    
-    package_name = "{name}-{version}.wotmod.zip".format(name=args.mod_name.lower(), version=args.mod_version)
-    createPackage(stage2_root, os.path.join(BUILD_DIR, package_name), zipfile.ZIP_DEFLATED)
-    print "create package: " + package_name
-
-    package_name = "{name}-{version}.zip".format(name=args.mod_name.lower(), version=args.mod_version)
-    createPackage(stage3_root, os.path.join(BUILD_DIR, package_name), zipfile.ZIP_DEFLATED)
-    print "create package: " + package_name
-
-    
 def accepts_extensions(extensions):
     '''Decorator function which allows call to pass to the decorated function
     if passed filepath has extension in list of given 'extensions'.
@@ -136,20 +128,27 @@ class Packager(object):
             self.__run_template_file
         )
 
-    def generate(self, src, dest_dir):
-        if os.path.isfile(dest_dir):
-            print "file {} is exist.".format(dest_dir)
+    def generate(self, src, dest, **kwargs):
+        dest_ext = os.path.splitext(dest.lower())[1]
+        if dest_ext in [".zip"]:
+            self.__zip_file(src, dest, compression=zipfile.ZIP_DEFLATED)
+            return
+        if dest_ext in [".wotmod"]:
+            self.__zip_file(src, dest, compression=zipfile.ZIP_STORED)
+            return
+        if os.path.isfile(dest):
+            print "file {} is exist.".format(dest)
             raise
         if isinstance(src, tuple) or isinstance(src, list):
             for item in src:
-                self.generate(item, dest_dir)
+                self.generate(item, dest)
         elif os.path.isdir(src):
             for item in self.__iterate_src_filepaths(src):
-                dest = item.replace(src, dest_dir)
-                self.__builders(item, dest)
+                dest_file = item.replace(src, dest)
+                self.__builders(item, dest_file)
         else:
-            dest = src.replace(os.path.dirname(src), dest_dir)
-            self.__builders(src, dest)
+            dest_file = src.replace(os.path.dirname(src), dest)
+            self.__builders(src, dest_file)
 
     def __iterate_src_filepaths(self, path):
         '''Returns an iterator which returns paths to all files within source dir.'''
@@ -197,28 +196,25 @@ class Packager(object):
             pass
 
 
-def createPackage(src, name, compression):
-    try:
-        os.remove(name)    
-    except:
-        pass
+    def __zip_file(self, src, dest, compression=None):
+        try:
+            os.remove(dest)  
+        except:
+            pass
             
-    paths = []
-    for root, dirs, files in os.walk(src):
-        target_dirpath = root.replace(src, "")
-        if target_dirpath:
-            paths.append((root, target_dirpath))
-        for filename in files:
-            paths.append((os.path.join(root, filename), os.path.join(target_dirpath, filename)))
+        paths = []
+        for root, dirs, files in os.walk(src):
+            target_dirpath = root.replace(src, "")
+            if target_dirpath:
+                paths.append((root, target_dirpath))
+            for filename in files:
+                paths.append((os.path.join(root, filename), os.path.join(target_dirpath, filename)))
 
-    try:
-        os.makedirs(os.path.dirname(name))
-    except:
-        pass
+        self.__make_parent_dirs(dest)
 
-    with zipfile.ZipFile(name, "w", compression) as package_file:
-        for source, target in paths:
-            package_file.write(source, target, compression)
+        with zipfile.ZipFile(dest, "w", compression) as package_file:
+            for source, target in paths:
+                package_file.write(source, target, compression)
 
                 
 if __name__ == "__main__":
