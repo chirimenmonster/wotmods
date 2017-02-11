@@ -52,6 +52,7 @@ def main():
     stage1 = os.path.join(BUILD_DIR, "stage1")
     stage2 = os.path.join(BUILD_DIR, "stage2")
     stage3 = os.path.join(BUILD_DIR, "stage3")
+    stage4 = BUILD_DIR
     
     mod_name = args.mod_name.lower()
     mod_version = args.mod_version
@@ -59,35 +60,29 @@ def main():
     zip_wotmod = "{name}-{version}.wotmod.zip".format(name=mod_name, version=mod_version)
     zip_resmod = "{name}-{version}.zip".format(name=mod_name, version=mod_version)
     
-    stage_all = [
-        # stage0
-        [ SCRIPT_DIR,   os.path.join(stage0, "scripts") ],
-        [ CONFIG_DIR,   os.path.join(stage0, "config")  ],
-        [ META_FILES,   os.path.join(stage0, "meta")    ],
-        [ DOC_FILES,    os.path.join(stage0, "doc")     ],
-        # stage1
-        [ os.path.join(stage0, "scripts"),  os.path.join(stage1, "res", "scripts")  ],
-        [ os.path.join(stage0, "config"),   os.path.join(stage1, "res", "configs")  ],
-        [ os.path.join(stage0, "meta"),     stage1                                  ],
-        # stage2
-        [ os.path.join(stage0, "config"),   os.path.join(stage2, "res_mods", "configs") ],
-        [ stage1,   os.path.join(stage2, "mods", WOT_VERSION, pack_wotmod)              ],
-        # stage3
-        [ os.path.join(stage0, "scripts"),  os.path.join(stage3, "res_mods", WOT_VERSION, "scripts")    ],
-        [ os.path.join(stage0, "config"),   os.path.join(stage3, "res_mods", "config")                  ],
-        [ os.path.join(stage0, "doc"),      stage3                                                      ],
-        # stage4
-        [ stage2,   os.path.join(BUILD_DIR, zip_wotmod) ],
-        [ stage3,   os.path.join(BUILD_DIR, zip_resmod) ]
+    stage = [
+        [ [ stage0, "scripts"                           ], [ SCRIPT_DIR         ] ],
+        [ [ stage0, "config"                            ], [ CONFIG_DIR         ] ],
+        [ [ stage0, "meta"                              ], [ META_FILES         ] ],
+        [ [ stage0, "doc"                               ], [ DOC_FILES          ] ],
+        [ [ stage1, "res", "scripts"                    ], [ stage0, "scripts"  ] ],
+        [ [ stage1, "res", "configs"                    ], [ stage0, "config"   ] ],
+        [ [ stage1                                      ], [ stage0, "meta"     ] ],
+        [ [ stage2, "res_mods", "configs"               ], [ stage0, "config"   ] ],
+        [ [ stage2, "mods", WOT_VERSION, pack_wotmod    ], [ stage1             ] ],
+        [ [ stage3, "res_mods", WOT_VERSION, "scripts"  ], [ stage0, "scripts"  ] ],
+        [ [ stage3                                      ], [ stage0, "doc"      ] ],
+        [ [ stage4, zip_wotmod                          ], [ stage2             ] ],
+        [ [ stage4, zip_resmod                          ], [ stage3             ] ]
     ]
-
+    
     try:
         shutil.rmtree(BUILD_DIR)
     except:
         pass
 
-    for task in stage_all:
-        packager.generate(*task)
+    for task in stage:
+        packager.generate(os.path.join(*task[1]), os.path.join(*task[0]))
 
     print "build: {}".format(zip_wotmod)
     print "build: {}".format(zip_resmod)
