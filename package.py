@@ -62,15 +62,16 @@ def main():
     
     stage = [
         [ [ stage0, "scripts"                           ], [ SCRIPT_DIR         ] ],
-        [ [ stage0, "config"                            ], [ CONFIG_DIR         ] ],
+        [ [ stage0, "configs"                           ], [ CONFIG_DIR         ] ],
         [ [ stage0, "meta"                              ], [ META_FILES         ] ],
         [ [ stage0, "doc"                               ], [ DOC_FILES          ] ],
         [ [ stage1, "res", "scripts"                    ], [ stage0, "scripts"  ] ],
-        [ [ stage1, "res", "configs"                    ], [ stage0, "config"   ] ],
+        [ [ stage1, "res", "configs"                    ], [ stage0, "configs"  ] ],
         [ [ stage1                                      ], [ stage0, "meta"     ] ],
-        [ [ stage2, "res_mods", "configs"               ], [ stage0, "config"   ] ],
+        [ [ stage2, "res_mods", "configs"               ], [ stage0, "configs"  ] ],
         [ [ stage2, "mods", WOT_VERSION, pack_wotmod    ], [ stage1             ] ],
         [ [ stage3, "res_mods", WOT_VERSION, "scripts"  ], [ stage0, "scripts"  ] ],
+        [ [ stage3, "res_mods", "configs"               ], [ stage0, "configs"  ] ],
         [ [ stage3                                      ], [ stage0, "doc"      ] ],
         [ [ stage4, zip_wotmod                          ], [ stage2             ] ],
         [ [ stage4, zip_resmod                          ], [ stage3             ] ]
