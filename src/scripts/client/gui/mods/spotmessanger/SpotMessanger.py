@@ -28,11 +28,15 @@ class SpotMessanger(object):
     def onBattleStart(self):
         self._isEnabled = sm_settings.get('ActiveByDefault')
         self._lastActivity = 0
+        self._isObserver = Utils.getPlayer().isObserver()
 
         arena = ArenaInfo()
         vehicle = VehicleInfo()
 
         log.info('on battle start')
+        if self._isObserver:
+            log.info('player avatar is observer, nothing to do')
+            return
         log.info('current battle type: {} [{}({}) = "{}"]'.format(arena.battleType, arena.attrLabel, arena.id, arena.name))
         log.info('current vehicle class: {} [{}] ({})'.format(vehicle.classAbbr, vehicle.className, vehicle.name))
 
@@ -81,6 +85,8 @@ class SpotMessanger(object):
 
 
     def showSixthSenseIndicator(self):
+        if self._isObserver:
+            return
         if not self._isEnabled or not self._activeParams:
             log.info('sixth sense message is disabled or nothing to do.')
             return
