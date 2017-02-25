@@ -46,6 +46,10 @@ Customize
 
 ChangeLog
 ---------
+### 0.8.0
++ for WoT version 0.9.17.1
++ add new wotmod package
+
 ### 0.7.0
 + for WoT version 0.9.17.0
 

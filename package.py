@@ -7,7 +7,7 @@ import shutil
 import argparse
 import re
 
-WOT_VERSION          = "0.9.17.1 Common Test"
+WOT_VERSION          = "0.9.17.1"
 SUPPORT_URL          = ""
 ROOT_DIR             = os.path.dirname(os.path.realpath(__file__))
 SRC_DIR              = os.path.join(ROOT_DIR, "src")
