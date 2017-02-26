@@ -21,10 +21,7 @@ class Utils:
 
     @staticmethod
     def getPos(avatar = None):
-        if not avatar:
-            avatar = BigWorld.player()
-        position = BigWorld.entities[avatar.playerVehicleID].position
-        log.debug('position = {}'.format(position))
+        position = avatar_getter.getOwnVehiclePosition(avatar)
         return position
 
     @staticmethod
