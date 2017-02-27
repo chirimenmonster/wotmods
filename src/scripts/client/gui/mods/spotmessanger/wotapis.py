@@ -2,7 +2,7 @@
 import math
 import BigWorld
 from items.vehicles import getVehicleClass
-from gui.battle_control import avatar_getter, arena_info, minimap_utils
+from gui.battle_control import avatar_getter, minimap_utils
 from gui.battle_control.minimap_utils import MINIMAP_SIZE
 from messenger import MessengerEntry
 
@@ -20,16 +20,36 @@ class Utils:
         return BigWorld.player()
 
     @staticmethod
-    def getPos(avatar = None):
-        position = avatar_getter.getOwnVehiclePosition(avatar)
+    def isPlayerOnArena():
+        return avatar_getter.isPlayerOnArena()
+
+    @staticmethod
+    def getPos():
+        position = avatar_getter.getOwnVehiclePosition()
         return position
 
     @staticmethod
-    def getTeamAmount(avatar = None):
-        arena = avatar_getter.getArena(avatar)
-        team = avatar_getter.getPlayerTeam(avatar)
-        return len([ k for k, v in arena.vehicles.items() if v['team'] == team and v['isAlive'] ])
+    def getTeamAmount():
+        arenaDP = BigWorld.player().guiSessionProvider.getArenaDP()
+        team = avatar_getter.getPlayerTeam()
+        return len([ v for v in arenaDP.getVehiclesInfoIterator() if v.team == team and v.isAlive() ])
 
+    @staticmethod
+    def setCallback(period, callback):
+        return BigWorld.callback(period, callback)
+    
+    @staticmethod
+    def getSessionProvider():
+        return BigWorld.player().guiSessionProvider
+    
+    @staticmethod
+    def getChatCommandCtrl():
+        return BigWorld.player().guiSessionProvider.shared.chatCommands
+
+    @staticmethod
+    def setForcedGuiControlMode(flag):
+        avatar_getter.setForcedGuiControlMode(flag)
+    
     @staticmethod
     def addClientMessage(message, isCurrentPlayer = False):
         MessengerEntry.g_instance.gui.addClientMessage(message, isCurrentPlayer)
@@ -37,16 +57,17 @@ class Utils:
 
 class VehicleInfo(object):
 
-    def __init__(self, avatar=None):
-        self._typeDescriptor = avatar_getter.getVehicleTypeDescriptor(avatar)
+    @property
+    def typeDescriptor(self):
+        return avatar_getter.getVehicleTypeDescriptor()
     
     @property
     def name(self):
-        return self._typeDescriptor.type.name
+        return self.typeDescriptor.type.name
     
     @property
     def className(self):
-        return getVehicleClass(self._typeDescriptor.type.compactDescr)
+        return getVehicleClass(self.typeDescriptor.type.compactDescr)
 
     @property
     def classAbbr(self):
@@ -55,12 +76,9 @@ class VehicleInfo(object):
 
 class ArenaInfo(object):
 
-    def __init__(self, avatar=None):
-        self._arena = avatar_getter.getArena()
-
     @property
     def id(self):
-        return self._arena.guiType
+        return avatar_getter.getArena().guiType
 
     @property
     def attrLabel(self):
@@ -81,11 +99,9 @@ class MinimapInfo(object):
     def makeCellIndex(localX, localY):
         return int(minimap_utils.makeCellIndex(localX, localY))
 
-
     @staticmethod
     def getCellName(cellIndex):
         return minimap_utils.getCellName(cellIndex)
-
         
     @staticmethod
     def getLocalByPosition(position, bottomLeft, upperRight):
@@ -97,14 +113,13 @@ class MinimapInfo(object):
         localY = max(min(localY, MINIMAP_SIZE[1] - 0.1), 0)
         return (localX, localY)
 
-
-    @classmethod
-    def getCellIndexByPosition(cls, position):      
+    @staticmethod
+    def getCellIndexByPosition(position):      
         # ref.  xvm/src/xpm/xvm_main/utils.py: getMapSize() 
-        bottomLeft, upperRight = Utils.getPlayer().arena.arenaType.boundingBox
-        localPos = cls.getLocalByPosition(position, bottomLeft, upperRight)
-        cellIndex = cls.makeCellIndex(localPos[0], localPos[1])
-        cellName = cls.getCellName(cellIndex)
+        bottomLeft, upperRight = avatar_getter.getArena().arenaType.boundingBox
+        localPos = MinimapInfo.getLocalByPosition(position, bottomLeft, upperRight)
+        cellIndex = MinimapInfo.makeCellIndex(localPos[0], localPos[1])
+        cellName = MinimapInfo.getCellName(cellIndex)
         log.debug('bottomLeft = {}, upperRight = {}, spaceSize = {}'.format(bottomLeft, upperRight, upperRight - bottomLeft))
         log.debug('posion = {}, local = {}, cellIndex = {}, cellName = {}'.format(position, localPos, cellIndex, cellName))
         return cellIndex
