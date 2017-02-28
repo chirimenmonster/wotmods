@@ -118,31 +118,16 @@ class _Settings(object):
         return settings
 
 
-    def readConfig(self, file):
+    def readConfig(self, file, prefix_list=[ '' ]):
         self._paramGlobal = {}
         self._paramBattle = {} 
 
-        section = False
-        
-        if not section:
-            file2 = '../res_mods/' + file
-            section = ResMgr.openSection(file2)
+        for prefix in prefix_list:
+            path = prefix + file
+            section = ResMgr.openSection(path)
             if section:
-                log.debug('config file: {}'.format(file2))
-
-        if not section:
-            file2 = '../mods/' + file
-            section = ResMgr.openSection(file2)
-            if section:
-                log.debug('config file: {}'.format(file2))
-        
-        if not section:
-            section = ResMgr.openSection(file)
-            if section:
-                log.debug('config file: {}'.format(file))
-                
-        if not section:
-            log.debug('config file is not found')
+                log.info('read config file: {}'.format(path))
+                break
         
         if section:
             self._paramGlobal.update(self._readSettings(section, PARAM_LIST_DEBUG, True))

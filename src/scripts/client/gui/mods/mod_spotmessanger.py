@@ -12,17 +12,18 @@ from spotmessanger.settings import sm_settings
 from spotmessanger.inputhandler import sm_inputKeyManager
 from spotmessanger.control import sm_control
 
-confFile = 'configs/spotmessanger/spotmessanger.xml'
+conf_prefix = [ '../res_mods/', '../mods/', '' ]
+conf_file = 'configs/spotmessanger/spotmessanger.xml'
 
 def init():
     '''Mod's main entry point.  Called by WoT's built-in mod loader.'''
 
     try:
         log.info(MOD_INFO.NAME + ' ' + MOD_INFO.VERSION_LONG)
-        sm_settings.readConfig(confFile)
-		
+        sm_settings.readConfig(conf_file, conf_prefix)
+        
         log.debug('set key event handlers')
-        sm_inputKeyManager.addCallback(sm_settings.get('ReloadConfigKey'), partial(sm_settings.readConfig, confFile))
+        sm_inputKeyManager.addCallback(sm_settings.get('ReloadConfigKey'), partial(sm_settings.readConfig, conf_file, conf_prefix))
         sm_inputKeyManager.addCallback(sm_settings.get('ActivationHotKey'), sm_control.toggleActive)
         
         g_playerEvents.onAvatarReady += sm_control.onBattleStart
