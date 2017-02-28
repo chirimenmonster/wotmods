@@ -129,6 +129,12 @@ class _Settings(object):
             section = ResMgr.openSection(file2)
             if section:
                 log.debug('config file: {}'.format(file2))
+
+        if not section:
+            file2 = '../mods/' + file
+            section = ResMgr.openSection(file2)
+            if section:
+                log.debug('config file: {}'.format(file2))
         
         if not section:
             section = ResMgr.openSection(file)
