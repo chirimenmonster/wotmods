@@ -6,7 +6,7 @@ import math
 
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
 from wotapis import Utils, VehicleInfo, ArenaInfo, MinimapInfo
-from IngameMessanger import DelayChatControl
+from delaychat import DelayChatControl
 from settings import sm_settings
 from logger import log
 

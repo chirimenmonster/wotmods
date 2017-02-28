@@ -10,7 +10,7 @@ from spotmessanger.events import overrideMethod
 from spotmessanger.version import MOD_INFO
 from spotmessanger.settings import sm_settings
 from spotmessanger.inputhandler import sm_inputKeyManager
-from spotmessanger.SpotMessanger import sm_control
+from spotmessanger.control import sm_control
 
 confFile = 'configs/spotmessanger/spotmessanger.xml'
 
