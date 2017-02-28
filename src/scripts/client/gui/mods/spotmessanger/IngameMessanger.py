@@ -13,6 +13,11 @@ from logger import log
 from wotapis import Utils
 
 
+class _Delay():
+    command = 0.5
+    text = 5.0
+
+
 class _Criteria(IEntityFindCriteria):
 
     def __init__(self, channelSetting):
@@ -22,47 +27,34 @@ class _Criteria(IEntityFindCriteria):
     def filter(self, channel):
         return channel.getProtoType() is PROTO_TYPE.BW_CHAT2 and channel.getProtoData().settings is self.__channelSetting
 
-        
-class IngameMessanger(object):
-    _cooldDown = 0
-    _commandDelay = 0.5
-    _textDelay = 5.0
-    _channelsCtrl = None
+
+class DelayChatControl(object):
     
     def __init__(self):
         self._channelsCtrl = BattleControllers()
         self._channelsCtrl.init()
-        self.setParam()
+        self._wakeupTime = 0
+        self._delay = _Delay()
 
     def setParam(self, commandDelay=0.5, textDelay=5.0):
-        self._commandDelay = commandDelay
-        self._textDelay = textDelay
+        self._delay.command = commandDelay
+        self._delay.text = textDelay
         
     def doPing(self, cellIdx):
-        self._setCallback(self._commandDelay, partial(self._doPing, cellIdx))
+        self._setCallback(self._delay.command, partial(_CBCommand.doPing, cellIdx))
         return True
 
     def callHelp(self):
-        self._setCallback(self._commandDelay, self._callHelp)
+        self._setCallback(self._delay.command, _CBCommand.callHelp)
         return True
     
-    def sendText(self, channel, text):
-        channelCtrl = self._channelsCtrl.getControllerByCriteria(_Criteria(channel))
-        log.debug('found controller: {}'.format(channelCtrl))
-        if not channelCtrl:
-            log.debug('not found channel: {}'.format(channel.name))
-            return False
-        log.debug('found channel: {}'.format(channel.name))
-        self._setCallback(self._textDelay, partial(self._sendText, channelCtrl, text))
-        return True
-
     def sendTeam(self, text):
         log.debug('send to BATTLE_CHANNEL.TEAM')
-        return self.sendText(BATTLE_CHANNEL.TEAM, text)
+        return self._sendText(BATTLE_CHANNEL.TEAM, text)
 
     def sendSquad(self, text):
         log.debug('send to BATTLE_CHANNEL.SQUAD')
-        return self.sendText(BATTLE_CHANNEL.SQUAD, text)
+        return self._sendText(BATTLE_CHANNEL.SQUAD, text)
 
     def getChannelLabels(self):
         labels = []
@@ -71,35 +63,43 @@ class IngameMessanger(object):
                 labels.append(channel.name)
         return labels
 
+    def _sendText(self, channel, text):
+        channelCtrl = self._channelsCtrl.getControllerByCriteria(_Criteria(channel))
+        if not channelCtrl:
+            log.debug('channel: {} is not in {}'.format(channel.name, channelCtrl))
+            return False
+        log.debug('channel: {} is in {}'.format(channel.name, channelCtrl))
+        self._setCallback(self._delay.text, partial(_CBCommand.sendText, channelCtrl, text))
+        return True
+
     def _setCallback(self, delay, callback):
         currentTime = Utils.getTime()
-        self._cooldDown = max(self._cooldDown, currentTime)
-        diff = self._cooldDown - currentTime
-        Utils.setCallback(diff, callback)
-        self._cooldDown += delay
+        self._wakeupTime = max(self._wakeupTime, currentTime)
+        Utils.setCallback(self._wakeupTime - currentTime, callback)
+        self._wakeupTime += delay
 
-    def _checkEnableArena(self):
-        if Utils.isPlayerOnArena():
-            log.debug('avatar is on arena')
-            return True
-        else:
+
+class _CBCommand(object):
+
+    @staticmethod
+    def doPing(cellIdx):
+        if not Utils.isPlayerOnArena():
             log.debug('avatar left arena')
-            return False
-                
-    def _doPing(self, cellIdx):
-        if not self._checkEnableArena():
             return
         Utils.setForcedGuiControlMode(True)
         Utils.getChatCommandCtrl().sendAttentionToCell(cellIdx)
         Utils.setForcedGuiControlMode(False)
 
-    def _callHelp(self):
-        if not self._checkEnableArena():
+    @staticmethod
+    def callHelp():
+        if not Utils.isPlayerOnArena():
+            log.debug('avatar left arena')
             return
         Utils.getChatCommandCtrl().sendCommand(CHAT_COMMANDS.HELPME.name())
 
-    def _sendText(self, channelCtrl, text):
-        if not self._checkEnableArena():
+    @staticmethod
+    def sendText(channelCtrl, text):
+        if not Utils.isPlayerOnArena():
+            log.debug('avatar left arena')
             return
         channelCtrl.sendMessage(text)
-

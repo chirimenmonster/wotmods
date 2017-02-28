@@ -35,8 +35,8 @@ class Utils:
         return len([ v for v in arenaDP.getVehiclesInfoIterator() if v.team == team and v.isAlive() ])
 
     @staticmethod
-    def setCallback(period, callback):
-        return BigWorld.callback(period, callback)
+    def setCallback(time, function):
+        return BigWorld.callback(time, function)
     
     @staticmethod
     def getSessionProvider():

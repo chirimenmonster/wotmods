@@ -6,7 +6,7 @@ import math
 
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
 from wotapis import Utils, VehicleInfo, ArenaInfo, MinimapInfo
-from IngameMessanger import IngameMessanger
+from IngameMessanger import DelayChatControl
 from settings import sm_settings
 from logger import log
 
@@ -102,7 +102,7 @@ class SpotMessanger(object):
         teamAmount = Utils.getTeamAmount()
         cellIndex = MinimapInfo.getCellIndexByPosition(Utils.getPos())
         
-        messenger = IngameMessanger()
+        messenger = DelayChatControl()
         log.info('current chat channel: {}'.format(messenger.getChannelLabels()))
         log.info('current team amount: {}'.format(teamAmount))
 
