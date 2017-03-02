@@ -6,6 +6,9 @@ from gui.battle_control import avatar_getter, minimap_utils
 from gui.battle_control.minimap_utils import MINIMAP_SIZE
 from messenger import MessengerEntry
 
+from gui import SystemMessages
+
+
 from modconsts import VEHICLE_TYPE, BATTLE_TYPE
 from logger import log
 
@@ -53,6 +56,10 @@ class Utils:
     @staticmethod
     def addClientMessage(message, isCurrentPlayer = False):
         MessengerEntry.g_instance.gui.addClientMessage(message, isCurrentPlayer)
+
+    @staticmethod
+    def addSystemMessage(message):
+        SystemMessages.pushMessage(message)
 
 
 class VehicleInfo(object):

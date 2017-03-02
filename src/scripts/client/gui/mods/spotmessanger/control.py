@@ -4,6 +4,7 @@
 
 import math
 
+from version import MOD_INFO
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
 from wotapis import Utils, VehicleInfo, ArenaInfo, MinimapInfo
 from delaychat import DelayChatControl
@@ -65,6 +66,11 @@ class SpotMessanger(object):
         self.showCurrentMode()
 
 
+    def reloadConfig(self, conf_file, conf_prefix):
+        sm_settings.readConfig(conf_file, conf_prefix)
+        Utils.addSystemMessage('{}: reload config file'.format(MOD_INFO.NAME))
+
+
     def toggleActive(self):
         self._isEnabled = not self._isEnabled
         self.showCurrentMode()
@@ -73,10 +79,14 @@ class SpotMessanger(object):
     def showCurrentMode(self):
         if self._isEnabled:
             log.info('Sixth Sense Message enabled')
-            Utils.addClientMessage(sm_settings.get('EnableSystemMsg'), True)
+            msg = sm_settings.get('EnableSystemMsg')
         else:
             log.info('Sixth Sense Message disabled')
-            Utils.addClientMessage(sm_settings.get('DisableSystemMsg'), True)
+            msg = sm_settings.get('DisableSystemMsg')    
+        if Utils.isPlayerOnArena():
+            Utils.addClientMessage(msg, True)
+        else:
+            Utils.addSystemMessage(msg)
 
 
     def _getCooldownTime(self, currentTime, cooldownInterval):

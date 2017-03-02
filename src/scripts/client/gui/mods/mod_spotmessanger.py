@@ -23,7 +23,7 @@ def init():
         sm_settings.readConfig(conf_file, conf_prefix)
         
         log.debug('set key event handlers')
-        sm_inputKeyManager.addCallback(sm_settings.get('ReloadConfigKey'), partial(sm_settings.readConfig, conf_file, conf_prefix))
+        sm_inputKeyManager.addCallback(sm_settings.get('ReloadConfigKey'), partial(sm_control.reloadConfig, conf_file, conf_prefix))
         sm_inputKeyManager.addCallback(sm_settings.get('ActivationHotKey'), sm_control.toggleActive)
         
         g_playerEvents.onAvatarReady += sm_control.onBattleStart
