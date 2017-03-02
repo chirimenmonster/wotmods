@@ -1,13 +1,12 @@
 
 import math
+
 import BigWorld
-from items.vehicles import getVehicleClass
+from gui import SystemMessages
 from gui.battle_control import avatar_getter, minimap_utils
 from gui.battle_control.minimap_utils import MINIMAP_SIZE
+from items.vehicles import getVehicleClass
 from messenger import MessengerEntry
-
-from gui import SystemMessages
-
 
 from modconsts import VEHICLE_TYPE, BATTLE_TYPE
 from logger import log
