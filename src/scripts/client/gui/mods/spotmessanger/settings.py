@@ -4,6 +4,8 @@ import ResMgr
 from logger import log, LOGLEVEL
 from modconsts import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
 
+from wotapis import Utils
+
 PC_DEBUG    = 0
 PC_GLOBAL   = 1
 PC_FALLBACK = 2
@@ -22,6 +24,7 @@ PARAM_DEF = [
     [ PC_DEBUG,     'Debug',                'Bool',     False,  True                                ],
     [ PC_DEBUG,     'LogLevel',             'Enum',     False,  'info',         LOGLEVEL.LIST       ],
     [ PC_GLOBAL,    'ActiveByDefault',      'Bool',     False,  True                                ],
+    [ PC_GLOBAL,    'NotifyCenter',         'Bool',     False,  True                                ],
     [ PC_GLOBAL,    'ActivationHotKey',     'String',   False,  'KEY_F11'                           ],
     [ PC_GLOBAL,    'ReloadConfigKey',      'String',   False,  'KEY_NUMPAD4'                       ],
     [ PC_GLOBAL,    'ImSpotted',            'String',   False,  'An enemy has spotted me at {pos}.'         ],

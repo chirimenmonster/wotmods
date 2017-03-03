@@ -68,9 +68,14 @@ class SpotMessanger(object):
 
     def reloadConfig(self, conf_file, conf_prefix):
         sm_settings.readConfig(conf_file, conf_prefix)
-        Utils.addSystemMessage('{}: reload config file'.format(MOD_INFO.NAME))
+        self.addSystemMessage('{}: reload config file'.format(MOD_INFO.NAME))
 
 
+    def addSystemMessage(self, message):
+        if sm_settings.get('NotifyCenter'):
+            Utils.addSystemMessage(message)    
+
+        
     def toggleActive(self):
         self._isEnabled = not self._isEnabled
         self.showCurrentMode()
@@ -86,7 +91,7 @@ class SpotMessanger(object):
         if Utils.isPlayerOnArena():
             Utils.addClientMessage(msg, True)
         else:
-            Utils.addSystemMessage(msg)
+            self.addSystemMessage(msg)
 
 
     def _getCooldownTime(self, currentTime, cooldownInterval):

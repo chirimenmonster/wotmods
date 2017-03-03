@@ -9,7 +9,8 @@
     <LogLevel>info</LogLevel> <!-- may debug/info/notice/warning/error -->
 
     <!-- Global settings -->
-    
+    <NotifyCenter>True</NotifyCenter> <!-- use Notify Center message -->
+
     <!-- Activation options -->
     <ActiveByDefault>true</ActiveByDefault> <!-- Activate Mod at the beginning of the battle - true/false. -->
     <ActivationHotKey>KEY_F11</ActivationHotKey> <!-- Set the hotkey to enable/disable the Mod during battle. -->
