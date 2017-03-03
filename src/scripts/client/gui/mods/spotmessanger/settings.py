@@ -124,6 +124,7 @@ class _Settings(object):
 
         for prefix in prefix_list:
             path = prefix + file
+            ResMgr.purge(path)
             section = ResMgr.openSection(path)
             if section:
                 log.info('read config file: {}'.format(path))
