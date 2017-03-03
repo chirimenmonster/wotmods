@@ -23,6 +23,8 @@ class Utils:
 
     @staticmethod
     def isPlayerOnArena():
+        if not hasattr(BigWorld.player(), 'arena'):
+            return False
         return avatar_getter.isPlayerOnArena()
 
     @staticmethod
