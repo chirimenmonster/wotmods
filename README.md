@@ -46,8 +46,8 @@ Customize
 
 ChangeLog
 ---------
-### 0.9-dev
-+ disable at observer mode and postmortem mode
+### 0.9.0
++ disable on observer mode and postmortem mode
 + add message to Notification Center, its controllable with config file
 + fix bug: about reload config file
 
