@@ -57,7 +57,7 @@ def main():
     mod_name = args.mod_name.lower()
     mod_version = args.mod_version
     pack_wotmod = "{name}-{version}.wotmod".format(name=mod_name, version=mod_version)
-    zip_wotmod = "{name}-{version}.wotmod.zip".format(name=mod_name, version=mod_version)
+    zip_wotmod = "{name}-{version}-wotmod.zip".format(name=mod_name, version=mod_version)
     zip_resmod = "{name}-{version}.zip".format(name=mod_name, version=mod_version)
     
     stage = [
