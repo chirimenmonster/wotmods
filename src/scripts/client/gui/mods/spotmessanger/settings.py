@@ -4,6 +4,8 @@ import ResMgr
 from logger import log, LOGLEVEL
 from modconsts import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
 
+from wotapis import Utils
+
 PC_DEBUG    = 0
 PC_GLOBAL   = 1
 PC_FALLBACK = 2
@@ -22,6 +24,7 @@ PARAM_DEF = [
     [ PC_DEBUG,     'Debug',                'Bool',     False,  True                                ],
     [ PC_DEBUG,     'LogLevel',             'Enum',     False,  'info',         LOGLEVEL.LIST       ],
     [ PC_GLOBAL,    'ActiveByDefault',      'Bool',     False,  True                                ],
+    [ PC_GLOBAL,    'NotifyCenter',         'Bool',     False,  True                                ],
     [ PC_GLOBAL,    'ActivationHotKey',     'String',   False,  'KEY_F11'                           ],
     [ PC_GLOBAL,    'ReloadConfigKey',      'String',   False,  'KEY_NUMPAD4'                       ],
     [ PC_GLOBAL,    'ImSpotted',            'String',   False,  'An enemy has spotted me at {pos}.'         ],
@@ -118,25 +121,17 @@ class _Settings(object):
         return settings
 
 
-    def readConfig(self, file):
+    def readConfig(self, file, prefix_list=[ '' ]):
         self._paramGlobal = {}
         self._paramBattle = {} 
 
-        section = False
-        
-        if not section:
-            file2 = '../res_mods/' + file
-            section = ResMgr.openSection(file2)
+        for prefix in prefix_list:
+            path = prefix + file
+            ResMgr.purge(path)
+            section = ResMgr.openSection(path)
             if section:
-                log.debug('config file: {}'.format(file2))
-        
-        if not section:
-            section = ResMgr.openSection(file)
-            if section:
-                log.debug('config file: {}'.format(file))
-                
-        if not section:
-            log.debug('config file is not found')
+                log.info('read config file: {}'.format(path))
+                break
         
         if section:
             self._paramGlobal.update(self._readSettings(section, PARAM_LIST_DEBUG, True))

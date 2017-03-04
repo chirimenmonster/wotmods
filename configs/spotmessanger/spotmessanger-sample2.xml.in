@@ -7,7 +7,8 @@
     <LogLevel>notice</LogLevel>
 
     <!-- Global settings -->
-    
+    <NotifyCenter>True</NotifyCenter> <!-- use Notify Center message -->
+
     <!-- Activation options -->
     <ActiveByDefault>true</ActiveByDefault>
     <ActivationHotKey>KEY_F11</ActivationHotKey>

@@ -4,9 +4,10 @@
 
 import math
 
+from version import MOD_INFO
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
 from wotapis import Utils, VehicleInfo, ArenaInfo, MinimapInfo
-from IngameMessanger import IngameMessanger
+from delaychat import DelayChatControl
 from settings import sm_settings
 from logger import log
 
@@ -28,11 +29,15 @@ class SpotMessanger(object):
     def onBattleStart(self):
         self._isEnabled = sm_settings.get('ActiveByDefault')
         self._lastActivity = 0
+        self._isObserver = Utils.isObserver()
 
         arena = ArenaInfo()
         vehicle = VehicleInfo()
 
         log.info('on battle start')
+        if self._isObserver:
+            log.info('player avatar is observer, nothing to do')
+            return
         log.info('current battle type: {} [{}({}) = "{}"]'.format(arena.battleType, arena.attrLabel, arena.id, arena.name))
         log.info('current vehicle class: {} [{}] ({})'.format(vehicle.classAbbr, vehicle.className, vehicle.name))
 
@@ -61,6 +66,16 @@ class SpotMessanger(object):
         self.showCurrentMode()
 
 
+    def reloadConfig(self, conf_file, conf_prefix):
+        sm_settings.readConfig(conf_file, conf_prefix)
+        self.addSystemMessage('{}: reload config file'.format(MOD_INFO.NAME))
+
+
+    def addSystemMessage(self, message):
+        if sm_settings.get('NotifyCenter'):
+            Utils.addSystemMessage(message)    
+
+        
     def toggleActive(self):
         self._isEnabled = not self._isEnabled
         self.showCurrentMode()
@@ -69,10 +84,14 @@ class SpotMessanger(object):
     def showCurrentMode(self):
         if self._isEnabled:
             log.info('Sixth Sense Message enabled')
-            Utils.addClientMessage(sm_settings.get('EnableSystemMsg'), True)
+            msg = sm_settings.get('EnableSystemMsg')
         else:
             log.info('Sixth Sense Message disabled')
-            Utils.addClientMessage(sm_settings.get('DisableSystemMsg'), True)
+            msg = sm_settings.get('DisableSystemMsg')    
+        if Utils.isPlayerOnArena():
+            Utils.addClientMessage(msg, True)
+        else:
+            self.addSystemMessage(msg)
 
 
     def _getCooldownTime(self, currentTime, cooldownInterval):
@@ -81,6 +100,11 @@ class SpotMessanger(object):
 
 
     def showSixthSenseIndicator(self):
+        if self._isObserver:
+            return
+        if Utils.isPostMortem():
+            log.info('current control mode is postmortem, nothing to do.')
+            return
         if not self._isEnabled or not self._activeParams:
             log.info('sixth sense message is disabled or nothing to do.')
             return
@@ -96,7 +120,7 @@ class SpotMessanger(object):
         teamAmount = Utils.getTeamAmount()
         cellIndex = MinimapInfo.getCellIndexByPosition(Utils.getPos())
         
-        messenger = IngameMessanger()
+        messenger = DelayChatControl()
         log.info('current chat channel: {}'.format(messenger.getChannelLabels()))
         log.info('current team amount: {}'.format(teamAmount))
 
