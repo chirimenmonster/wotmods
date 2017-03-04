@@ -29,7 +29,7 @@ class SpotMessanger(object):
     def onBattleStart(self):
         self._isEnabled = sm_settings.get('ActiveByDefault')
         self._lastActivity = 0
-        self._isObserver = Utils.getPlayer().isObserver()
+        self._isObserver = Utils.isObserver()
 
         arena = ArenaInfo()
         vehicle = VehicleInfo()
@@ -101,6 +101,9 @@ class SpotMessanger(object):
 
     def showSixthSenseIndicator(self):
         if self._isObserver:
+            return
+        if Utils.isPostMortem():
+            log.info('current control mode is postmortem, nothing to do.')
             return
         if not self._isEnabled or not self._activeParams:
             log.info('sixth sense message is disabled or nothing to do.')

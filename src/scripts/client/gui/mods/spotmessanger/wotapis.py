@@ -22,6 +22,16 @@ class Utils:
         return BigWorld.player()
 
     @staticmethod
+    def isObserver():
+        return BigWorld.player().isObserver()
+
+    @staticmethod
+    def isPostMortem():
+        if avatar_getter.getInputHandler().ctrlModeName == 'postmortem':
+            return True
+        return False
+
+    @staticmethod
     def isPlayerOnArena():
         if not hasattr(BigWorld.player(), 'arena'):
             return False
