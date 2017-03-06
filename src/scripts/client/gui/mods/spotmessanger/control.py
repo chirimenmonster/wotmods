@@ -88,7 +88,7 @@ class SpotMessanger(object):
         else:
             log.info('Sixth Sense Message disabled')
             msg = sm_settings.get('DisableSystemMsg')    
-        if Utils.isPlayerOnArena():
+        if Utils.getArena():
             Utils.addClientMessage(msg)
         else:
             self.addSystemMessage(msg)

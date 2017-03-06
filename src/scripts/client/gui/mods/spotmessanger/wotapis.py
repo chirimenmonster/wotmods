@@ -36,6 +36,12 @@ class Utils:
         if not hasattr(BigWorld.player(), 'arena'):
             return False
         return avatar_getter.isPlayerOnArena()
+    
+    @staticmethod
+    def getArena():
+        if not hasattr(BigWorld.player(), 'arena'):
+            return False
+        return avatar_getter.getArena()
 
     @staticmethod
     def getPos():
