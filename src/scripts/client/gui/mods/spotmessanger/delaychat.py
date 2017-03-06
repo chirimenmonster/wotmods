@@ -4,9 +4,9 @@
 
 from functools import partial
 
+from messenger import MessengerEntry
 from messenger.m_constants import BATTLE_CHANNEL, PROTO_TYPE
 from messenger.proto.interfaces import IEntityFindCriteria
-from messenger.gui.scaleform.channels import BattleControllers
 from chat_shared import CHAT_COMMANDS
 
 from logger import log
@@ -31,8 +31,6 @@ class _Criteria(IEntityFindCriteria):
 class DelayChatControl(object):
     
     def __init__(self):
-        self._channelsCtrl = BattleControllers()
-        self._channelsCtrl.init()
         self._wakeupTime = 0
         self._delay = _Delay()
 
@@ -58,13 +56,14 @@ class DelayChatControl(object):
 
     def getChannelLabels(self):
         labels = []
+        channelsCtrl = MessengerEntry.g_instance.gui.channelsCtrl
         for channel in BATTLE_CHANNEL.ALL:
-            if self._channelsCtrl.getControllerByCriteria(_Criteria(channel)):
+            if channelsCtrl.getControllerByCriteria(_Criteria(channel)):
                 labels.append(channel.name)
         return labels
 
     def _sendText(self, channel, text):
-        channelCtrl = self._channelsCtrl.getControllerByCriteria(_Criteria(channel))
+        channelCtrl = MessengerEntry.g_instance.gui.channelsCtrl.getControllerByCriteria(_Criteria(channel))
         if not channelCtrl:
             log.debug('channel: {} is not in {}'.format(channel.name, channelCtrl))
             return False
