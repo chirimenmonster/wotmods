@@ -65,8 +65,8 @@ class Utils:
         avatar_getter.setForcedGuiControlMode(flag)
     
     @staticmethod
-    def addClientMessage(message, isCurrentPlayer = False):
-        MessengerEntry.g_instance.gui.addClientMessage(message, isCurrentPlayer)
+    def addClientMessage(message):
+        MessengerEntry.g_instance.gui.addClientMessage(message)
 
     @staticmethod
     def addSystemMessage(message):
