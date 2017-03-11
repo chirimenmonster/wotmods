@@ -2,8 +2,6 @@
 
 # @author: BirrettaMalefica EU, Chirimen SEA
 
-import math
-
 from version import MOD_INFO
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
 from wotapis import Utils, VehicleInfo, ArenaInfo
@@ -90,7 +88,7 @@ class SpotMessanger(object):
             log.info('Sixth Sense Message disabled')
             msg = self.settings.get('DisableSystemMsg')    
         if Utils.getArena():
-            Utils.addClientMessage(msg)
+            chatutils.addClientMessage(msg)
         else:
             self.addSystemMessage(msg)
 

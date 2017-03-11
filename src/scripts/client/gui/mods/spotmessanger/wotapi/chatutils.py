@@ -16,6 +16,9 @@ class _Criteria(IEntityFindCriteria):
         return channel.getProtoType() is PROTO_TYPE.BW_CHAT2 and channel.getProtoData().settings is self.__channelSetting
 
 
+def addClientMessage(message):
+    MessengerEntry.g_instance.gui.addClientMessage(message)
+
 def doPing(cellIdx):
     _getChatCommandCtrl().sendAttentionToCell(cellIdx)
 
