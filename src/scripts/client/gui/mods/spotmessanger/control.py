@@ -8,8 +8,8 @@ from version import MOD_INFO
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
 from wotapis import Utils, VehicleInfo, ArenaInfo, MinimapInfo
 from delaychat import DelayChatControl
-from settings import sm_settings
 from logger import log
+
 
 _commandMethod = {
     COMMAND_TYPE.LABELS.PING: '_doPing',
@@ -25,9 +25,12 @@ class SpotMessanger(object):
     _activeParams = []
     _currentIndex = 0
     _currentParam = None
-    
+
+    def __init__(self, settings):
+        self.settings = settings
+        
     def onBattleStart(self):
-        self._isEnabled = sm_settings.get('ActiveByDefault')
+        self._isEnabled = self.settings.get('ActiveByDefault')
         self._lastActivity = 0
         self._isObserver = Utils.isObserver()
 
@@ -43,7 +46,7 @@ class SpotMessanger(object):
 
         self._activeParams = []
         cooldownInterval = []
-        for i, p in enumerate(sm_settings.getParamsBattleType(arena.battleType)):
+        for i, p in enumerate(self.settings.getParamsBattleType(arena.battleType)):
             log.info('[{}]: CommandOrder: {}'.format(i, p.getInfo('CommandOrder')))
             log.info('[{}]: CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(i,
                     p.getInfo('CooldownInterval'),
@@ -65,39 +68,33 @@ class SpotMessanger(object):
         log.info('minimal CoolDownInterval: {}'.format(self._cooldownInterval))
         self.showCurrentMode()
 
-
     def reloadConfig(self, conf_file, conf_prefix):
-        sm_settings.readConfig(conf_file, conf_prefix)
+        self.settings.readConfig(conf_file, conf_prefix)
         self.addSystemMessage('{}: reload config file'.format(MOD_INFO.NAME))
 
-
     def addSystemMessage(self, message):
-        if sm_settings.get('NotifyCenter'):
+        if self.settings.get('NotifyCenter'):
             Utils.addSystemMessage(message)    
-
         
     def toggleActive(self):
         self._isEnabled = not self._isEnabled
         self.showCurrentMode()
 
-
     def showCurrentMode(self):
         if self._isEnabled:
             log.info('Sixth Sense Message enabled')
-            msg = sm_settings.get('EnableSystemMsg')
+            msg = self.settings.get('EnableSystemMsg')
         else:
             log.info('Sixth Sense Message disabled')
-            msg = sm_settings.get('DisableSystemMsg')    
+            msg = self.settings.get('DisableSystemMsg')    
         if Utils.getArena():
             Utils.addClientMessage(msg)
         else:
             self.addSystemMessage(msg)
 
-
     def _getCooldownTime(self, currentTime, cooldownInterval):
         cooldownTime = self._lastActivity + cooldownInterval - currentTime
         return cooldownTime if cooldownTime > 0 else 0
-
 
     def showSixthSenseIndicator(self):
         if self._isObserver:
@@ -112,7 +109,7 @@ class SpotMessanger(object):
         cooldownTime = self._getCooldownTime(currentTime, self._cooldownInterval)
         if cooldownTime > 0:
             log.info('[time:{:.1f}] invoke sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
-            Utils.addClientMessage(sm_settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
+            Utils.addClientMessage(self.settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
             return
         log.info('[time:{:.1f}] invoke sixth sense.'.format(currentTime))
 
@@ -132,7 +129,6 @@ class SpotMessanger(object):
         if self._isDone:
             log.debug('success commands, update last activity.')
             self._lastActivity = currentTime
-
 
     def _doSixthSense(self, messenger, currentTime, player, cellIndex, teamAmount):
         index = self._currentIndex
@@ -163,7 +159,6 @@ class SpotMessanger(object):
             log.debug('[{}]: already executed command class: {}'.format(index, self._isDone))
             getattr(self, _commandMethod[command])(messenger, cellIndex=cellIndex)
 
-
     def _doPing(self, messenger, cellIndex=None):
         if self._isDone.get('ping') or not cellIndex:
             return
@@ -171,14 +166,12 @@ class SpotMessanger(object):
         messenger.doPing(cellIndex)
         self._isDone['ping'] = True
 
-
     def _doHelp(self, messenger, cellIndex=None):
         if self._isDone.get('help'):
             return
         log.info('[{}]: action: call help'.format(self._currentIndex))
         messenger.callHelp()
         self._isDone['help'] = True
-
 
     def _doSendTeamMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
@@ -189,7 +182,6 @@ class SpotMessanger(object):
         log.info('[{}]: action: send message to team channel: "{}"'.format(self._currentIndex, msg))
         ret = messenger.sendTeam(msg)
         self._isDone['msg'] = ret
-
 
     def _doSendSquadMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
@@ -203,6 +195,3 @@ class SpotMessanger(object):
         log.info('[{}]: action: send message to squad channel: "{}"'.format(self._currentIndex, msg))
         ret = messenger.sendSquad(msg)
         self._isDone['msg'] = ret
-
-
-sm_control = SpotMessanger()

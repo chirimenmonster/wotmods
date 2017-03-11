@@ -2,24 +2,23 @@ import Keys
 
 from logger import log
 
-class _InputManager(object):
-    _callbacks = {}
+_callbacks = {}
 
-    def handleKeyEvent(self, event):
-        if event.isKeyDown() and not event.isRepeatedEvent():
-            callback = self._callbacks.get(event.key, None)
-            if callback:
-                try:
-                    callback()
-                except Exception:
-                    log.current_exception()
-        return False
+def test():
+    log.info('inputhandler test')
 
-    def addCallback(self, keyName, callback):
-        try:
-            self._callbacks[getattr(Keys, keyName)] = callback
-        except AttributeError:
-            log.warning('unknown key: "{}"'.format(keyName))
+def handleKeyEvent(event):
+    if event.isKeyDown() and not event.isRepeatedEvent():
+        callback = _callbacks.get(event.key, None)
+        if callback:
+            try:
+                callback()
+            except Exception:
+                log.current_exception()
+    return False
 
-
-sm_inputKeyManager = _InputManager()
+def addKeyEventCallback(keyName, callback):
+    try:
+        _callbacks[getattr(Keys, keyName)] = callback
+    except AttributeError:
+        log.warning('unknown key: "{}"'.format(keyName))

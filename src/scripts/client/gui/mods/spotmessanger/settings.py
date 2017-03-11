@@ -90,25 +90,22 @@ class _BattleSettings(object):
         return value
 
 
-class _Settings(object):
+class Settings(object):
     _paramGlobal = {}
     _paramBattle = {} 
 
-
-    def __init__(self):
+    def __init__(self, file, prefix_list):
         for key in PARAM_LIST_DEBUG:
             self._paramGlobal[key] = PARAM_INFO[key][INFO_DEFAULT]
         self._setLogLevel()
-
+        self.readConfig(file, prefix_list)
 
     def _setLogLevel(self):
         log.setDebug(self._paramGlobal['Debug'])
         log.setLogLevel(self._paramGlobal['LogLevel'])
     
-    
     def get(self, key, default=None):
         return self._paramGlobal.get(key, default)
-
 
     def getParamsBattleType(self, battleType):
         paramBattleList = self._paramBattle.get(battleType, None)
@@ -119,7 +116,6 @@ class _Settings(object):
             paramBattleList = self._paramBattle['default']
         settings = [ _BattleSettings(self._paramGlobal, paramBattle) for paramBattle in paramBattleList ]
         return settings
-
 
     def readConfig(self, file, prefix_list=[ '' ]):
         self._paramGlobal = {}
@@ -163,7 +159,6 @@ class _Settings(object):
             for i, p in enumerate(param):
                 log.debug('_paramBattle[\'{}\'][{}]: {}'.format(key, i, p))
 
-
     def _readSettings(self, section, paramList, withDefault=False):
         config = {}
         for key in paramList:
@@ -172,7 +167,6 @@ class _Settings(object):
             elif withDefault and PARAM_INFO[key][INFO_TYPE] in [ 'Bool', 'Int', 'Float', 'String', 'Enum' ]:
                 config[key] = PARAM_INFO[key][INFO_DEFAULT]
         return config
-
 
     def _readElement(self, element, key):
         keyType = PARAM_INFO[key][INFO_TYPE]
@@ -206,6 +200,3 @@ class _Settings(object):
                     log.warning('found invalid tag "{}", available only "{}"'.format(k, child))
             return values
         return None
-
-
-sm_settings = _Settings()
