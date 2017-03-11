@@ -11,7 +11,7 @@ from messenger import MessengerEntry
 from modconsts import VEHICLE_TYPE, BATTLE_TYPE
 from logger import log
 
-class Utils:
+class Utils(object):
 
     @staticmethod
     def getTime():
@@ -147,4 +147,3 @@ class MinimapInfo(object):
         log.debug('bottomLeft = {}, upperRight = {}, spaceSize = {}'.format(bottomLeft, upperRight, upperRight - bottomLeft))
         log.debug('posion = {}, local = {}, cellIndex = {}, cellName = {}'.format(position, localPos, cellIndex, cellName))
         return cellIndex
-

@@ -31,9 +31,6 @@ def init():
         
         g_playerEvents.onAvatarReady += _control.onBattleStart
 
-        test()
-        log.info('test: handleKeyEvent={}'.format(type(handleKeyEvent)))
-        handleKeyEvent()
     except:
         log.current_exception()
 

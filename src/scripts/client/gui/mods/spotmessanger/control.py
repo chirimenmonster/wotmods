@@ -10,6 +10,8 @@ from wotapis import Utils, VehicleInfo, ArenaInfo, MinimapInfo
 from delaychat import DelayChatControl
 from logger import log
 
+from wotapi import chatutils
+
 
 _commandMethod = {
     COMMAND_TYPE.LABELS.PING: '_doPing',
@@ -118,7 +120,7 @@ class SpotMessanger(object):
         cellIndex = MinimapInfo.getCellIndexByPosition(Utils.getPos())
         
         messenger = DelayChatControl()
-        log.info('current chat channel: {}'.format(messenger.getChannelLabels()))
+        log.info('current chat channel: {}'.format(chatutils.getChannelLabels()))
         log.info('current team amount: {}'.format(teamAmount))
 
         self._isDone = {}

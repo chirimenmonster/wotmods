@@ -4,28 +4,13 @@
 
 from functools import partial
 
-from messenger import MessengerEntry
-from messenger.m_constants import BATTLE_CHANNEL, PROTO_TYPE
-from messenger.proto.interfaces import IEntityFindCriteria
-from chat_shared import CHAT_COMMANDS
-
 from logger import log
 from wotapis import Utils
-
+from wotapi import chatutils
 
 class _Delay():
     command = 0.5
     text = 5.0
-
-
-class _Criteria(IEntityFindCriteria):
-
-    def __init__(self, channelSetting):
-        super(_Criteria, self).__init__()
-        self.__channelSetting = channelSetting
-
-    def filter(self, channel):
-        return channel.getProtoType() is PROTO_TYPE.BW_CHAT2 and channel.getProtoData().settings is self.__channelSetting
 
 
 class DelayChatControl(object):
@@ -48,27 +33,14 @@ class DelayChatControl(object):
     
     def sendTeam(self, text):
         log.debug('send to BATTLE_CHANNEL.TEAM')
-        return self._sendText(BATTLE_CHANNEL.TEAM, text)
+        self._setCallback(self._delay.text, partial(_CBCommand.sendTeamChat, text))
+        return True
 
     def sendSquad(self, text):
-        log.debug('send to BATTLE_CHANNEL.SQUAD')
-        return self._sendText(BATTLE_CHANNEL.SQUAD, text)
-
-    def getChannelLabels(self):
-        labels = []
-        channelsCtrl = MessengerEntry.g_instance.gui.channelsCtrl
-        for channel in BATTLE_CHANNEL.ALL:
-            if channelsCtrl.getControllerByCriteria(_Criteria(channel)):
-                labels.append(channel.name)
-        return labels
-
-    def _sendText(self, channel, text):
-        channelCtrl = MessengerEntry.g_instance.gui.channelsCtrl.getControllerByCriteria(_Criteria(channel))
-        if not channelCtrl:
-            log.debug('channel: {} is not in {}'.format(channel.name, channelCtrl))
+        if not chatutils.isExistSquadChannel():
             return False
-        log.debug('channel: {} is in {}'.format(channel.name, channelCtrl))
-        self._setCallback(self._delay.text, partial(_CBCommand.sendText, channelCtrl, text))
+        log.debug('send to BATTLE_CHANNEL.SQUAD')
+        self._setCallback(self._delay.text, partial(_CBCommand.sendSquadChat, text))
         return True
 
     def _setCallback(self, delay, callback):
@@ -83,22 +55,29 @@ class _CBCommand(object):
     @staticmethod
     def doPing(cellIdx):
         if not Utils.isPlayerOnArena():
-            log.debug('avatar left arena')
+            log.debug('avatar already left arena')
             return
         Utils.setForcedGuiControlMode(True)
-        Utils.getChatCommandCtrl().sendAttentionToCell(cellIdx)
+        chatutils.doPing(cellIdx)
         Utils.setForcedGuiControlMode(False)
 
     @staticmethod
     def callHelp():
         if not Utils.isPlayerOnArena():
-            log.debug('avatar left arena')
+            log.debug('avatar already left arena')
             return
-        Utils.getChatCommandCtrl().sendCommand(CHAT_COMMANDS.HELPME.name())
+        chatutils.callHelp()
 
     @staticmethod
-    def sendText(channelCtrl, text):
+    def sendTeamChat(text):
         if not Utils.isPlayerOnArena():
-            log.debug('avatar left arena')
+            log.debug('avatar already left arena')
             return
-        channelCtrl.sendMessage(text)
+        chatutils.sendTeamChat(text)
+
+    @staticmethod
+    def sendSquadChat(text):
+        if not Utils.isPlayerOnArena():
+            log.debug('avatar already left arena')
+            return
+        channelCtrl.sendSquadChat(text)
