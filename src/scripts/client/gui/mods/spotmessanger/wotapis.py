@@ -59,14 +59,6 @@ class Utils(object):
         return BigWorld.callback(time, function)
     
     @staticmethod
-    def getSessionProvider():
-        return BigWorld.player().guiSessionProvider
-    
-    @staticmethod
-    def getChatCommandCtrl():
-        return BigWorld.player().guiSessionProvider.shared.chatCommands
-
-    @staticmethod
     def setForcedGuiControlMode(flag):
         avatar_getter.setForcedGuiControlMode(flag)
     
