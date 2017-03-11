@@ -4,7 +4,6 @@ import ResMgr
 from logger import log, LOGLEVEL
 from modconsts import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
 
-from wotapis import Utils
 
 PC_DEBUG    = 0
 PC_GLOBAL   = 1

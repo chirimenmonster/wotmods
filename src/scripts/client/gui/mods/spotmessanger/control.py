@@ -4,11 +4,11 @@
 
 from version import MOD_INFO
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
-from wotapis import Utils, VehicleInfo, ArenaInfo
+from wotapis import VehicleInfo, ArenaInfo
 from delaychat import DelayChatControl
 from logger import log
 
-from wotapi import chatutils, minimaputils
+from wotapi import sysutils, avatarutils, chatutils, minimaputils
 
 
 _commandMethod = {
@@ -32,7 +32,7 @@ class SpotMessanger(object):
     def onBattleStart(self):
         self._isEnabled = self.settings.get('ActiveByDefault')
         self._lastActivity = 0
-        self._isObserver = Utils.isObserver()
+        self._isObserver = avatarutils.isObserver()
 
         arena = ArenaInfo()
         vehicle = VehicleInfo()
@@ -74,7 +74,7 @@ class SpotMessanger(object):
 
     def addSystemMessage(self, message):
         if self.settings.get('NotifyCenter'):
-            Utils.addSystemMessage(message)    
+            sysutils.addSystemMessage(message)    
         
     def toggleActive(self):
         self._isEnabled = not self._isEnabled
@@ -87,7 +87,7 @@ class SpotMessanger(object):
         else:
             log.info('Sixth Sense Message disabled')
             msg = self.settings.get('DisableSystemMsg')    
-        if Utils.getArena():
+        if avatarutils.getArena():
             chatutils.addClientMessage(msg)
         else:
             self.addSystemMessage(msg)
@@ -99,23 +99,23 @@ class SpotMessanger(object):
     def showSixthSenseIndicator(self):
         if self._isObserver:
             return
-        if Utils.isPostMortem():
+        if avatarutils.isPostMortem():
             log.info('current control mode is postmortem, nothing to do.')
             return
         if not self._isEnabled or not self._activeParams:
             log.info('sixth sense message is disabled or nothing to do.')
             return
-        currentTime = Utils.getTime()
+        currentTime = sysutils.getTime()
         cooldownTime = self._getCooldownTime(currentTime, self._cooldownInterval)
         if cooldownTime > 0:
             log.info('[time:{:.1f}] invoke sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
-            Utils.addClientMessage(self.settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
+            chatutils.addClientMessage(self.settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
             return
         log.info('[time:{:.1f}] invoke sixth sense.'.format(currentTime))
 
-        player = Utils.getPlayer()
-        teamAmount = Utils.getTeamAmount()
-        cellIndex = minimaputils.getCellIndexByPosition(Utils.getPos())
+        player = avatarutils.getPlayer()
+        teamAmount = avatarutils.getTeamAmount()
+        cellIndex = minimaputils.getCellIndexByPosition(avatarutils.getPos())
         
         messenger = DelayChatControl()
         log.info('current chat channel: {}'.format(chatutils.getChannelLabels()))

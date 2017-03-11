@@ -2,11 +2,11 @@
 
 # @author: BirrettaMalefica EU, Chirimen SEA
 
+import math
 from functools import partial
 
 from logger import log
-from wotapis import Utils
-from wotapi import chatutils
+from wotapi import sysutils, avatarutils, chatutils
 
 class _Delay():
     command = 0.5
@@ -44,9 +44,9 @@ class DelayChatControl(object):
         return True
 
     def _setCallback(self, delay, callback):
-        currentTime = Utils.getTime()
+        currentTime = sysutils.getTime()
         self._wakeupTime = max(self._wakeupTime, currentTime)
-        Utils.setCallback(self._wakeupTime - currentTime, callback)
+        sysutils.setCallback(self._wakeupTime - currentTime, callback)
         self._wakeupTime += delay
 
 
@@ -54,30 +54,30 @@ class _CBCommand(object):
 
     @staticmethod
     def doPing(cellIdx):
-        if not Utils.isPlayerOnArena():
+        if not avatarutils.isPlayerOnArena():
             log.debug('avatar already left arena')
             return
-        Utils.setForcedGuiControlMode(True)
+        avatarutils.setForcedGuiControlMode(True)
         chatutils.doPing(cellIdx)
-        Utils.setForcedGuiControlMode(False)
+        avatarutils.setForcedGuiControlMode(False)
 
     @staticmethod
     def callHelp():
-        if not Utils.isPlayerOnArena():
+        if not avatarutils.isPlayerOnArena():
             log.debug('avatar already left arena')
             return
         chatutils.callHelp()
 
     @staticmethod
     def sendTeamChat(text):
-        if not Utils.isPlayerOnArena():
+        if not avatarutils.isPlayerOnArena():
             log.debug('avatar already left arena')
             return
         chatutils.sendTeamChat(text)
 
     @staticmethod
     def sendSquadChat(text):
-        if not Utils.isPlayerOnArena():
+        if not avatarutils.isPlayerOnArena():
             log.debug('avatar already left arena')
             return
         channelCtrl.sendSquadChat(text)
