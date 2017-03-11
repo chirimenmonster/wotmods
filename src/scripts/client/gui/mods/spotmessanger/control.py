@@ -6,11 +6,11 @@ import math
 
 from version import MOD_INFO
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
-from wotapis import Utils, VehicleInfo, ArenaInfo, MinimapInfo
+from wotapis import Utils, VehicleInfo, ArenaInfo
 from delaychat import DelayChatControl
 from logger import log
 
-from wotapi import chatutils
+from wotapi import chatutils, minimaputils
 
 
 _commandMethod = {
@@ -117,7 +117,7 @@ class SpotMessanger(object):
 
         player = Utils.getPlayer()
         teamAmount = Utils.getTeamAmount()
-        cellIndex = MinimapInfo.getCellIndexByPosition(Utils.getPos())
+        cellIndex = minimaputils.getCellIndexByPosition(Utils.getPos())
         
         messenger = DelayChatControl()
         log.info('current chat channel: {}'.format(chatutils.getChannelLabels()))
@@ -164,7 +164,7 @@ class SpotMessanger(object):
     def _doPing(self, messenger, cellIndex=None):
         if self._isDone.get('ping') or not cellIndex:
             return
-        log.info('[{}]: action: do ping at {}'.format(self._currentIndex, MinimapInfo.getCellName(cellIndex)))
+        log.info('[{}]: action: do ping at {}'.format(self._currentIndex, minimaputils.getCellName(cellIndex)))
         messenger.doPing(cellIndex)
         self._isDone['ping'] = True
 
@@ -178,7 +178,7 @@ class SpotMessanger(object):
     def _doSendTeamMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
             return
-        msg = self._currentParam.get('ImSpotted').format(pos=MinimapInfo.getCellName(cellIndex))
+        msg = self._currentParam.get('ImSpotted').format(pos=minimaputils.getCellName(cellIndex))
         if not msg:
             return
         log.info('[{}]: action: send message to team channel: "{}"'.format(self._currentIndex, msg))
@@ -188,7 +188,7 @@ class SpotMessanger(object):
     def _doSendSquadMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
             return
-        msg = self._currentParam.get('ImSpotted').format(pos=MinimapInfo.getCellName(cellIndex))
+        msg = self._currentParam.get('ImSpotted').format(pos=minimaputils.getCellName(cellIndex))
         if not msg:
             return
         if not 'squad' in messenger.getChannelLabels():
