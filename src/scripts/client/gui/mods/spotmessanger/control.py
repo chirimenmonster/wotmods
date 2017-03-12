@@ -4,11 +4,9 @@
 
 from version import MOD_INFO
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
-from wotapis import VehicleInfo, ArenaInfo
+from wotapi import sysutils, avatarutils, chatutils, minimaputils
 from delaychat import DelayChatControl
 from logger import log
-
-from wotapi import sysutils, avatarutils, chatutils, minimaputils
 
 
 _commandMethod = {
@@ -34,19 +32,22 @@ class SpotMessanger(object):
         self._lastActivity = 0
         self._isObserver = avatarutils.isObserver()
 
-        arena = ArenaInfo()
-        vehicle = VehicleInfo()
+        guiType = avatarutils.getArenaGuiTypeInfo()
+        arenaType = avatarutils.getArenaTypeInfo()
+        vehicle = avatarutils.getVehicleInfo()
 
         log.info('on battle start')
         if self._isObserver:
             log.info('player avatar is observer, nothing to do')
             return
-        log.info('current battle type: {} [{}({}) = "{}"]'.format(arena.battleType, arena.attrLabel, arena.id, arena.name))
+        log.info('current battle type: {} [{}({}) = "{}"], {} ({})'.format(
+            guiType.battleType, guiType.attrLabel, guiType.id, guiType.name,
+            arenaType.name, arenaType.geometry))
         log.info('current vehicle class: {} [{}] ({})'.format(vehicle.classAbbr, vehicle.className, vehicle.name))
 
         self._activeParams = []
         cooldownInterval = []
-        for i, p in enumerate(self.settings.getParamsBattleType(arena.battleType)):
+        for i, p in enumerate(self.settings.getParamsBattleType(guiType.battleType)):
             log.info('[{}]: CommandOrder: {}'.format(i, p.getInfo('CommandOrder')))
             log.info('[{}]: CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(i,
                     p.getInfo('CooldownInterval'),
