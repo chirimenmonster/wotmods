@@ -2,6 +2,8 @@
 
 # @author: BirrettaMalefica EU, Chirimen SEA
 
+import math
+
 from version import MOD_INFO
 from modconsts import COMMAND_TYPE, VEHICLE_TYPE
 from wotapi import sysutils, avatarutils, chatutils, minimaputils
@@ -110,7 +112,7 @@ class SpotMessanger(object):
         cooldownTime = self._getCooldownTime(currentTime, self._cooldownInterval)
         if cooldownTime > 0:
             log.info('[time:{:.1f}] invoke sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
-            chatutils.addClientMessage(self.settings.get('CooldownMsg').format(rest=int(ceil(cooldownTime))))
+            chatutils.addClientMessage(self.settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
             return
         log.info('[time:{:.1f}] invoke sixth sense.'.format(currentTime))
 
@@ -190,7 +192,7 @@ class SpotMessanger(object):
         msg = self._currentParam.get('ImSpotted').format(pos=minimaputils.getCellName(cellIndex))
         if not msg:
             return
-        if not 'squad' in messenger.getChannelLabels():
+        if not 'squad' in chatutils.getChannelLabels():
             log.info('[{}]: action: no squad channel, skip.'.format(self._currentIndex))
             return
         log.info('[{}]: action: send message to squad channel: "{}"'.format(self._currentIndex, msg))
