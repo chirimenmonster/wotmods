@@ -1,6 +1,4 @@
 
-import math
-
 from gui.battle_control import avatar_getter, minimap_utils
 from gui.battle_control.minimap_utils import MINIMAP_SIZE
 

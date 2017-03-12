@@ -2,7 +2,6 @@
 
 # @author: BirrettaMalefica EU, Chirimen SEA
 
-import math
 from functools import partial
 
 from logger import log
