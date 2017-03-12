@@ -35,8 +35,8 @@ class _ArenaTypeInfo(object):
         return self._arenaType.name
 
     @property
-    def geometry(self):
-        return self._arenaType.geometry
+    def geometryName(self):
+        return self._arenaType.geometryName
 
 
 class _ArenaGuiTypeInfo(object):
