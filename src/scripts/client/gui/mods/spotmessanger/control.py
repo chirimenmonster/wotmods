@@ -166,15 +166,13 @@ class SpotMessanger(object):
         if self._isDone.get('ping') or not cellIndex:
             return
         log.info('[{}]: action: do ping at {}'.format(self._currentIndex, minimaputils.getCellName(cellIndex)))
-        messenger.doPing(cellIndex)
-        self._isDone['ping'] = True
+        self._isDone['ping'] = messenger.doPing(cellIndex)
 
     def _doHelp(self, messenger, cellIndex=None):
         if self._isDone.get('help'):
             return
         log.info('[{}]: action: call help'.format(self._currentIndex))
-        messenger.callHelp()
-        self._isDone['help'] = True
+        self._isDone['help'] = messenger.callHelp()
 
     def _doSendTeamMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
@@ -183,8 +181,7 @@ class SpotMessanger(object):
         if not msg:
             return
         log.info('[{}]: action: send message to team channel: "{}"'.format(self._currentIndex, msg))
-        ret = messenger.sendTeam(msg)
-        self._isDone['msg'] = ret
+        self._isDone['msg'] = messenger.sendTeam(msg)
 
     def _doSendSquadMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
@@ -192,9 +189,8 @@ class SpotMessanger(object):
         msg = self._currentParam.get('ImSpotted').format(pos=minimaputils.getCellName(cellIndex))
         if not msg:
             return
-        if not 'squad' in chatutils.getChannelLabels():
+        if not chatutils.isExistSquadChannel():
             log.info('[{}]: action: no squad channel, skip.'.format(self._currentIndex))
             return
         log.info('[{}]: action: send message to squad channel: "{}"'.format(self._currentIndex, msg))
-        ret = messenger.sendSquad(msg)
-        self._isDone['msg'] = ret
+        self._isDone['msg'] = messenger.sendSquad(msg)

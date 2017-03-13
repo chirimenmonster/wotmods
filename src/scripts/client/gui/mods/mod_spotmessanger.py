@@ -9,7 +9,7 @@ from spotmessanger.events import overrideMethod
 from spotmessanger.version import MOD_INFO
 from spotmessanger.settings import Settings
 from spotmessanger.control import SpotMessanger
-from spotmessanger.inputhandler import handleKeyEvent, addKeyEventCallback, test
+from spotmessanger.inputhandler import handleKeyEvent, addKeyEventCallback
 
 conf_prefix = [ '../res_mods/', '../mods/', '' ]
 conf_file = 'configs/spotmessanger/spotmessanger.xml'
