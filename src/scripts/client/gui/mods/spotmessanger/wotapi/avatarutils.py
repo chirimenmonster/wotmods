@@ -6,6 +6,7 @@ from items.vehicles import getVehicleClass
 from ..modconsts import VEHICLE_TYPE, BATTLE_TYPE
 from ..logger import log
 
+SIXTH_SENSE_VALID_MODE = ( 'arcade', 'strategic', 'sniper' )
 
 class _VehicleInfo(object):
 
@@ -73,11 +74,14 @@ def getArenaTypeInfo():
 def getArenaGuiTypeInfo():
     return _ArenaGuiTypeInfo()
 
+def getCtrlModeName():
+    return avatar_getter.getInputHandler().ctrlModeName
+
 def isObserver():
     return BigWorld.player().isObserver()
 
-def isPostMortem():
-    return avatar_getter.getInputHandler().ctrlModeName == 'postmortem'
+def isValidCtrlMode():
+    return avatar_getter.getInputHandler().ctrlModeName in SIXTH_SENSE_VALID_MODE
 
 def isPlayerOnArena():
     if not hasattr(BigWorld.player(), 'arena'):

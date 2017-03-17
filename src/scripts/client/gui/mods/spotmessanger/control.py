@@ -102,8 +102,9 @@ class SpotMessanger(object):
     def showSixthSenseIndicator(self):
         if self._isObserver:
             return
-        if avatarutils.isPostMortem():
-            log.info('current control mode is postmortem, nothing to do.')
+        log.info('current control mode: \'{}\''.format(avatarutils.getCtrlModeName()))
+        if not avatarutils.isValidCtrlMode():
+            log.info('current control mode is not valid, ignore.')
             return
         if not self._isEnabled or not self._activeParams:
             log.info('sixth sense message is disabled or nothing to do.')
