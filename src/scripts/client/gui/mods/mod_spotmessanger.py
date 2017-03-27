@@ -11,7 +11,7 @@ from spotmessanger.settings import Settings
 from spotmessanger.control import SpotMessanger
 from spotmessanger.inputhandler import handleKeyEvent, addKeyEventCallback
 
-conf_prefix = [ '../res_mods/', '../mods/', '' ]
+conf_base = [ '../res_mods', '../mods', '' ]
 conf_file = 'configs/spotmessanger/spotmessanger.xml'
 
 _control = None
@@ -22,11 +22,11 @@ def init():
 
     try:
         log.info(MOD_INFO.NAME + ' ' + MOD_INFO.VERSION_LONG)
-        settings = Settings(conf_file, conf_prefix)
+        settings = Settings(conf_file, conf_base)
         _control = SpotMessanger(settings)
         
         log.debug('set key event handlers')
-        addKeyEventCallback(settings.get('ReloadConfigKey'), partial(_control.reloadConfig, conf_file, conf_prefix))
+        addKeyEventCallback(settings.get('ReloadConfigKey'), partial(_control.reloadConfig, conf_file, conf_base))
         addKeyEventCallback(settings.get('ActivationHotKey'), _control.toggleActive)
         
         g_playerEvents.onAvatarReady += _control.onBattleStart

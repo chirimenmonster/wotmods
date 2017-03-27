@@ -1,4 +1,4 @@
-
+import os
 import copy
 import ResMgr
 from logger import log, LOGLEVEL
@@ -67,17 +67,13 @@ class _BattleSettings(object):
         return self.get(key)
 
     def get(self, key, default=None, enableFallback=True):
-        if key in PARAM_LIST_FALLBACK:
-            value = self._paramBattle.get(key, None)
-            if value is None and enableFallback:
-                value = self._paramGlobal.get(key, None)
+        if enableFallback and key in PARAM_LIST_FALLBACK:
+            value = self._paramBattle.get(key) or self._paramGlobal.get(key)
         elif key in PARAM_LIST_GLOBAL:
-            value = self._paramGlobal.get(key, None)
+            value = self._paramGlobal.get(key)
         else:
-            value = self._paramBattle.get(key, None)
-        if value is None:
-            value = default
-        return value
+            value = self._paramBattle.get(key)
+        return value or default
 
     def getInfo(self, key, default='undef'):
         if key in PARAM_LIST_FALLBACK:
@@ -121,11 +117,11 @@ class Settings(object):
         self._paramBattle = {} 
 
         for prefix in prefix_list:
-            path = prefix + file
+            path = os.path.join(prefix, file)
             ResMgr.purge(path)
             section = ResMgr.openSection(path)
             if section:
-                log.info('read config file: {}'.format(path))
+                log.info('read config file: {}'.format(ResMgr.resolveToAbsolutePath(path)))
                 break
         
         if section:
