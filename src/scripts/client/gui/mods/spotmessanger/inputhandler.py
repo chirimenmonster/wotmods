@@ -1,11 +1,8 @@
 import Keys
-
 from logger import log
 
 _callbacks = {}
 
-def test():
-    log.info('inputhandler test')
 
 def handleKeyEvent(event):
     if event.isKeyDown() and not event.isRepeatedEvent():
