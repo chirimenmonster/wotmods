@@ -62,7 +62,7 @@ class SpotMessanger(object):
             if vehicle.classAbbr in p.get('EnableVehicleType', VEHICLE_TYPE.LIST):
                 log.info('[{}]: current vehicle type is {}, add to list.'.format(i, vehicle.classAbbr))
                 self._activeParams.append(p)
-                cooldownInterval.append(p.get('CooldownInterval'))
+                cooldownInterval.append(p['CooldownInterval'])
             else:
                 log.info('[{}]: current vehicle type is {}, do nothing.'.format(i, vehicle.classAbbr))
                 self._activeParams.append(None)
@@ -113,7 +113,7 @@ class SpotMessanger(object):
         cooldownTime = self._getCooldownTime(currentTime, self._cooldownInterval)
         if cooldownTime > 0:
             log.info('[time:{:.1f}] invoke sixth sense, but it\'s not time yet. (rest {:.1f}s)'.format(currentTime, cooldownTime))
-            chatutils.addClientMessage(self.settings.get('CooldownMsg').format(rest=int(math.ceil(cooldownTime))))
+            chatutils.addClientMessage(self.settings['CooldownMsg'].format(rest=int(math.ceil(cooldownTime))))
             return
         log.info('[time:{:.1f}] invoke sixth sense.'.format(currentTime))
 

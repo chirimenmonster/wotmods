@@ -53,7 +53,7 @@ DEFAULT_GLOBAL_SETTINGS = {
     'ImSpotted':        'An enemy has spotted me at {pos}.',
     'DisableSystemMsg': 'Sixth Sense Message disabled',
     'EnableSystemMsg':  'Sixth Sense Message enabled',
-    'CooldownMsg':      'SpotMessanger: cooldown, rest {sec} sec.',
+    'CooldownMsg':      'SpotMessanger: cooldown, rest {rest} sec.',
     'CooldownInterval': 60,
     'CommandDelay':     5.0,
     'TextDelay':        0.5,
@@ -80,7 +80,7 @@ class ChainDict(dict):
         self.setChain(chain)
 
     def __missing__(self, key):
-        if self._chain:
+        if isinstance(self._chain, dict):
             return self._chain[key]
 
     def setDict(self, dict):
@@ -107,9 +107,10 @@ class ChainDict(dict):
 class Settings(object):
 
     def __init__(self, file, prefix_list):
-        self._defaultGlobal = ChainDict(DEFAULT_GLOBAL_SETTINGS, DEFAULT_DEBUG_SETTINGS)
+        self._defaultGlobal = ChainDict(DEFAULT_DEBUG_SETTINGS)
+        self._defaultGlobal.update(DEFAULT_GLOBAL_SETTINGS)
         self._setLogLevel(self._defaultGlobal)
-        self._paramGlobal = ChainDict([], self._defaultGlobal)
+        self._paramGlobal = ChainDict({}, self._defaultGlobal)
         self._paramBattle = {'default': [ChainDict(DEFAULT_BATTLE_SETTINGS, self._paramGlobal)]}
         self.readConfig(file, prefix_list)
 
@@ -128,7 +129,7 @@ class Settings(object):
             log.debug('parameter set for battle type "{}" is found'.format(battleType))
             return self._paramBattle[battleType]
         else:
-            log.debug('parameter set for battle type "{}" is none, use default'.format(battleType))
+            log.debug('parameter set for battle type "{}" is none, use "default"'.format(battleType))
             return self._paramBattle['default']
 
     def readConfig(self, file, prefix_list):
