@@ -66,7 +66,6 @@ def main():
         [ [ stage0, "meta"                              ], [ META_FILES         ] ],
         [ [ stage0, "doc"                               ], [ DOC_FILES          ] ],
         [ [ stage1, "res", "scripts"                    ], [ stage0, "scripts"  ] ],
-        [ [ stage1, "res", "configs"                    ], [ stage0, "configs"  ] ],
         [ [ stage1                                      ], [ stage0, "meta"     ] ],
         [ [ stage2, "mods", WOT_VERSION, pack_wotmod    ], [ stage1             ] ],
         [ [ stage2, "mods", "configs"                   ], [ stage0, "configs"  ] ],
