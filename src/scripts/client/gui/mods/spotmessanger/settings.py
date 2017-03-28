@@ -1,5 +1,6 @@
 import os
 import copy
+import pprint
 import ResMgr
 from logger import log, LOGLEVEL
 from modconsts import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
@@ -14,184 +15,210 @@ PC_OTHERS   = 4
 INFO_CLASS      = 0 
 INFO_TAG        = 1
 INFO_TYPE       = 2
-INFO_ISREQUIRED = 3
-INFO_DEFAULT    = 4
-INFO_CHILD      = 4
-INFO_ENUM       = 5
 
 PARAM_DEF = [
-    [ PC_DEBUG,     'Debug',                'Bool',     False,  True                                ],
-    [ PC_DEBUG,     'LogLevel',             'Enum',     False,  'info',         LOGLEVEL.LIST       ],
-    [ PC_GLOBAL,    'ActiveByDefault',      'Bool',     False,  True                                ],
-    [ PC_GLOBAL,    'NotifyCenter',         'Bool',     False,  True                                ],
-    [ PC_GLOBAL,    'ActivationHotKey',     'String',   False,  'KEY_F11'                           ],
-    [ PC_GLOBAL,    'ReloadConfigKey',      'String',   False,  'KEY_NUMPAD4'                       ],
-    [ PC_GLOBAL,    'ImSpotted',            'String',   False,  'An enemy has spotted me at {pos}.'         ],
-    [ PC_GLOBAL,    'DisableSystemMsg',     'String',   False,  'Sixth Sense Message disabled'              ],
-    [ PC_GLOBAL,    'EnableSystemMsg',      'String',   False,  'Sixth Sense Message enabled'               ],
-    [ PC_GLOBAL,    'CooldownMsg',          'String',   False,  'SpotMessanger: cooldown, rest {sec} sec.'  ],
-    [ PC_FALLBACK,  'CooldownInterval',     'Float',    False,  60                                  ],
-    [ PC_FALLBACK,  'CommandDelay',         'Float',    False,  0.5                                 ],
-    [ PC_FALLBACK,  'TextDelay',            'Float',    False,  5                                   ],
-    [ PC_FALLBACK,  'MaxTeamAmount',        'Int',      False,  None                                ],
-    [ PC_FALLBACK,  'MinTeamAmount',        'Int',      False,  1                                   ],
-    [ PC_BATTLE,    'AssignBattleType',     'List',     True,   'BattleType'                        ],
-    [ PC_BATTLE,    'CommandOrder',         'List',     True,   'Command'                           ],
-    [ PC_BATTLE,    'EnableVehicleType',    'List',     False,  'VehicleType'                       ],
-    [ PC_OTHERS,    'BattleType',           'Enum',     False,  None,           BATTLE_TYPE.LIST    ],
-    [ PC_OTHERS,    'Command',              'Enum',     False,  None,           COMMAND_TYPE.LIST   ],
-    [ PC_OTHERS,    'VehicleType',          'Enum',     False,  None,           VEHICLE_TYPE.LIST   ]
+    [ PC_DEBUG,     'Debug',                'Bool',             ],
+    [ PC_DEBUG,     'LogLevel',             LOGLEVEL.LIST,      ],
+    [ PC_GLOBAL,    'ActiveByDefault',      'Bool',             ],
+    [ PC_GLOBAL,    'NotifyCenter',         'Bool',             ],
+    [ PC_GLOBAL,    'ActivationHotKey',     'String',           ],
+    [ PC_GLOBAL,    'ReloadConfigKey',      'String',           ],
+    [ PC_GLOBAL,    'ImSpotted',            'String',           ],
+    [ PC_GLOBAL,    'DisableSystemMsg',     'String',           ],
+    [ PC_GLOBAL,    'EnableSystemMsg',      'String',           ],
+    [ PC_GLOBAL,    'CooldownMsg',          'String',           ],
+    [ PC_FALLBACK,  'CooldownInterval',     'Float',            ],
+    [ PC_FALLBACK,  'CommandDelay',         'Float',            ],
+    [ PC_FALLBACK,  'TextDelay',            'Float',            ],
+    [ PC_FALLBACK,  'MaxTeamAmount',        'Int',              ],
+    [ PC_FALLBACK,  'MinTeamAmount',        'Int',              ],
+    [ PC_BATTLE,    'AssignBattleType',     'List:BattleType',  ],
+    [ PC_BATTLE,    'CommandOrder',         'List:Command',     ],
+    [ PC_BATTLE,    'EnableVehicleType',    'List:VehicleType'  ],
+    [ PC_OTHERS,    'BattleType',           BATTLE_TYPE.LIST,   ],
+    [ PC_OTHERS,    'Command',              COMMAND_TYPE.LIST,  ],
+    [ PC_OTHERS,    'VehicleType',          VEHICLE_TYPE.LIST,  ]
 ]
 
+DEFAULT_DEBUG_SETTINGS = {
+    'Debug':            True,
+    'LogLevel':         LOGLEVEL.INFO
+}
+
+DEFAULT_GLOBAL_SETTINGS = {
+    'ActiveByDefault':  True,
+    'NotifyCenter':     True,
+    'ActivationHotKey': 'KEY_F11',
+    'ReloadConfigKey':  'KEY_NUMPAD4',
+    'ImSpotted':        'An enemy has spotted me at {pos}.',
+    'DisableSystemMsg': 'Sixth Sense Message disabled',
+    'EnableSystemMsg':  'Sixth Sense Message enabled',
+    'CooldownMsg':      'SpotMessanger: cooldown, rest {sec} sec.',
+    'CooldownInterval': 60,
+    'CommandDelay':     5.0,
+    'TextDelay':        0.5,
+    'MaxTeamAmount':    None,
+    'MinTeamAmount':    1
+}
+
 DEFAULT_BATTLE_SETTINGS = {
-    'default': [
-        { 'CommandOrder':    [ 'help', 'teammsg' ] }
-    ]
+    'CommandOrder':     [ 'help', 'teammsg' ]
 }
 
 PARAM_LIST_DEBUG    = [ v[INFO_TAG] for v in PARAM_DEF if v[INFO_CLASS] == PC_DEBUG ]
 PARAM_LIST_GLOBAL   = [ v[INFO_TAG] for v in PARAM_DEF if v[INFO_CLASS] in (PC_GLOBAL, PC_FALLBACK) ]
-PARAM_LIST_FALLBACK = [ v[INFO_TAG] for v in PARAM_DEF if v[INFO_CLASS] == PC_FALLBACK ]
 PARAM_LIST_BATTLE   = [ v[INFO_TAG] for v in PARAM_DEF if v[INFO_CLASS] in (PC_BATTLE, PC_FALLBACK) ]
 
 PARAM_INFO = { v[INFO_TAG]: v for v in PARAM_DEF }
 
 
-class _BattleSettings(object):
+class ChainDict(dict):
+    _chain = None
 
-    def __init__(self, paramGlobal, paramBattle):
-        self._paramGlobal = paramGlobal
-        self._paramBattle = paramBattle
+    def __init__(self, dict, chain=None):
+        super(ChainDict, self).__init__(dict)
+        self.setChain(chain)
 
-    def __getitem__(self, key):
-        return self.get(key)
+    def __missing__(self, key):
+        if self._chain:
+            return self._chain[key]
 
-    def get(self, key, default=None, enableFallback=True):
-        if enableFallback and key in PARAM_LIST_FALLBACK:
-            value = self._paramBattle.get(key) or self._paramGlobal.get(key)
-        elif key in PARAM_LIST_GLOBAL:
-            value = self._paramGlobal.get(key)
-        else:
-            value = self._paramBattle.get(key)
-        return value or default
+    def setDict(self, dict):
+        self.clear()
+        self.update(dict)
+
+    def setChain(self, chain):
+        self._chain = chain
+
+    def getChain(self):
+        return self._chain
 
     def getInfo(self, key, default='undef'):
-        if key in PARAM_LIST_FALLBACK:
-            value = self.get(key, None, enableFallback=False)
-            if value is None:
-                value = 'inherits ({})'.format(self.get(key, default, enableFallback=True))
+        if key in self:
+            value = self[key]
         else:
-            value = self.get(key, default)
+            try:
+                value = 'inherits ({})'.format(self[key])
+            except KeyError:
+                value = default
         return value
 
 
 class Settings(object):
-    _paramGlobal = {}
-    _paramBattle = {} 
 
     def __init__(self, file, prefix_list):
-        for key in PARAM_LIST_DEBUG:
-            self._paramGlobal[key] = PARAM_INFO[key][INFO_DEFAULT]
-        self._setLogLevel()
+        self._defaultGlobal = ChainDict(DEFAULT_GLOBAL_SETTINGS, DEFAULT_DEBUG_SETTINGS)
+        self._setLogLevel(self._defaultGlobal)
+        self._paramGlobal = ChainDict([], self._defaultGlobal)
+        self._paramBattle = {'default': [ChainDict(DEFAULT_BATTLE_SETTINGS, self._paramGlobal)]}
         self.readConfig(file, prefix_list)
 
-    def _setLogLevel(self):
-        log.setDebug(self._paramGlobal['Debug'])
-        log.setLogLevel(self._paramGlobal['LogLevel'])
-    
+    def __getitem__(self, key):
+        return self._paramGlobal[key]
+
     def get(self, key, default=None):
         return self._paramGlobal.get(key, default)
 
+    def _setLogLevel(self, config):
+        log.setDebug(config['Debug'])
+        log.setLogLevel(config['LogLevel'])
+    
     def getParamsBattleType(self, battleType):
-        paramBattleList = self._paramBattle.get(battleType, None)
-        if paramBattleList:
+        if battleType in self._paramBattle:
             log.debug('parameter set for battle type "{}" is found'.format(battleType))
+            return self._paramBattle[battleType]
         else:
             log.debug('parameter set for battle type "{}" is none, use default'.format(battleType))
-            paramBattleList = self._paramBattle['default']
-        settings = [ _BattleSettings(self._paramGlobal, paramBattle) for paramBattle in paramBattleList ]
-        return settings
+            return self._paramBattle['default']
 
-    def readConfig(self, file, prefix_list=[ '' ]):
-        self._paramGlobal = {}
-        self._paramBattle = {} 
-
+    def readConfig(self, file, prefix_list):
         for prefix in prefix_list:
             path = os.path.join(prefix, file)
-            ResMgr.purge(path)
-            section = ResMgr.openSection(path)
+            #ResMgr.purge(path)
+            section = ResMgr.openSection(path, True)
             if section:
                 log.info('read config file: {}'.format(ResMgr.resolveToAbsolutePath(path)))
+                self._readConfig(section)
                 break
-        
-        if section:
-            self._paramGlobal.update(self._readSettings(section, PARAM_LIST_DEBUG, True))
-            self._setLogLevel()
-            self._paramGlobal.update(self._readSettings(section, PARAM_LIST_GLOBAL, True))
-
-            log.debug('available battletype tags: {}'.format(BATTLE_TYPE.LIST))
-
-            for key, sectionBT in section['BattleTypeParameterList'].items():
-                if key != 'BattleTypeParameter':
-                    log.warning('invalid tag "{}", "BattleTypeParameter" is only "BattleTypeParameter"\'s child'.format(key))
-                    continue
-                if not sectionBT.has_key('AssignBattleType'):
-                    log.warning('miss "AssignBattleType" in section "{}".'.format(key))
-                    continue
-                battleTypeList = self._readElement(sectionBT['AssignBattleType'], 'AssignBattleType')
-                log.debug('found AssignBattleType: {}'.format(battleTypeList))
-                config = self._readSettings(sectionBT, PARAM_LIST_BATTLE, False)
-                for battleType in battleTypeList:
-                    self._paramBattle[battleType] = self._paramBattle.get(battleType, []) + [ config ]        
         else:
             log.warning('cannot open config file: {}, use internal default settings.'.format(file))
-            for key in PARAM_LIST_DEBUG + PARAM_LIST_GLOBAL:
-                self._paramGlobal[key] = PARAM_INFO[key][INFO_DEFAULT]
-            self._paramBattle = DEFAULT_BATTLE_SETTINGS
-        
-        log.debug('_paramGlobal: {}'.format(self._paramGlobal))
+        self.dumpSettings()
+        return
+
+    def _readConfig(self, section):
+        self._paramGlobal.setDict(self._readSettings(section, PARAM_LIST_DEBUG))
+        self._setLogLevel(self._paramGlobal)
+        self._paramGlobal.update(self._readSettings(section, PARAM_LIST_GLOBAL))
+            
+        log.debug('available battletype tags: {}'.format(BATTLE_TYPE.LIST))
+
+        for key, sectionBT in section['BattleTypeParameterList'].items():
+            if key != 'BattleTypeParameter':
+                log.warning('invalid tag "{}", "BattleTypeParameter" is only "BattleTypeParameter"\'s child'.format(key))
+                continue
+            if not sectionBT.has_key('AssignBattleType'):
+                log.warning('missing "AssignBattleType" in section "{}".'.format(key))
+                continue
+            battleTypeList = self._readChild(sectionBT, 'AssignBattleType')
+            log.debug('found AssignBattleType: {}'.format(battleTypeList))
+            config = ChainDict(self._readSettings(sectionBT, PARAM_LIST_BATTLE), self._paramGlobal)
+            for battleType in battleTypeList:
+                if not battleType in self._paramBattle:
+                    self._paramBattle[battleType] = [] 
+                self._paramBattle[battleType].append(config)       
+
+    def dumpSettings(self):
+        if not log.isDebug():
+            return
+        pp = pprint.PrettyPrinter()
+        for line in [ '_defaultGlobal:' ] + pp.pformat(self._defaultGlobal).split('\n'):
+            log.debug(line)
+        for line in [ '_paramGlobal:' ] + pp.pformat(self._paramGlobal).split('\n'):
+            log.debug(line)
         for key, param in self._paramBattle.items():
             for i, p in enumerate(param):
-                log.debug('_paramBattle[\'{}\'][{}]: {}'.format(key, i, p))
+                for line in [ '_paramBattle[\'{}\'][{}]:'.format(key, i) ] + pp.pformat(p).split('\n'):
+                    log.debug(line)
 
-    def _readSettings(self, section, paramList, withDefault=False):
+    def _readSettings(self, section, paramList):
         config = {}
         for key in paramList:
             if section.has_key(key):
-                config[key] = self._readElement(section[key], key)
-            elif withDefault and PARAM_INFO[key][INFO_TYPE] in [ 'Bool', 'Int', 'Float', 'String', 'Enum' ]:
-                config[key] = PARAM_INFO[key][INFO_DEFAULT]
+                config[key] = self._readChild(section, key)
         return config
+        
+    def _readChild(self, section, key):
+        return self._readElement(section[key], PARAM_INFO[key][INFO_TYPE])
 
-    def _readElement(self, element, key):
-        keyType = PARAM_INFO[key][INFO_TYPE]
-        resmgrAttr = { 'Bool': 'asBool', 'Int': 'asInt', 'Float': 'asFloat', 'String': 'asString' }
-        #log.debug('read element as "{}" from section'.format(key))
-        if keyType in resmgrAttr:
-            try:
-                return getattr(element, resmgrAttr[keyType])
-            except:
-                log.current_exception()
-        elif keyType == 'Enum':
+    def _readElement(self, element, attrType):
+        RESMGR_ATTR = { 'Bool': 'asBool', 'Int': 'asInt', 'Float': 'asFloat', 'String': 'asString' }
+        if isinstance(attrType, list):
             try:
                 v = element.asString
-                e = PARAM_INFO[key][INFO_ENUM]
-                if v in e:
+                if v in attrType:
                     return v
                 else:
-                    log.warning('found invalid item "{}", available only {}'.format(v, e))
+                    log.warning('found invalid item "{}", available only {}'.format(v, attrType))
                     return None
             except:
                 log.current_exception()
-        elif keyType == 'List':
+                return None
+        elif attrType[:5] == 'List:':
             values = []
-            child = PARAM_INFO[key][INFO_CHILD]
-            for k, v in element.items():
-                if k == child:
-                    v = self._readElement(v, k)
+            childKey = attrType[5:]
+            childType = PARAM_INFO[childKey][INFO_TYPE]
+            for k, e in element.items():
+                if k == childKey:
+                    v = self._readElement(e, childType)
                     if v:
                         values.append(v)
                 else:
-                    log.warning('found invalid tag "{}", available only "{}"'.format(k, child))
+                    log.warning('found invalid tag "{}", available only "{}"'.format(k, childKey))
             return values
+        elif attrType in RESMGR_ATTR:
+            try:
+                return getattr(element, RESMGR_ATTR[attrType])
+            except:
+                log.current_exception()
+                return None
         return None

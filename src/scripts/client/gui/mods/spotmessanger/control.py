@@ -30,7 +30,7 @@ class SpotMessanger(object):
         self.settings = settings
         
     def onBattleStart(self):
-        self._isEnabled = self.settings.get('ActiveByDefault')
+        self._isEnabled = self.settings['ActiveByDefault']
         self._lastActivity = 0
         self._isObserver = avatarutils.isObserver()
 
@@ -76,7 +76,7 @@ class SpotMessanger(object):
         self.addSystemMessage('{}: reload config file'.format(MOD_INFO.NAME))
 
     def addSystemMessage(self, message):
-        if self.settings.get('NotifyCenter'):
+        if self.settings['NotifyCenter']:
             sysutils.addSystemMessage(message)    
         
     def toggleActive(self):
@@ -86,10 +86,10 @@ class SpotMessanger(object):
     def showCurrentMode(self):
         if self._isEnabled:
             log.info('Sixth Sense Message enabled')
-            msg = self.settings.get('EnableSystemMsg')
+            msg = self.settings['EnableSystemMsg']
         else:
             log.info('Sixth Sense Message disabled')
-            msg = self.settings.get('DisableSystemMsg')    
+            msg = self.settings['DisableSystemMsg']    
         if avatarutils.getArena():
             chatutils.addClientMessage(msg)
         else:
@@ -137,11 +137,11 @@ class SpotMessanger(object):
     def _doSixthSense(self, messenger, currentTime, player, cellIndex, teamAmount):
         index = self._currentIndex
         param = self._currentParam
-        cooldownInterval = param.get('CooldownInterval')
-        commandDelay = param.get('CommandDelay')
-        textDelay = param.get('TextDelay')
-        minTeamAmount = param.get('MinTeamAmount')
-        maxTeamAmount = param.get('MaxTeamAmount')
+        cooldownInterval = param['CooldownInterval']
+        commandDelay = param['CommandDelay']
+        textDelay = param['TextDelay']
+        minTeamAmount = param['MinTeamAmount']
+        maxTeamAmount = param['MaxTeamAmount']
  
         cooldownTime = self._getCooldownTime(currentTime, cooldownInterval)
         if cooldownTime > 0:
@@ -178,7 +178,7 @@ class SpotMessanger(object):
     def _doSendTeamMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
             return
-        msg = self._currentParam.get('ImSpotted').format(pos=minimaputils.getCellName(cellIndex))
+        msg = self._currentParam['ImSpotted'].format(pos=minimaputils.getCellName(cellIndex))
         if not msg:
             return
         log.info('[{}]: action: send message to team channel: "{}"'.format(self._currentIndex, msg))
@@ -187,7 +187,7 @@ class SpotMessanger(object):
     def _doSendSquadMsg(self, messenger, cellIndex=None):
         if self._isDone.get('msg'):
             return
-        msg = self._currentParam.get('ImSpotted').format(pos=minimaputils.getCellName(cellIndex))
+        msg = self._currentParam['ImSpotted'].format(pos=minimaputils.getCellName(cellIndex))
         if not msg:
             return
         if not chatutils.isExistSquadChannel():

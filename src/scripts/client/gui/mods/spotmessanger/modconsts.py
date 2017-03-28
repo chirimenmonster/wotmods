@@ -4,7 +4,7 @@ from gui.shared.gui_items.Vehicle import VEHICLE_CLASS_NAME
 
 class BATTLE_TYPE:
     LABELS = {
-        ARENA_GUI_TYPE.UNKNOWN: 'GlobalMap',	
+        ARENA_GUI_TYPE.UNKNOWN: 'GlobalMap',
         ARENA_GUI_TYPE.RANDOM: 'Random',
         ARENA_GUI_TYPE.TRAINING: 'Training',
         ARENA_GUI_TYPE.COMPANY: 'Company',
