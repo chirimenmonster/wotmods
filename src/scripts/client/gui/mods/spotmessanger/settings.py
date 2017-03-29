@@ -77,7 +77,8 @@ class ChainDict(dict):
 
     def __init__(self, dict, chain=None):
         super(ChainDict, self).__init__(dict)
-        self.setChain(chain)
+        if chain is not None:
+            self.setChain(chain)
 
     def __missing__(self, key):
         if isinstance(self._chain, dict):
@@ -88,6 +89,8 @@ class ChainDict(dict):
         self.update(dict)
 
     def setChain(self, chain):
+        if not isinstance(chain, dict):
+            raise TypeError
         self._chain = chain
 
     def getChain(self):

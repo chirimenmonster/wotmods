@@ -11,7 +11,7 @@ from spotmessanger.settings import Settings
 from spotmessanger.control import SpotMessanger
 from spotmessanger.inputhandler import handleKeyEvent, addKeyEventCallback
 
-conf_base = [ '../res_mods', '../mods', '' ]
+conf_base = [ '../res_mods', '../mods' ]
 conf_file = 'configs/spotmessanger/spotmessanger.xml'
 
 _control = None

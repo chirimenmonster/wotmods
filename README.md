@@ -46,6 +46,10 @@ Customize
 
 ChangeLog
 ---------
+### 1.0-dev
++ refactoring of config strage
++ change code layout
+
 ### 0.9.0
 + disable on observer mode and postmortem mode
 + add message to Notification Center, its controllable with config file

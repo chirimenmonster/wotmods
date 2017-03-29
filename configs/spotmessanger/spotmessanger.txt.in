@@ -20,6 +20,10 @@ Config
         Description: keyword for log level
         Type: string; one of [ debug | info | notice | warning | error ]
         Context: root
+    NotifyCenter
+        Description: use Notify Center for info message changing status of mod
+        Type: bool
+        Context: root
     ActiveByDefault
         Description: flag if enable SpotMessanger when battle startup
         Type: bool
