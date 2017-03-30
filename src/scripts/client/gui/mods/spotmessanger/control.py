@@ -47,8 +47,8 @@ class SpotMessanger(object):
 
         self._activeParams = []
         cooldownInterval = []
-        for i, p in enumerate(self.settings.getParamsBattleType(guiType.battleType)):
-            p['index'] = i
+        for p in self.settings.getParamsBattleType(guiType.battleType):
+            i = p.get('index')
             log.info('[{}]: CommandOrder: {}'.format(i, p.getInfo('CommandOrder')))
             log.info('[{}]: CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(i,
                     p.getInfo('CooldownInterval'),
@@ -63,8 +63,7 @@ class SpotMessanger(object):
                 self._activeParams.append(p)
                 cooldownInterval.append(p['CooldownInterval'])
             else:
-                log.info('[{}]: current vehicle type is {}, do nothing.'.format(i, vehicle.classAbbr))
-                self._activeParams.append(None)
+                log.info('[{}]: current vehicle type is {}, ignore.'.format(i, vehicle.classAbbr))
 
         self._cooldownInterval = min(t for t in cooldownInterval)
         log.info('minimal CoolDownInterval: {}'.format(self._cooldownInterval))
@@ -131,7 +130,7 @@ class SpotMessanger(object):
             self._lastActivity = currentTime
 
     def _doSixthSense(self, param, messenger, currentTime, cellIndex, teamAmount):
-        index = param['index']
+        index = param.get('index')
         cooldownInterval = param['CooldownInterval']
         commandDelay = param['CommandDelay']
         textDelay = param['TextDelay']
@@ -159,21 +158,21 @@ class SpotMessanger(object):
 
     def _doPing(self, param, messenger, cellIndex):
         if self._isDone.get('ping'):
-            log.debug('[{}]: action: "ping" is already executed'.format(param['index']))
+            log.info('[{}]: action: "ping" is already executed'.format(param['index']))
             return
         log.info('[{}]: action: do ping at {}'.format(param['index'], minimaputils.getCellName(cellIndex)))
         self._isDone['ping'] = messenger.doPing(cellIndex)
 
     def _doHelp(self, param, messenger, cellIndex):
         if self._isDone.get('help'):
-            log.debug('[{}]: action: "help" is already executed'.format(param['index']))
+            log.info('[{}]: action: "help" is already executed'.format(param['index']))
             return
         log.info('[{}]: action: call help'.format(param['index']))
         self._isDone['help'] = messenger.callHelp()
 
     def _doSendTeamMsg(self, param, messenger, cellIndex):
         if self._isDone.get('msg'):
-            log.debug('[{}]: action: "send message" is already executed'.format(param['index']))
+            log.info('[{}]: action: "send message" is already executed'.format(param['index']))
             return
         msg = param['ImSpotted'].format(pos=minimaputils.getCellName(cellIndex))
         if not msg:
@@ -183,7 +182,7 @@ class SpotMessanger(object):
 
     def _doSendSquadMsg(self, param, messenger, cellIndex):
         if self._isDone.get('msg'):
-            log.debug('[{}]: action: "send message" is already executed'.format(param['index']))
+            log.info('[{}]: action: "send message" is already executed'.format(param['index']))
             return
         msg = param['ImSpotted'].format(pos=minimaputils.getCellName(cellIndex))
         if not msg:

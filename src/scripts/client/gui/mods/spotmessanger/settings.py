@@ -32,7 +32,7 @@ PARAM_DEF = [
     [ PC_FALLBACK,  'TextDelay',            'Float',            ],
     [ PC_FALLBACK,  'MaxTeamAmount',        'Int',              ],
     [ PC_FALLBACK,  'MinTeamAmount',        'Int',              ],
-    [ PC_BATTLE,    'AssignBattleType',     'List:BattleType',  ],
+    [ PC_OTHERS,    'AssignBattleType',     'List:BattleType',  ],
     [ PC_BATTLE,    'CommandOrder',         'List:Command',     ],
     [ PC_BATTLE,    'EnableVehicleType',    'List:VehicleType'  ],
     [ PC_OTHERS,    'BattleType',           BATTLE_TYPE.LIST,   ],
@@ -42,7 +42,7 @@ PARAM_DEF = [
 
 DEFAULT_GLOBAL_SETTINGS = {
     'Debug':            True,
-    'LogLevel':         LOGLEVEL.INFO,
+    'LogLevel':         LOGLEVEL.LABELS.INFO,
     'ActiveByDefault':  True,
     'NotifyCenter':     True,
     'ActivationHotKey': 'KEY_F11',
@@ -59,7 +59,7 @@ DEFAULT_GLOBAL_SETTINGS = {
 }
 
 DEFAULT_BATTLE_SETTINGS = {
-    'CommandOrder':     [ 'help', 'teammsg' ]
+    'CommandOrder':     [ COMMAND_TYPE.LABELS.HELP, COMMAND_TYPE.LABELS.TEAMMSG ]
 }
 
 PARAM_LIST_DEBUG    = [ v[INFO_TAG] for v in PARAM_DEF if v[INFO_CLASS] == PC_DEBUG ]
@@ -150,7 +150,8 @@ class Settings(object):
         self._paramGlobal.setDict(self._readSettings(section, PARAM_LIST_DEBUG))
         self._setLogLevel(self._paramGlobal)
         self._paramGlobal.update(self._readSettings(section, PARAM_LIST_GLOBAL))
-            
+        self._paramBattle = {}
+
         log.debug('available battletype tags: {}'.format(BATTLE_TYPE.LIST))
 
         for key, sectionBT in section['BattleTypeParameterList'].items():
@@ -165,8 +166,11 @@ class Settings(object):
             config = ChainDict(self._readSettings(sectionBT, PARAM_LIST_BATTLE), self._paramGlobal)
             for battleType in battleTypeList:
                 if battleType not in self._paramBattle:
-                    self._paramBattle[battleType] = [] 
-                self._paramBattle[battleType].append(config)       
+                    self._paramBattle[battleType] = []
+                self._paramBattle[battleType].append(config)
+        for configs in self._paramBattle.values():
+            for i, config in enumerate(configs):
+                config['index'] = i
 
     def dumpSettings(self):
         if not log.isDebug():
