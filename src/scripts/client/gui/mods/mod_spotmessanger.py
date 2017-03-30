@@ -35,7 +35,7 @@ def init():
         log.current_exception()
 
 # referring to xvm/src/xpm/xvm_sounds/sixthSense.py 
-@overrideMethod(SixthSenseIndicator, "as_showS")
+@overrideMethod(SixthSenseIndicator, 'as_showS')
 def _showSixthSenseIndicator(orig, *args, **kwargs):
     log.debug('activate sixth sense.')
     ret = orig(*args, **kwargs)
@@ -45,8 +45,11 @@ def _showSixthSenseIndicator(orig, *args, **kwargs):
         log.current_exception()
     return ret
 
-@overrideMethod(game, "handleKeyEvent")
+@overrideMethod(game, 'handleKeyEvent')
 def _handleKeyEvent(orig, *args, **kwargs):
     ret = orig(*args, **kwargs)
-    handleKeyEvent(*args, **kwargs)
+    try:
+        handleKeyEvent(*args, **kwargs)
+    except:
+        log.current_exception()
     return ret

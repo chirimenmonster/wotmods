@@ -40,12 +40,9 @@ PARAM_DEF = [
     [ PC_OTHERS,    'VehicleType',          VEHICLE_TYPE.LIST,  ]
 ]
 
-DEFAULT_DEBUG_SETTINGS = {
-    'Debug':            True,
-    'LogLevel':         LOGLEVEL.INFO
-}
-
 DEFAULT_GLOBAL_SETTINGS = {
+    'Debug':            True,
+    'LogLevel':         LOGLEVEL.INFO,
     'ActiveByDefault':  True,
     'NotifyCenter':     True,
     'ActivationHotKey': 'KEY_F11',
@@ -110,11 +107,12 @@ class ChainDict(dict):
 class Settings(object):
 
     def __init__(self, file, prefix_list):
-        self._defaultGlobal = ChainDict(DEFAULT_DEBUG_SETTINGS)
-        self._defaultGlobal.update(DEFAULT_GLOBAL_SETTINGS)
+        for k in DEFAULT_GLOBAL_SETTINGS.keys() +  DEFAULT_BATTLE_SETTINGS.keys():
+            assert k in PARAM_INFO, 'unknown default parameter: {}'.format(k)                
+        self._defaultGlobal = ChainDict(DEFAULT_GLOBAL_SETTINGS)
         self._setLogLevel(self._defaultGlobal)
         self._paramGlobal = ChainDict({}, self._defaultGlobal)
-        self._paramBattle = {'default': [ChainDict(DEFAULT_BATTLE_SETTINGS, self._paramGlobal)]}
+        self._paramBattle = { 'default': [ ChainDict(DEFAULT_BATTLE_SETTINGS, self._paramGlobal) ] }
         self.readConfig(file, prefix_list)
 
     def __getitem__(self, key):
@@ -138,7 +136,6 @@ class Settings(object):
     def readConfig(self, file, prefix_list):
         for prefix in prefix_list:
             path = os.path.join(prefix, file)
-            #ResMgr.purge(path)
             section = ResMgr.openSection(path, True)
             if section:
                 log.info('read config file: {}'.format(ResMgr.resolveToAbsolutePath(path)))
@@ -167,7 +164,7 @@ class Settings(object):
             log.debug('found AssignBattleType: {}'.format(battleTypeList))
             config = ChainDict(self._readSettings(sectionBT, PARAM_LIST_BATTLE), self._paramGlobal)
             for battleType in battleTypeList:
-                if not battleType in self._paramBattle:
+                if battleType not in self._paramBattle:
                     self._paramBattle[battleType] = [] 
                 self._paramBattle[battleType].append(config)       
 
@@ -175,14 +172,17 @@ class Settings(object):
         if not log.isDebug():
             return
         pp = pprint.PrettyPrinter()
-        for line in [ '_defaultGlobal:' ] + pp.pformat(self._defaultGlobal).split('\n'):
-            log.debug(line)
-        for line in [ '_paramGlobal:' ] + pp.pformat(self._paramGlobal).split('\n'):
-            log.debug(line)
+        lines = []
+        lines.append('_defaultGlobal:')
+        lines.extend(pp.pformat(self._defaultGlobal).split('\n'))
+        lines.append('_paramGlobal:')
+        lines.extend(pp.pformat(self._paramGlobal).split('\n'))
         for key, param in self._paramBattle.items():
-            for i, p in enumerate(param):
-                for line in [ '_paramBattle[\'{}\'][{}]:'.format(key, i) ] + pp.pformat(p).split('\n'):
-                    log.debug(line)
+            for i, v in enumerate(param):
+                lines.append('_paramBattle[\'{}\'][{}]:'.format(key, i))
+                lines.extend(pp.pformat(v).split('\n'))
+        for line in lines:
+            log.debug(line)
 
     def _readSettings(self, section, paramList):
         config = {}
@@ -196,33 +196,33 @@ class Settings(object):
 
     def _readElement(self, element, attrType):
         RESMGR_ATTR = { 'Bool': 'asBool', 'Int': 'asInt', 'Float': 'asFloat', 'String': 'asString' }
-        if isinstance(attrType, list):
+        if isinstance(attrType, str) and attrType in RESMGR_ATTR:
             try:
-                v = element.asString
-                if v in attrType:
-                    return v
-                else:
-                    log.warning('found invalid item "{}", available only {}'.format(v, attrType))
-                    return None
+                value = getattr(element, RESMGR_ATTR[attrType])
             except:
                 log.current_exception()
-                return None
-        elif attrType[:5] == 'List:':
-            values = []
+                value = None
+        elif isinstance(attrType, str) and attrType[:5] == 'List:':
+            value = []
             childKey = attrType[5:]
             childType = PARAM_INFO[childKey][INFO_TYPE]
             for k, e in element.items():
                 if k == childKey:
                     v = self._readElement(e, childType)
                     if v:
-                        values.append(v)
+                        value.append(v)
                 else:
                     log.warning('found invalid tag "{}", available only "{}"'.format(k, childKey))
-            return values
-        elif attrType in RESMGR_ATTR:
+        elif isinstance(attrType, list):
             try:
-                return getattr(element, RESMGR_ATTR[attrType])
+                value = element.asString
             except:
                 log.current_exception()
-                return None
-        return None
+            if value not in attrType:
+                log.warning('found invalid item "{}", available only {}'.format(value, attrType))
+                value = None
+        else:
+            if isinstance(attrType, str):
+                raise AssertionError('unknown attr type string "{}"'.format(attrType))
+            raise AssertionError('unknown attr type "{}"'.format(type(attrType)))
+        return value
