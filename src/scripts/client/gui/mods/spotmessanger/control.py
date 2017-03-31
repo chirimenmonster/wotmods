@@ -15,8 +15,6 @@ class SpotMessanger(object):
     _isEnabled = True
     _lastActivity = 0
     _activeParams = []
-    _currentIndex = 0
-    _currentParam = None
 
     def __init__(self, settings):
         self.settings = settings
@@ -48,7 +46,7 @@ class SpotMessanger(object):
         self._activeParams = []
         cooldownInterval = []
         for p in self.settings.getParamsBattleType(guiType.battleType):
-            i = p.get('index')
+            i = p['index']
             log.info('[{}]: CommandOrder: {}'.format(i, p.getInfo('CommandOrder')))
             log.info('[{}]: CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(i,
                     p.getInfo('CooldownInterval'),
@@ -122,28 +120,22 @@ class SpotMessanger(object):
         log.info('current chat channel: {}'.format(chatutils.getChannelLabels()))
         log.info('current team amount: {}'.format(teamAmount))
 
-        self._isDone = {}
+        self._isDone = { 'ping': False, 'help': False, 'msg': False }
         for param in self._activeParams:
             self._doSixthSense(param, messenger, currentTime, cellIndex, teamAmount)
-        if self._isDone:
+        if self._isDone.values().count(True):
             log.debug('success commands, update last activity.')
             self._lastActivity = currentTime
 
     def _doSixthSense(self, param, messenger, currentTime, cellIndex, teamAmount):
-        index = param.get('index')
-        cooldownInterval = param['CooldownInterval']
-        commandDelay = param['CommandDelay']
-        textDelay = param['TextDelay']
-        minTeamAmount = param['MinTeamAmount']
-        maxTeamAmount = param['MaxTeamAmount']
- 
-        cooldownTime = self._getCooldownTime(currentTime, cooldownInterval)
+        index = param['index']
+        cooldownTime = self._getCooldownTime(currentTime, param['CooldownInterval'])
         if cooldownTime > 0:
             log.info('[{}]: now cooldown time, skip. (rest {:.1f}s)'.format(index, cooldownTime))
             return
 
-        messenger.setParam(commandDelay, textDelay)
-
+        minTeamAmount = param['MinTeamAmount']
+        maxTeamAmount = param['MaxTeamAmount']
         if minTeamAmount and teamAmount <= minTeamAmount:
             log.info('[{}]: team amount ({}) is too less (<= {}), skip.'.format(index, teamAmount, minTeamAmount))
             return
@@ -151,27 +143,28 @@ class SpotMessanger(object):
             log.info('[{}]: team amount ({}) is too many (> {}), skip.'.format(index, teamAmount, maxTeamAmount))
             return
 
+        messenger.setParam(param['CommandDelay'], param['TextDelay'])
         commandOrder = param.get('CommandOrder', [])
         log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
             self._commandMethod[command](param, messenger, cellIndex)
 
     def _doPing(self, param, messenger, cellIndex):
-        if self._isDone.get('ping'):
+        if self._isDone['ping']:
             log.info('[{}]: action: "ping" is already executed'.format(param['index']))
             return
         log.info('[{}]: action: do ping at {}'.format(param['index'], minimaputils.getCellName(cellIndex)))
         self._isDone['ping'] = messenger.doPing(cellIndex)
 
     def _doHelp(self, param, messenger, cellIndex):
-        if self._isDone.get('help'):
+        if self._isDone['help']:
             log.info('[{}]: action: "help" is already executed'.format(param['index']))
             return
         log.info('[{}]: action: call help'.format(param['index']))
         self._isDone['help'] = messenger.callHelp()
 
     def _doSendTeamMsg(self, param, messenger, cellIndex):
-        if self._isDone.get('msg'):
+        if self._isDone['msg']:
             log.info('[{}]: action: "send message" is already executed'.format(param['index']))
             return
         msg = param['ImSpotted'].format(pos=minimaputils.getCellName(cellIndex))
@@ -181,7 +174,7 @@ class SpotMessanger(object):
         self._isDone['msg'] = messenger.sendTeam(msg)
 
     def _doSendSquadMsg(self, param, messenger, cellIndex):
-        if self._isDone.get('msg'):
+        if self._isDone['msg']:
             log.info('[{}]: action: "send message" is already executed'.format(param['index']))
             return
         msg = param['ImSpotted'].format(pos=minimaputils.getCellName(cellIndex))
