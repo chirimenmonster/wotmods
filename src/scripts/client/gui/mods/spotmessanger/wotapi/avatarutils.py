@@ -96,10 +96,23 @@ def getArena():
 def getPos():
     return avatar_getter.getOwnVehiclePosition()
 
-def getTeamAmount():
+def getTeamAmount(includeMe=False):
     arenaDP = BigWorld.player().guiSessionProvider.getArenaDP()
-    team = avatar_getter.getPlayerTeam()
-    return len([ v for v in arenaDP.getVehiclesInfoIterator() if v.team == team and v.isAlive() ])
+    myVID = arenaDP.getPlayerVehicleID()
+    vIDs = []
+    for v in arenaDP.getVehiclesInfoIterator():
+        if arenaDP.isAllyTeam(v.team) and v.isAlive() and (includeMe or v.vehicleID == myVID):
+            vIDs.append(v.vehicleID)
+    return len(vIDs)
+
+def getSquadAmount(includeMe=False):
+    arenaDP = BigWorld.player().guiSessionProvider.getArenaDP()
+    myVID = arenaDP.getPlayerVehicleID()
+    vIDs = []
+    for v in arenaDP.getVehiclesInfoIterator():
+        if arenaDP.isSquadMan(v.vehicleID) and v.isAlive() and (includeMe or v.vehicleID == myVID):
+            vIDs.append(v.vehicleID)
+    return len(vIDs)
 
 def setForcedGuiControlMode(flag):
     avatar_getter.setForcedGuiControlMode(flag)

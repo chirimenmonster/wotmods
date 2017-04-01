@@ -73,4 +73,4 @@ class _CBCommand(object):
         if not avatarutils.isPlayerOnArena():
             log.debug('avatar already left arena')
             return
-        channelCtrl.sendSquadChat(text)
+        chatutils.sendSquadChat(text)

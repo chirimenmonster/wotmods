@@ -114,20 +114,22 @@ class SpotMessanger(object):
         log.info('[time:{:.1f}] invoke sixth sense.'.format(currentTime))
 
         teamAmount = avatarutils.getTeamAmount()
+        squadAmount = avatarutils.getSquadAmount()
         cellIndex = minimaputils.getCellIndexByPosition(avatarutils.getPos())
         
         messenger = DelayChatControl()
         log.info('current chat channel: {}'.format(chatutils.getChannelLabels()))
-        log.info('current team amount: {}'.format(teamAmount))
+        log.info('current team amount (others): {}'.format(teamAmount))
+        log.info('current my squad amount (others): {}'.format(squadAmount))
 
         self._isDone = { 'ping': False, 'help': False, 'msg': False }
         for param in self._activeParams:
-            self._doSixthSense(param, messenger, currentTime, cellIndex, teamAmount)
+            self._doSixthSense(param, messenger, currentTime, cellIndex, teamAmount, squadAmount)
         if self._isDone.values().count(True):
             log.debug('success commands, update last activity.')
             self._lastActivity = currentTime
 
-    def _doSixthSense(self, param, messenger, currentTime, cellIndex, teamAmount):
+    def _doSixthSense(self, param, messenger, currentTime, cellIndex, teamAmount, squadAmount):
         index = param['index']
         cooldownTime = self._getCooldownTime(currentTime, param['CooldownInterval'])
         if cooldownTime > 0:
@@ -136,8 +138,8 @@ class SpotMessanger(object):
 
         minTeamAmount = param['MinTeamAmount']
         maxTeamAmount = param['MaxTeamAmount']
-        if minTeamAmount and teamAmount <= minTeamAmount:
-            log.info('[{}]: team amount ({}) is too less (<= {}), skip.'.format(index, teamAmount, minTeamAmount))
+        if minTeamAmount and teamAmount < minTeamAmount:
+            log.info('[{}]: team amount ({}) is too less (< {}), skip.'.format(index, teamAmount, minTeamAmount))
             return
         if maxTeamAmount and teamAmount > maxTeamAmount:
             log.info('[{}]: team amount ({}) is too many (> {}), skip.'.format(index, teamAmount, maxTeamAmount))
@@ -147,41 +149,44 @@ class SpotMessanger(object):
         commandOrder = param.get('CommandOrder', [])
         log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
+            if command == COMMAND_TYPE.LABELS.SQUADMSG and not squadAmount:
+                log.info('[{}][squadmsg]: squad amount ({}) is 0, skip.'.format(index, squadAmount))
+                continue
             self._commandMethod[command](param, messenger, cellIndex)
 
     def _doPing(self, param, messenger, cellIndex):
         if self._isDone['ping']:
-            log.info('[{}]: action: "ping" is already executed'.format(param['index']))
+            log.info('[{}][ping]: action: "ping" is already executed'.format(param['index']))
             return
-        log.info('[{}]: action: do ping at {}'.format(param['index'], minimaputils.getCellName(cellIndex)))
+        log.info('[{}][ping]: action: do ping at {}'.format(param['index'], minimaputils.getCellName(cellIndex)))
         self._isDone['ping'] = messenger.doPing(cellIndex)
 
     def _doHelp(self, param, messenger, cellIndex):
         if self._isDone['help']:
-            log.info('[{}]: action: "help" is already executed'.format(param['index']))
+            log.info('[{}][help]: action: "help" is already executed'.format(param['index']))
             return
-        log.info('[{}]: action: call help'.format(param['index']))
+        log.info('[{}][help]: action: call help'.format(param['index']))
         self._isDone['help'] = messenger.callHelp()
 
     def _doSendTeamMsg(self, param, messenger, cellIndex):
         if self._isDone['msg']:
-            log.info('[{}]: action: "send message" is already executed'.format(param['index']))
+            log.info('[{}][teammsg]: action: "send message" is already executed'.format(param['index']))
             return
         msg = param['ImSpotted'].format(pos=minimaputils.getCellName(cellIndex))
         if not msg:
             return
-        log.info('[{}]: action: send message to team channel: "{}"'.format(param['index'], msg))
+        log.info('[{}][teammsg]: action: send message to team channel: "{}"'.format(param['index'], msg))
         self._isDone['msg'] = messenger.sendTeam(msg)
 
     def _doSendSquadMsg(self, param, messenger, cellIndex):
         if self._isDone['msg']:
-            log.info('[{}]: action: "send message" is already executed'.format(param['index']))
+            log.info('[{}][squadmsg]: action: "send message" is already executed'.format(param['index']))
             return
         msg = param['ImSpotted'].format(pos=minimaputils.getCellName(cellIndex))
         if not msg:
             return
         if not chatutils.isExistSquadChannel():
-            log.info('[{}]: action: no squad channel, skip.'.format(param['index']))
+            log.info('[{}][squadmsg]: action: no squad channel, skip.'.format(param['index']))
             return
-        log.info('[{}]: action: send message to squad channel: "{}"'.format(param['index'], msg))
+        log.info('[{}][squadmsg]: action: send message to squad channel: "{}"'.format(param['index'], msg))
         self._isDone['msg'] = messenger.sendSquad(msg)
