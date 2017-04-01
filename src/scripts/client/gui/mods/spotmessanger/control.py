@@ -149,26 +149,23 @@ class SpotMessanger(object):
         commandOrder = param.get('CommandOrder', [])
         log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
-            if command == COMMAND_TYPE.LABELS.SQUADMSG and not squadAmount:
-                log.info('[{}][squadmsg]: squad amount ({}) is 0, skip.'.format(index, squadAmount))
-                continue
-            self._commandMethod[command](param, messenger, cellIndex)
+            self._commandMethod[command](param, messenger, cellIndex=cellIndex, squadAmount=squadAmount)
 
-    def _doPing(self, param, messenger, cellIndex):
+    def _doPing(self, param, messenger, cellIndex, **kwargs):
         if self._isDone['ping']:
             log.info('[{}][ping]: action: "ping" is already executed'.format(param['index']))
             return
         log.info('[{}][ping]: action: do ping at {}'.format(param['index'], minimaputils.getCellName(cellIndex)))
         self._isDone['ping'] = messenger.doPing(cellIndex)
 
-    def _doHelp(self, param, messenger, cellIndex):
+    def _doHelp(self, param, messenger, **kwargs):
         if self._isDone['help']:
             log.info('[{}][help]: action: "help" is already executed'.format(param['index']))
             return
         log.info('[{}][help]: action: call help'.format(param['index']))
         self._isDone['help'] = messenger.callHelp()
 
-    def _doSendTeamMsg(self, param, messenger, cellIndex):
+    def _doSendTeamMsg(self, param, messenger, cellIndex, **kwargs):
         if self._isDone['msg']:
             log.info('[{}][teammsg]: action: "send message" is already executed'.format(param['index']))
             return
@@ -178,7 +175,7 @@ class SpotMessanger(object):
         log.info('[{}][teammsg]: action: send message to team channel: "{}"'.format(param['index'], msg))
         self._isDone['msg'] = messenger.sendTeam(msg)
 
-    def _doSendSquadMsg(self, param, messenger, cellIndex):
+    def _doSendSquadMsg(self, param, messenger, cellIndex, squadAmount, **kwargs):
         if self._isDone['msg']:
             log.info('[{}][squadmsg]: action: "send message" is already executed'.format(param['index']))
             return
@@ -187,6 +184,9 @@ class SpotMessanger(object):
             return
         if not chatutils.isExistSquadChannel():
             log.info('[{}][squadmsg]: action: no squad channel, skip.'.format(param['index']))
+            return
+        if squadAmount == 0 and param['MinTeamAmount'] != 0:
+            log.info('[{}][squadmsg]: action: squad amount = 0, skip.'.format(param['index'], squadAmount))
             return
         log.info('[{}][squadmsg]: action: send message to squad channel: "{}"'.format(param['index'], msg))
         self._isDone['msg'] = messenger.sendSquad(msg)
