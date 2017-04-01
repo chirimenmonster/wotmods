@@ -101,7 +101,7 @@ def getTeamAmount(includeMe=False):
     myVID = arenaDP.getPlayerVehicleID()
     vIDs = []
     for v in arenaDP.getVehiclesInfoIterator():
-        if arenaDP.isAllyTeam(v.team) and v.isAlive() and (includeMe or v.vehicleID == myVID):
+        if arenaDP.isAllyTeam(v.team) and v.isAlive() and (includeMe or v.vehicleID != myVID):
             vIDs.append(v.vehicleID)
     return len(vIDs)
 
@@ -110,7 +110,7 @@ def getSquadAmount(includeMe=False):
     myVID = arenaDP.getPlayerVehicleID()
     vIDs = []
     for v in arenaDP.getVehiclesInfoIterator():
-        if arenaDP.isSquadMan(v.vehicleID) and v.isAlive() and (includeMe or v.vehicleID == myVID):
+        if arenaDP.isSquadMan(v.vehicleID) and v.isAlive() and (includeMe or v.vehicleID != myVID):
             vIDs.append(v.vehicleID)
     return len(vIDs)
 
