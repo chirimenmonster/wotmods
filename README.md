@@ -47,7 +47,7 @@ Customize
 ChangeLog
 ---------
 ### 1.0-dev
-+ dont send squad msg, if other members are not alive
++ dont send squad msg, when other members are not alive
 + MaxTeamAmount is excluding myself, so if MaxTeamAmount is 14, always enable
 + refactoring of config strage
 + change code layout
