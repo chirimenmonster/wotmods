@@ -7,7 +7,7 @@ import shutil
 import argparse
 import re
 
-WOT_VERSION          = "0.9.17.1"
+WOT_VERSION          = "0.9.18 Common Test"
 SUPPORT_URL          = ""
 ROOT_DIR             = os.path.dirname(os.path.realpath(__file__))
 SRC_DIR              = os.path.join(ROOT_DIR, "src")
@@ -51,14 +51,12 @@ def main():
     stage0 = os.path.join(BUILD_DIR, "stage0")
     stage1 = os.path.join(BUILD_DIR, "stage1")
     stage2 = os.path.join(BUILD_DIR, "stage2")
-    stage3 = os.path.join(BUILD_DIR, "stage3")
-    stage4 = BUILD_DIR
+    stage3 = BUILD_DIR
     
     mod_name = args.mod_name.lower()
     mod_version = args.mod_version
     pack_wotmod = "{name}-{version}.wotmod".format(name=mod_name, version=mod_version)
-    zip_wotmod = "{name}-{version}-wotmod.zip".format(name=mod_name, version=mod_version)
-    zip_resmod = "{name}-{version}.zip".format(name=mod_name, version=mod_version)
+    zip_wotmod = "{name}-{version}.zip".format(name=mod_name, version=mod_version)
     
     stage = [
         [ [ stage0, "scripts"                           ], [ SCRIPT_DIR         ] ],
@@ -69,11 +67,8 @@ def main():
         [ [ stage1                                      ], [ stage0, "meta"     ] ],
         [ [ stage2, "mods", WOT_VERSION, pack_wotmod    ], [ stage1             ] ],
         [ [ stage2, "mods", "configs"                   ], [ stage0, "configs"  ] ],
-        [ [ stage3, "res_mods", WOT_VERSION, "scripts"  ], [ stage0, "scripts"  ] ],
-        [ [ stage3, "res_mods", "configs"               ], [ stage0, "configs"  ] ],
-        [ [ stage3                                      ], [ stage0, "doc"      ] ],
-        [ [ stage4, zip_wotmod                          ], [ stage2             ] ],
-        [ [ stage4, zip_resmod                          ], [ stage3             ] ]
+        [ [ stage2                                      ], [ stage0, "doc"      ] ],
+        [ [ stage3, zip_wotmod                          ], [ stage2             ] ]
     ]
     
     try:
@@ -85,7 +80,6 @@ def main():
         packager.generate(os.path.join(*task[1]), os.path.join(*task[0]))
 
     print "build: {}".format(zip_wotmod)
-    print "build: {}".format(zip_resmod)
 
         
 def accepts_extensions(extensions):
