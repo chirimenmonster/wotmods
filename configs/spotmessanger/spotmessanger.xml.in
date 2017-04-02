@@ -46,7 +46,7 @@
                 <Command>help</Command> <!-- Send "Help!" quick command (F7) when the perk activates. -->
                 <Command>teammsg</Command> <!-- Send Message to team chat. -->
             </CommandOrder>
-            <MaxTeamAmount>0</MaxTeamAmount>
+            <!-- <MaxTeamAmount>14</MaxTeamAmount> -->
             <!-- List of available tanks -->
             <!-- VehicleType may LT/MT/HT/TD/SPG -->
             <!-- if not this section, enable for all tanks -->
