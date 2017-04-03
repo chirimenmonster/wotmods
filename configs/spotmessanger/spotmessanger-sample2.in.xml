@@ -3,7 +3,7 @@
 
 <root>
 
-    <Debug>{DEBUG}</Debug>
+    <Debug>${DEBUG}</Debug>
     <LogLevel>notice</LogLevel>
 
     <!-- Global settings -->
@@ -15,10 +15,10 @@
     <ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey>
 
     <!-- Message options -->
-    <ImSpotted>An enemy has spotted me at {{pos}}.</ImSpotted>
+    <ImSpotted>An enemy has spotted me at {pos}.</ImSpotted>
     <DisableSystemMsg>Sixth Sense Message disabled</DisableSystemMsg>
     <EnableSystemMsg>Sixth Sense Message enabled</EnableSystemMsg>
-    <CooldownMsg>Sixth Sense Message cooldown, rest {{rest}} sec.</CooldownMsg>
+    <CooldownMsg>Sixth Sense Message cooldown, rest {rest} sec.</CooldownMsg>
  
     <!-- Cooldown parameters -->
     <CooldownInterval>60</CooldownInterval>

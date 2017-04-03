@@ -2,10 +2,10 @@ import py_compile
 import zipfile
 import os
 import sys
-import fnmatch
 import shutil
 import argparse
 import re
+from string import Template
 
 WOT_VERSION          = "0.9.18 Common Test"
 SUPPORT_URL          = ""
@@ -23,7 +23,7 @@ DOC_FILES = [
 ]
 
 META_FILES = [
-    os.path.join(ROOT_DIR, "meta.xml.in")
+    os.path.join(ROOT_DIR, "meta.in.xml")
 ]
 
 sys.dont_write_bytecode = True
@@ -32,18 +32,19 @@ from spotmessanger.version import MOD_INFO
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mod-name',    default=MOD_INFO.NAME)
-    parser.add_argument('--mod-version', default=MOD_INFO.VERSION)
     parser.add_argument('--mod-debug',   default=MOD_INFO.DEBUG)
     args = parser.parse_args()
     in_file_parameters = dict(
         SUPPORT_URL = SUPPORT_URL,
         DEBUG       = args.mod_debug,
-        MOD_VERSION = args.mod_version
+        MOD_ID      = MOD_INFO.ID,
+        MOD_NAME    = MOD_INFO.NAME,
+        MOD_VERSION = MOD_INFO.VERSION
     )
 
     packager = Packager(
         src_dir               = SRC_DIR,
+        build_dir             = BUILD_DIR,
         in_file_parameters    = in_file_parameters,
         ignored_file_patterns = [".+_test.py"]
     )
@@ -53,10 +54,10 @@ def main():
     stage2 = os.path.join(BUILD_DIR, "stage2")
     stage3 = BUILD_DIR
     
-    mod_name = args.mod_name.lower()
-    mod_version = args.mod_version
-    pack_wotmod = "{name}-{version}.wotmod".format(name=mod_name, version=mod_version)
-    zip_wotmod = "{name}-{version}.zip".format(name=mod_name, version=mod_version)
+    mod_name = in_file_parameters['MOD_NAME']
+    mod_version = in_file_parameters['MOD_VERSION']
+    pack_wotmod = "{name}-{version}.wotmod".format(name=mod_name, version=mod_version).lower()
+    zip_wotmod = "{name}-{version}.zip".format(name=mod_name, version=mod_version).lower()
     
     stage = [
         [ [ stage0, "scripts"                           ], [ SCRIPT_DIR         ] ],
@@ -91,6 +92,7 @@ def accepts_extensions(extensions):
             for extension in extensions:
                 if src_filepath.lower().endswith(extension.lower()):
                     return original_function(self, src_filepath, dest_filepath)
+            return False
         return wrapper
     return decorator
 
@@ -102,19 +104,21 @@ class CallbackList(object):
 
     def __call__(self, *args, **kwargs):
         for callback in self.__callbacks:
-            callback(*args, **kwargs)
+            if callback(*args, **kwargs):
+                return
 
 
 class Packager(object):
 
     def __init__(self, **dict):
         self.__src_dir = os.path.normpath(dict['src_dir'])
+        self.__build_dir = os.path.normpath(dict['build_dir'])
         self.__in_file_parameters = dict['in_file_parameters']
         self.__ignored_file_patterns = dict['ignored_file_patterns']
         self.__builders = CallbackList(
+            self.__run_template_file,
             self.__compile_py_file,
-            self.__copy_file,
-            self.__run_template_file
+            self.__copy_file
         )
 
     def generate(self, src, dest, **kwargs):
@@ -133,11 +137,11 @@ class Packager(object):
                 self.generate(item, dest)
         elif os.path.isdir(src):
             for item in self.__iterate_src_filepaths(src):
-                dest_file = item.replace(src, dest)
-                self.__builders(item, dest_file)
+                dest_dir = os.path.dirname(item.replace(src, dest))
+                self.__builders(item, dest_dir)
         else:
-            dest_file = src.replace(os.path.dirname(src), dest)
-            self.__builders(src, dest_file)
+            dest_dir = os.path.dirname(src.replace(os.path.dirname(src), dest))
+            self.__builders(src, dest_dir)
 
     def __iterate_src_filepaths(self, path):
         '''Returns an iterator which returns paths to all files within source dir.'''
@@ -147,35 +151,39 @@ class Packager(object):
                     yield os.path.normpath(os.path.join(root, filename))
 
     @accepts_extensions([".py"])
-    def __compile_py_file(self, src_filepath, dest_filepath):
+    def __compile_py_file(self, src_filepath, dest_dir):
         '''Compiles 'src_filepath' python source file into python bytecode file and
         saves it dest_filepath.
         '''
-        debug_filepath = src_filepath.replace(self.__src_dir, "").replace("\\", "/").strip("/")
-        build_filepath = dest_filepath + "c"
-        self.__make_parent_dirs(build_filepath)
+        debug_filepath = os.path.relpath(src_filepath, self.__src_dir)
+        dest_filepath = os.path.join(dest_dir, os.path.splitext(os.path.basename(src_filepath))[0] + ".pyc")
+        self.__make_parent_dirs(dest_filepath)
         # compile source py-file into bytecode pyc-file
-        py_compile.compile(file=src_filepath, cfile=build_filepath, dfile=debug_filepath, doraise=True)
+        py_compile.compile(file=src_filepath, cfile=dest_filepath, dfile=debug_filepath, doraise=True)
+        return True
 
     @accepts_extensions([".swf", ".txt", ".json", ".xml", ".png", ".pyc", ".md", "LICENSE"])
-    def __copy_file(self, src_filepath, dest_filepath):
+    def __copy_file(self, src_filepath, dest_dir):
         '''Simply copies file at 'src_filepath' to 'dest_filepath'.'''
-        build_filepath = dest_filepath
-        self.__make_parent_dirs(build_filepath)
+        dest_filepath = os.path.join(dest_dir, os.path.basename(src_filepath))
+        self.__make_parent_dirs(dest_filepath)
         # simply copy file from source to build dir
-        shutil.copyfile(src_filepath, build_filepath)
+        shutil.copyfile(src_filepath, dest_filepath)
+        return True
 
-    @accepts_extensions([".in"])
-    def __run_template_file(self, src_filepath, dest_filepath):
-        build_filepath = src_filepath[:-3]
+    @accepts_extensions([".in", ".in.xml"])
+    def __run_template_file(self, src_filepath, dest_dir):
         parameters = self.__in_file_parameters
+        i = src_filepath.rfind('.in')
+        build_filepath = os.path.join(self.__build_dir, os.path.basename(src_filepath[:i] + src_filepath[i+3:]))
         # run 'parameters' through in-template and produce temporary output file
         with open(src_filepath, "r") as in_file, open(build_filepath, "w") as out_file:
-            out_file.write(in_file.read().format(**parameters))
+            out_file.write(Template(in_file.read()).substitute(**parameters))
         # further process the output file with other builders
-        self.__builders(build_filepath, dest_filepath[:-3])
+        self.__builders(build_filepath, dest_dir)
         # remove the temporary output file
         os.remove(build_filepath)
+        return True
 
     def __make_parent_dirs(self, filepath):
         '''Creates any missing parent directories of file indicated in 'filepath'.'''
