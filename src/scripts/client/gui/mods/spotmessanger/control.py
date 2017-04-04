@@ -119,8 +119,7 @@ class SpotMessanger(object):
         
         messenger = DelayChatControl()
         log.info('current chat channel: {}'.format(chatutils.getChannelLabels()))
-        log.info('current team amount (others): {}'.format(teamAmount))
-        log.info('current my squad amount (others): {}'.format(squadAmount))
+        log.info('current ally amount w/o myself: (team, squad) = ({}, {})'.format(teamAmount, squadAmount))
 
         self._isDone = { 'ping': False, 'help': False, 'msg': False }
         for param in self._activeParams:
