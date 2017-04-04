@@ -1,5 +1,3 @@
-<!-- -*- mode: xml; -*- -->
-
 <root>
 
     <Debug>${DEBUG}</Debug>
@@ -9,7 +7,7 @@
     <NotifyCenter>True</NotifyCenter> <!-- use Notify Center message -->
 
     <!-- Activation options -->
-    <ActiveByDefault>true</ActiveByDefault> <!-- Activate Mod at the beginning of the battle - true/false. -->
+    <ActiveByDefault>True</ActiveByDefault> <!-- Activate Mod at the beginning of the battle - true/false. -->
     <ActivationHotKey>KEY_F11</ActivationHotKey> <!-- Set the hotkey to enable/disable the Mod during battle. -->
     <ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey> <!-- Press this hotkey to reload configuration. -->
 

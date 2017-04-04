@@ -40,8 +40,8 @@ Default settings
 Customize
 ---------
 
-+ config file: res_mods/configs/spotmessanger/spotmessanger.xml
-+ document: res_mods/configs/spotmessanger/spotmessanger.txt
++ config file: mods/configs/spotmessanger/spotmessanger.xml
++ document: mods/configs/spotmessanger/customize.txt
 
 
 ChangeLog

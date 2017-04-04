@@ -1,6 +1,6 @@
 <root>
    <id>${MOD_ID}</id>
-   <version>${MOD_VERSION}</version>
    <name>${MOD_NAME}</name>
-   <description>Send message to team or platoon, eventually with a "help" or "ping" command, if you are spotted and under some conditions.</description>
+   <version>${MOD_VERSION}</version>
+   <description>${DESCRIPTION}</description>
 </root>

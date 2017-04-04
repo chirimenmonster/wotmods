@@ -1,5 +1,3 @@
-<!-- -*- mode: xml; -*- -->
-
 <root>
     <Debug>${DEBUG}</Debug>
 
