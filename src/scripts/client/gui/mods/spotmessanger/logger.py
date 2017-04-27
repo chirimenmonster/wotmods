@@ -48,6 +48,9 @@ class Logger(object):
         log.debug('set log level: {}'.format(LOGLEVEL.REV[newLogLevel]))
         self._logLevel = newLogLevel
 
+    def isDebug(self):
+        return self._logLevel >= LOGLEVEL.DEBUG
+
     def _addLineNo(self, msg):
         frame = inspect.currentframe(2)
         return '({}, {}): {}'.format(frame.f_code.co_filename, frame.f_lineno, msg)

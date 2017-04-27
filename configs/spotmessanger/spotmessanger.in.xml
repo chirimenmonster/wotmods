@@ -5,22 +5,22 @@
  
 <root>
 
-    <Debug>{DEBUG}</Debug>
+    <Debug>${DEBUG}</Debug>
     <LogLevel>info</LogLevel> <!-- may debug/info/notice/warning/error -->
 
     <!-- Global settings -->
     <NotifyCenter>True</NotifyCenter> <!-- use Notify Center message -->
 
     <!-- Activation options -->
-    <ActiveByDefault>true</ActiveByDefault> <!-- Activate Mod at the beginning of the battle - true/false. -->
+    <ActiveByDefault>True</ActiveByDefault> <!-- Activate Mod at the beginning of the battle - true/false. -->
     <ActivationHotKey>KEY_F11</ActivationHotKey> <!-- Set the hotkey to enable/disable the Mod during battle. -->
     <ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey> <!-- Press this hotkey to reload configuration. -->
 
     <!-- Message options -->
-    <ImSpotted>An enemy has spotted me at {{pos}}.</ImSpotted>
+    <ImSpotted>An enemy has spotted me at {pos}.</ImSpotted>
     <DisableSystemMsg>Sixth Sense Message disabled</DisableSystemMsg>
     <EnableSystemMsg>Sixth Sense Message enabled</EnableSystemMsg>
-    <CooldownMsg>Sixth Sense Message cooldown, rest {{rest}} sec.</CooldownMsg>
+    <CooldownMsg>Sixth Sense Message cooldown, rest {rest} sec.</CooldownMsg>
  
     <!-- Cooldown parameters -->
     <CooldownInterval>60</CooldownInterval>
@@ -46,7 +46,7 @@
                 <Command>help</Command> <!-- Send "Help!" quick command (F7) when the perk activates. -->
                 <Command>teammsg</Command> <!-- Send Message to team chat. -->
             </CommandOrder>
-            <MaxTeamAmount>0</MaxTeamAmount>
+            <!-- <MaxTeamAmount>14</MaxTeamAmount> -->
             <!-- List of available tanks -->
             <!-- VehicleType may LT/MT/HT/TD/SPG -->
             <!-- if not this section, enable for all tanks -->

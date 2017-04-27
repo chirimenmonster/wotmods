@@ -1,0 +1,67 @@
+<root>
+    <Debug>${DEBUG}</Debug>
+
+    <BattleTypeParameterList>
+
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>default</BattleType>
+            </AssignBattleType>
+            <MaxTeamAmount>7</MaxTeamAmount>
+            <CommandOrder>
+                <Command>help</Command>
+                <Command>ping</Command>
+                <Command>teammsg</Command>
+            </CommandOrder>
+        </BattleTypeParameter>
+
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>default</BattleType>
+            </AssignBattleType>
+            <MaxTeamAmount>10</MaxTeamAmount>
+            <EnableVehicleType>
+                <VehicleType>MT</VehicleType>
+            </EnableVehicleType>
+            <CommandOrder>
+                <Command>help</Command>
+                <Command>teammsg</Command>
+            </CommandOrder>
+        </BattleTypeParameter>
+
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>default</BattleType>
+            </AssignBattleType>
+            <EnableVehicleType>
+                <VehicleType>LT</VehicleType>
+            </EnableVehicleType>
+            <CommandOrder>
+                <Command>help</Command>
+                <Command>teammsg</Command>
+            </CommandOrder>
+        </BattleTypeParameter>
+
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>default</BattleType>
+            </AssignBattleType>
+            <EnableVehicleType>
+                <VehicleType>MT</VehicleType>
+            </EnableVehicleType>
+            <CommandOrder>
+                <Command>teammsg</Command>
+            </CommandOrder>
+        </BattleTypeParameter>
+
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>default</BattleType>
+            </AssignBattleType>
+            <CommandOrder>
+                <Command>squadmsg</Command>
+            </CommandOrder>
+        </BattleTypeParameter>
+
+    </BattleTypeParameterList>
+</root>

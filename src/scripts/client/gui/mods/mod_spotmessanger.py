@@ -2,50 +2,54 @@ from functools import partial
 
 import game
 from PlayerEvents import g_playerEvents
-#from gui import g_keyEventHandlers
 from gui.Scaleform.daapi.view.battle.shared.indicators import SixthSenseIndicator
 
 from spotmessanger.logger import log
 from spotmessanger.events import overrideMethod
 from spotmessanger.version import MOD_INFO
-from spotmessanger.settings import sm_settings
-from spotmessanger.inputhandler import sm_inputKeyManager
-from spotmessanger.control import sm_control
+from spotmessanger.settings import Settings
+from spotmessanger.control import SpotMessanger
+from spotmessanger.inputhandler import handleKeyEvent, addKeyEventCallback
 
-conf_prefix = [ '../res_mods/', '../mods/', '' ]
+conf_base = [ '../mods' ]
 conf_file = 'configs/spotmessanger/spotmessanger.xml'
+
+_control = None
 
 def init():
     '''Mod's main entry point.  Called by WoT's built-in mod loader.'''
+    global _control
 
     try:
         log.info(MOD_INFO.NAME + ' ' + MOD_INFO.VERSION_LONG)
-        sm_settings.readConfig(conf_file, conf_prefix)
+        settings = Settings(conf_file, conf_base)
+        _control = SpotMessanger(settings)
         
         log.debug('set key event handlers')
-        sm_inputKeyManager.addCallback(sm_settings.get('ReloadConfigKey'), partial(sm_control.reloadConfig, conf_file, conf_prefix))
-        sm_inputKeyManager.addCallback(sm_settings.get('ActivationHotKey'), sm_control.toggleActive)
+        addKeyEventCallback(settings['ReloadConfigKey'], partial(_control.reloadConfig, conf_file, conf_base))
+        addKeyEventCallback(settings['ActivationHotKey'], _control.toggleActive)
         
-        g_playerEvents.onAvatarReady += sm_control.onBattleStart
-        #g_keyEventHandlers.add(sm_inputKeyManager.handleKeyEvent)
-        
+        g_playerEvents.onAvatarReady += _control.onBattleStart
+
     except:
         log.current_exception()
 
 # referring to xvm/src/xpm/xvm_sounds/sixthSense.py 
-@overrideMethod(SixthSenseIndicator, "as_showS")
-def showSixthSenseIndicator(orig, *args, **kwargs):
+@overrideMethod(SixthSenseIndicator, 'as_showS')
+def _showSixthSenseIndicator(orig, *args, **kwargs):
     log.debug('activate sixth sense.')
     ret = orig(*args, **kwargs)
     try:
-        sm_control.showSixthSenseIndicator()
+        _control.showSixthSenseIndicator()
     except:
         log.current_exception()
     return ret
 
-@overrideMethod(game, "handleKeyEvent")
-def handleKeyEvent(orig, *args, **kwargs):
+@overrideMethod(game, 'handleKeyEvent')
+def _handleKeyEvent(orig, *args, **kwargs):
     ret = orig(*args, **kwargs)
-    sm_inputKeyManager.handleKeyEvent(*args, **kwargs)
+    try:
+        handleKeyEvent(*args, **kwargs)
+    except:
+        log.current_exception()
     return ret
-

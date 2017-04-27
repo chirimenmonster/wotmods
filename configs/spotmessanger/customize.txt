@@ -2,7 +2,7 @@ SpotMessanger is mod for World of Tanks.
 
 Installation:
  - extract the archive to your game root.
- - To configure, edit [game_root]/res_mods/configs/spotmessanger/spotmessanger.xml.
+ - To configure, edit [game_root]/mods/configs/spotmessanger/spotmessanger.xml.
 
 where
  - [game_root] is your World of Tanks installation directory
@@ -20,6 +20,10 @@ Config
         Description: keyword for log level
         Type: string; one of [ debug | info | notice | warning | error ]
         Context: root
+    NotifyCenter
+        Description: use Notify Center for info message changing status of mod
+        Type: bool
+        Context: root
     ActiveByDefault
         Description: flag if enable SpotMessanger when battle startup
         Type: bool
@@ -34,7 +38,7 @@ Config
         Context: root
     ImSpotted
         Description: message when spotted to send team/squad chat channel,
-            {{pos}} is spotted position
+            {pos} is spotted position
         Type: string
         Context: root
     DisableSystemMsg

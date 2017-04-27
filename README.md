@@ -40,12 +40,18 @@ Default settings
 Customize
 ---------
 
-+ config file: res_mods/configs/spotmessanger/spotmessanger.xml
-+ document: res_mods/configs/spotmessanger/spotmessanger.txt
++ config file: mods/configs/spotmessanger/spotmessanger.xml
++ document: mods/configs/spotmessanger/customize.txt
 
 
 ChangeLog
 ---------
+### 1.0-dev
++ dont send squad msg, when other members are not alive
++ MaxTeamAmount is excluding myself, so if MaxTeamAmount is 14, always enable
++ refactoring of config strage
++ change code layout
+
 ### 0.9.0
 + disable on observer mode and postmortem mode
 + add message to Notification Center, its controllable with config file

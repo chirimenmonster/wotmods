@@ -1,29 +1,27 @@
-<!-- -*- mode: xml; -*- -->
+<!-- only for clan, nothing to do for random battle -->
 
 <root>
 
-    <Debug>{DEBUG}</Debug>
-    <LogLevel>info</LogLevel>
+    <Debug>${DEBUG}</Debug>
+    <LogLevel>notice</LogLevel>
 
     <!-- Global settings -->
     <NotifyCenter>True</NotifyCenter> <!-- use Notify Center message -->
 
     <!-- Activation options -->
-    <ActiveByDefault>true</ActiveByDefault> <!-- Activate Mod at the beginning of the battle - true/false. -->
-    <ActivationHotKey>KEY_F11</ActivationHotKey> <!-- Set the hotkey to enable/disable the Mod during battle. -->
-    <ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey> <!-- Press this hotkey to reload configuration. -->
+    <ActiveByDefault>true</ActiveByDefault>
+    <ActivationHotKey>KEY_F11</ActivationHotKey>
+    <ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey>
 
     <!-- Message options -->
-    <ImSpotted>An enemy has spotted me at {{pos}}.</ImSpotted>
+    <ImSpotted>An enemy has spotted me at {pos}.</ImSpotted>
     <DisableSystemMsg>Sixth Sense Message disabled</DisableSystemMsg>
     <EnableSystemMsg>Sixth Sense Message enabled</EnableSystemMsg>
-    <CooldownMsg>Sixth Sense Message cooldown, rest {{rest}} sec.</CooldownMsg>
+    <CooldownMsg>Sixth Sense Message cooldown, rest {rest} sec.</CooldownMsg>
  
     <!-- Cooldown parameters -->
     <CooldownInterval>60</CooldownInterval>
-    <TextDelay>0.5</TextDelay>
-    <CommandDelay>5</CommandDelay>
-
+ 
     <!-- Local settings for each battle types -->
     <BattleTypeParameterList>
 
@@ -38,28 +36,11 @@
             </CommandOrder>
         </BattleTypeParameter>
 
-        <!-- for Random Battle: "help" and send team msg only team amount is less -->
+        <!-- for Random Battle: do nothing -->
         <BattleTypeParameter>
             <AssignBattleType>
                 <BattleType>Random</BattleType> <!-- for Random Battle (Regular) -->
             </AssignBattleType>
-            <CommandOrder>
-                <Command>help</Command> <!-- Send "Help!" quick command (F7) when the perk activates. -->
-                <Command>teammsg</Command> <!-- Send Message to team chat. -->
-            </CommandOrder>
-            <MaxTeamAmount>7</MaxTeamAmount>
-            <CooldownInterval>60</CooldownInterval>
-        </BattleTypeParameter>
-
-        <!-- for Random Battle: send platton msg, but don't after team msg -->
-        <BattleTypeParameter>
-            <AssignBattleType>
-                <BattleType>Random</BattleType> <!-- for Random Battle (Regular) -->
-            </AssignBattleType>
-            <CommandOrder>
-                <Command>squadmsg</Command>  <!-- Send Message to platoon chat. -->
-            </CommandOrder>
-            <CooldownInterval>30</CooldownInterval>
         </BattleTypeParameter>
 
         <!-- for Clan Battle -->

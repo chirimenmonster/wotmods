@@ -1,6 +1,0 @@
-<root>
-   <id>SpotMessanger</id>
-   <version>{MOD_VERSION}</version>
-   <name>SpotMessanger</name>
-   <description>Send message to team or platoon, eventually with a "help" or "ping" command, if you are spotted and under some conditions.</description>
-</root>
