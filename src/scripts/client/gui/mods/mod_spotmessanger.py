@@ -12,7 +12,7 @@ from spotmessanger.control import SpotMessanger
 from spotmessanger.inputhandler import handleKeyEvent, addKeyEventCallback
 
 conf_base = [ '../mods' ]
-conf_file = 'configs/spotmessanger/spotmessanger.xml'
+conf_file = MOD_INFO.CONFIG_FILE
 
 _control = None
 
@@ -21,7 +21,7 @@ def init():
     global _control
 
     try:
-        log.info(MOD_INFO.NAME + ' ' + MOD_INFO.VERSION_LONG)
+        log.info('{} {} ({})'.format(MOD_INFO.NAME, MOD_INFO.VERSION_LONG, MOD_INFO.SUPPORT_URL))
         settings = Settings(conf_file, conf_base)
         _control = SpotMessanger(settings)
         
