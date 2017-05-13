@@ -48,6 +48,7 @@ ChangeLog
 ---------
 ### 1.1-dev
 + conformed to the document "World of Tanks: Mod Packages" version 0.4
++ rename configure file to mods/configs/chirimen.spotmessanger/config.xml
 
 ### 1.0.0
 + dont send squad msg, when other members are not alive
