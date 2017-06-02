@@ -46,7 +46,7 @@ Customize
 
 ChangeLog
 ---------
-### 1.1-dev
+### 1.1.0
 + conformed to the document "World of Tanks: Mod Packages" version 0.4
 + rename configure file to mods/configs/chirimen.spotmessanger/config.xml
 
