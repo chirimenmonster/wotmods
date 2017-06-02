@@ -48,7 +48,7 @@ ChangeLog
 ---------
 ### 1.1.0
 + for WoT version 0.9.19.0.1
-+ conformed to the document "World of Tanks: Mod Packages" version 0.4
++ rename wotmod file to conform to the document "World of Tanks: Mod Packages" version 0.4
 + rename configure file to mods/configs/chirimen.spotmessanger/config.xml
 
 ### 1.0.0
