@@ -9,8 +9,8 @@ import ConfigParser
 from string import Template
 
 ROOT_DIR            = os.path.dirname(os.path.realpath(__file__))
-SCRIPT_DIR          = os.path.join(ROOT_DIR, "src", "scripts")
-CONFIG_DIR          = os.path.join(ROOT_DIR, "configs")
+SCRIPT_DIR          = os.path.join(ROOT_DIR, "src/scripts/client/gui/mods")
+CONFIG_DIR          = os.path.join(ROOT_DIR, "configs/spotmessanger")
 BUILD_DIR           = os.path.join(ROOT_DIR, "build")
 SCRIPT_DEBUG_BASE   = "scripts"
 
@@ -39,7 +39,11 @@ def main():
     
     in_file_parameters = dict(
         DEBUG               = args.mod_debug,
-        MOD_ID              = inifile.get('mod', 'id'),
+        MOD_CONFIG_DIR      = inifile.get('mod', 'config_dir').lower(),
+        MOD_CONFIG_FILE     = inifile.get('mod', 'config_file').lower(),
+        ZIP_FILENAME        = inifile.get('mod', 'distrib_filename').lower(),
+        MOD_FILENAME        = inifile.get('mod', 'package_filename').lower(),
+        MOD_ID              = inifile.get('mod', 'package_id').lower(),
         MOD_NAME            = inifile.get('mod', 'name'),
         MOD_VERSION         = inifile.get('mod', 'version'),
         MOD_VERSION_LONG    = inifile.get('mod', 'version_long'),
@@ -58,21 +62,21 @@ def main():
     stage2 = os.path.join(BUILD_DIR, "stage2")
     stage3 = BUILD_DIR
     
-    mod_name = in_file_parameters['MOD_NAME'].lower()
-    mod_version = in_file_parameters['MOD_VERSION'].lower()
-    pack_wotmod = "{name}-{version}.wotmod".format(name=mod_name, version=mod_version)
-    zip_wotmod = "{name}-{version}.zip".format(name=mod_name, version=mod_version)
+    mod_id = in_file_parameters['MOD_ID']
+    mod_config_dir = in_file_parameters['MOD_CONFIG_DIR']
+    pack_wotmod = in_file_parameters['MOD_FILENAME']
+    zip_wotmod = in_file_parameters['ZIP_FILENAME']
     
     stage = [
         [ [ stage0, "scripts"                           ], [ SCRIPT_DIR         ] ],
         [ [ stage0, "configs"                           ], [ CONFIG_DIR         ] ],
         [ [ stage0, "meta"                              ], [ META_FILES         ] ],
         [ [ stage0, "doc"                               ], [ DOC_FILES          ] ],
-        [ [ stage1, "res", "scripts"                    ], [ stage0, "scripts"  ] ],
+        [ [ stage1, "res/scripts/client/gui/mods"       ], [ stage0, "scripts"  ] ],
         [ [ stage1                                      ], [ stage0, "meta"     ] ],
         [ [ stage2, "mods", wot_version, pack_wotmod    ], [ stage1             ] ],
-        [ [ stage2, "mods", "configs"                   ], [ stage0, "configs"  ] ],
-        [ [ stage2, "mods", "configs", mod_name         ], [ stage0, "doc"      ] ],
+        [ [ stage2, "mods", mod_config_dir              ], [ stage0, "configs"  ] ],
+        [ [ stage2, "mods", mod_config_dir              ], [ stage0, "doc"      ] ],
         [ [ stage2                                      ], [ stage0, "doc"      ] ],
         [ [ stage3, zip_wotmod                          ], [ stage2             ] ]
     ]
