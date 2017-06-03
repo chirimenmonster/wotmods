@@ -46,11 +46,13 @@ Customize
 
 ChangeLog
 ---------
-### 1.1-dev
-+ conformed to the document "World of Tanks: Mod Packages" version 0.4
+### 1.1.0
++ for WoT version 0.9.19.0.1
++ rename wotmod file to conform to the document "World of Tanks: Mod Packages" version 0.4
 + rename configure file to mods/configs/chirimen.spotmessanger/config.xml
 
 ### 1.0.0
++ for WoT version 0.9.18.0
 + dont send squad msg, when other members are not alive
 + MaxTeamAmount is excluding myself, so if MaxTeamAmount is 14, always enable
 + refactoring of config strage
