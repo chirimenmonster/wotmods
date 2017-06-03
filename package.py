@@ -39,9 +39,9 @@ def main():
     
     in_file_parameters = dict(
         DEBUG               = args.mod_debug,
+        ZIP_FILENAME        = inifile.get('mod', 'release_filename').lower(),
         MOD_CONFIG_DIR      = inifile.get('mod', 'config_dir').lower(),
         MOD_CONFIG_FILE     = inifile.get('mod', 'config_file').lower(),
-        ZIP_FILENAME        = inifile.get('mod', 'distrib_filename').lower(),
         MOD_FILENAME        = inifile.get('mod', 'package_filename').lower(),
         MOD_ID              = inifile.get('mod', 'package_id').lower(),
         MOD_NAME            = inifile.get('mod', 'name'),
