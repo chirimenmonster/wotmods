@@ -1,4 +1,4 @@
-![logo](https://user-images.githubusercontent.com/11075065/28247036-ba5a9652-6a63-11e7-8700-8b7104477d9f.png)
+![logo](https://user-images.githubusercontent.com/11075065/28247368-bf123140-6a69-11e7-86c3-962ac14bbe95.png)
 
 SpotMessanger
 =============
