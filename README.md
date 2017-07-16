@@ -1,3 +1,5 @@
+![logo](https://user-images.githubusercontent.com/11075065/28247036-ba5a9652-6a63-11e7-8700-8b7104477d9f.png)
+
 SpotMessanger
 =============
 Send message to team or platoon, eventually with a "help" or "ping"
