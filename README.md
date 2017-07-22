@@ -1,3 +1,5 @@
+![logo](https://user-images.githubusercontent.com/11075065/28247368-bf123140-6a69-11e7-86c3-962ac14bbe95.png)
+
 SpotMessanger
 =============
 Send message to team or platoon, eventually with a "help" or "ping"
@@ -46,7 +48,7 @@ Customize
 
 ChangeLog
 ---------
-### 1.2-dev
+### 1.2.0
 + for WoT version 0.9.19.1
 + remove "Company" from BattleType and add "Ranked"
 
