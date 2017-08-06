@@ -48,6 +48,9 @@ Customize
 
 ChangeLog
 ---------
+### 1.2.0_1
++ repackaging for WoT version 0.9.19.1.1
+
 ### 1.2.0
 + for WoT version 0.9.19.1
 + remove "Company" from BattleType and add "Ranked"
