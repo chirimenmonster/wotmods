@@ -93,7 +93,8 @@ Config
     BattleType
         Description: specify battle type
         Type: string; one of [ default | Random | GlobalMap | TeamBattle |
-            Fortifications | ProvingGround | Fallout | Ranked | others ]
+            Fortifications | ProvingGround | Fallout | Ranked | Training |
+            EpicRandom | EpicRandomTraining | others ]
         Context: AssignBattleType
         
  - per BattleTytpe parameter
