@@ -11,7 +11,7 @@
     <!-- Activation options -->
     <ActiveByDefault>true</ActiveByDefault>
     <ActivationHotKey>KEY_F11</ActivationHotKey>
-    <ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey>
+    <!-- ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey -->
 
     <!-- Message options -->
     <ImSpotted>An enemy has spotted me at {pos}.</ImSpotted>

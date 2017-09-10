@@ -26,9 +26,16 @@ def init():
         _control = SpotMessanger(settings)
         
         log.debug('set key event handlers')
-        addKeyEventCallback(settings['ReloadConfigKey'], partial(_control.reloadConfig, conf_file, conf_base))
-        addKeyEventCallback(settings['ActivationHotKey'], _control.toggleActive)
-        
+        if settings['ReloadConfigKey']:
+            log.info('enabled ReloadConfigKey: key=\'{}\''.format(settings['ReloadConfigKey']))
+            addKeyEventCallback(settings['ReloadConfigKey'], partial(_control.reloadConfig, conf_file, conf_base))
+        else:
+            log.info('disabled ReloadConfigKey')
+        if settings['ActivationHotKey']:
+            log.info('enabled ActivationHotKey: key=\'{}\''.format(settings['ActivationHotKey']))
+            addKeyEventCallback(settings['ActivationHotKey'], _control.toggleActive)
+        else:
+            log.info('disabled ActivationHotKey')        
         g_playerEvents.onAvatarReady += _control.onBattleStart
 
     except:
