@@ -48,7 +48,7 @@ Customize
 
 ChangeLog
 ---------
-### 1.3-dev
+### 1.3.0
 + for WoT version 0.9.20.0
 + add to BattleType "Training", "EpicRandom", "EpicRandomTraining"
 
