@@ -48,7 +48,7 @@ DEFAULT_GLOBAL_SETTINGS = {
     'ActiveByDefault':  True,
     'NotifyCenter':     True,
     'ActivationHotKey': 'KEY_F11',
-    'ReloadConfigKey':  'KEY_NUMPAD4',
+    'ReloadConfigKey':  None,
     'ImSpotted':        'An enemy has spotted me at {pos}.',
     'DisableSystemMsg': 'Sixth Sense Message disabled',
     'EnableSystemMsg':  'Sixth Sense Message enabled',

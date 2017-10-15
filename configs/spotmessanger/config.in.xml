@@ -14,7 +14,7 @@
     <!-- Activation options -->
     <ActiveByDefault>True</ActiveByDefault> <!-- Activate Mod at the beginning of the battle - true/false. -->
     <ActivationHotKey>KEY_F11</ActivationHotKey> <!-- Set the hotkey to enable/disable the Mod during battle. -->
-    <ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey> <!-- Press this hotkey to reload configuration. -->
+    <!-- ReloadConfigKey>KEY_NUMPAD4</ReloadConfigKey --> <!-- Press this hotkey to reload configuration. -->
 
     <!-- Message options -->
     <ImSpotted>An enemy has spotted me at {pos}.</ImSpotted>
