@@ -46,6 +46,12 @@ Customize
 + document: mods/configs/chirimen.spotmessanger/customize.txt
 
 
+Support forum
+-------
+
++ http://forum.worldoftanks.eu/index.php?/topic/562735-092011-spotmessanger-v131-1-26102017/
+
+
 ChangeLog
 ---------
 ### 1.3.1_1
