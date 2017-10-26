@@ -48,6 +48,9 @@ Customize
 
 ChangeLog
 ---------
+### 1.3.1_1
++ repackaging for WoT version 0.9.20.1.1
+
 ### 1.3.1
 + for WoT version 0.9.20.1
 + change default config, reload hot key is disabled
