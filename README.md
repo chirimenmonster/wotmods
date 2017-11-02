@@ -49,7 +49,7 @@ Customize
 Support forum
 -------
 
-+ http://forum.worldoftanks.eu/index.php?/topic/562735-092011-spotmessanger-v131-1-26102017/
++ http://forum.worldoftanks.eu/index.php?/topic/562735-092011-/
 
 
 ChangeLog
