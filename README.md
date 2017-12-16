@@ -54,6 +54,9 @@ Support forum
 
 ChangeLog
 ---------
+### 1.3.1_6
++ repackaging for WoT version 0.9.21.0.1
+
 ### 1.3.1_5
 + repackaging for WoT version 0.9.21.0
 
