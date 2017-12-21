@@ -62,7 +62,10 @@ class SpotMessanger(object):
                 cooldownInterval.append(p['CooldownInterval'])
             else:
                 log.info('[{}]: current vehicle type is {}, ignore.'.format(i, vehicle.classAbbr))
-
+        if not self._activeParams:
+            log.info('nothing to do for current battle type and vehicle class')
+            return
+            
         self._cooldownInterval = min(t for t in cooldownInterval)
         log.info('minimal CoolDownInterval: {}'.format(self._cooldownInterval))
         self.showCurrentMode()
