@@ -26,6 +26,12 @@ class SpotMessanger(object):
         }
 
     def onBattleStart(self):
+        try:
+            self._onBattleStart()
+        except:
+            log.current_exception()
+
+    def _onBattleStart(self):
         self._isEnabled = self.settings['ActiveByDefault']
         self._lastActivity = 0
         self._isObserver = avatarutils.isObserver()
