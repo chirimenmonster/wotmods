@@ -46,10 +46,12 @@ class COMMAND_TYPE:
         HELP = 'help'
         TEAMMSG = 'teammsg'
         SQUADMSG = 'squadmsg'
+        UNSPOTTED = 'unspotted'
     LIST = [
         LABELS.PING,
         LABELS.HELP,
         LABELS.TEAMMSG,
-        LABELS.SQUADMSG
+        LABELS.SQUADMSG,
+        LABELS.UNSPOTTED
     ]
 
