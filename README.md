@@ -56,7 +56,7 @@ ChangeLog
 ---------
 ### 1.4.0
 + for WoT version 0.9.21.0.3
-+ add feature unspotted message
++ add feature unspotted message (see config-sample4.xml)
 
 ### 1.3.2
 + for WoT version 0.9.21.0.2
