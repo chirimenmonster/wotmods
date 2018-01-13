@@ -12,9 +12,10 @@ class DelayChatControl(object):
         self._wakeupTime = 0
         self.setParam(5.0, 0.5)
 
-    def setParam(self, commandDelay, textDelay):
+    def setParam(self, commandDelay, textDelay, unspottedDelay = 10.0):
         self._delay_command = commandDelay
         self._delay_text = textDelay
+        self._delay_unspotted = unspottedDelay
 
     def doPing(self, cellIdx):
         self._setCallback(self._delay_command, partial(_CBCommand.doPing, cellIdx))
@@ -36,11 +37,19 @@ class DelayChatControl(object):
         self._setCallback(self._delay_text, partial(_CBCommand.sendSquadChat, text))
         return True
 
-    def _setCallback(self, delay, callback):
+    def sendUnspottedMsg(self, text):
+        log.debug('send to myself')
+        self._setCallback(self._delay_unspotted, partial(_CBCommand.addClientMessage, text), True)
+        return True
+
+    def _setCallback(self, delay, callback, isDelay = False):
         currentTime = sysutils.getTime()
-        self._wakeupTime = max(self._wakeupTime, currentTime)
-        sysutils.setCallback(self._wakeupTime - currentTime, callback)
-        self._wakeupTime += delay
+        if not isDelay:
+            schedule = max(self._wakeupTime, currentTime) - currentTime
+            sysutils.setCallback(schedule, callback)
+            self._wakeupTime = currentTime + schedule + delay
+        else:
+            sysutils.setCallback(delay, callback)
 
 
 class _CBCommand(object):
@@ -74,3 +83,10 @@ class _CBCommand(object):
             log.debug('avatar already left arena')
             return
         chatutils.sendSquadChat(text)
+
+    @staticmethod
+    def addClientMessage(text):
+        if not avatarutils.isPlayerOnArena():
+            log.debug('avatar already left arena')
+            return
+        chatutils.addClientMessage(text)
