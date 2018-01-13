@@ -28,7 +28,7 @@
 
         <!-- follows settings for unspotted info -->
         <BattleTypeParameter>
-            <!-- must specified same BattleType above -->
+            <!-- should specify same BattleType as above -->
             <AssignBattleType>
                 <BattleType>default</BattleType>
                 <BattleType>Random</BattleType>
