@@ -55,6 +55,7 @@ Support forum
 ChangeLog
 ---------
 ### 1.4.0
++ for WoT version 0.9.21.0.3
 + add feature unspotted message
 
 ### 1.3.2
