@@ -54,7 +54,7 @@ Support forum
 
 ChangeLog
 ---------
-### 1.4-dev
+### 1.4.0
 + add feature unspotted message
 
 ### 1.3.2
