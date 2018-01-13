@@ -41,6 +41,11 @@ Config
             {pos} is spotted position
         Type: string
         Context: root
+    Unspotted
+        Description: message to myself 10s (specifiable) after spotted,
+            {delay} is delay time as UnspottedDelay (dafault is 10)
+        Type: string
+        Context: root
     DisableSystemMsg
         Description: message when disable mod
         Type: string
@@ -69,6 +74,10 @@ Config
         Context: root, BattleTypeParameter
     CommandDelay
         Description: seconds of delay to next command
+        Type: float
+        Context: root, BattleTypeParameter
+    UnspottedDelay
+        Description: seconds of delay from spotted, for unspotted command
         Type: float
         Context: root, BattleTypeParameter
     MaxTeamAmount

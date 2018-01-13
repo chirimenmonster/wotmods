@@ -1,0 +1,44 @@
+<root>
+    <Debug>${DEBUG}</Debug>
+
+    <UnspottedDelay>10.0</UnspottedDelay><!-- after 10s since 6th sense reacted -->
+    <Unspotted>{delay} sec passed since spotted.</Unspotted><!-- value UnspottedDelay assinged to {delay} -->
+
+    <BattleTypeParameterList>
+
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>default</BattleType>
+            </AssignBattleType>
+            <CommandOrder>
+                <Command>help</Command>
+                <Command>teammsg</Command>
+            </CommandOrder>
+        </BattleTypeParameter>
+
+        <BattleTypeParameter>
+            <AssignBattleType>
+                <BattleType>Random</BattleType>
+                <BattleType>EpicRandom</BattleType>
+            </AssignBattleType>
+            <CommandOrder>
+                <Command>squadmsg</Command>
+            </CommandOrder>
+        </BattleTypeParameter>
+
+        <!-- follows settings for unspotted info -->
+        <BattleTypeParameter>
+            <!-- should specify same BattleType as above -->
+            <AssignBattleType>
+                <BattleType>default</BattleType>
+                <BattleType>Random</BattleType>
+                <BattleType>EpicRandom</BattleType>
+            </AssignBattleType>
+            <CooldownInterval>0</CooldownInterval><!-- 0 is recommended to avoid the influence of cooldown -->
+            <CommandOrder>
+                <Command>unspotted</Command>
+            </CommandOrder>
+        </BattleTypeParameter>
+
+    </BattleTypeParameterList>   
+</root>

@@ -54,6 +54,9 @@ Support forum
 
 ChangeLog
 ---------
+### 1.4-dev
++ add feature unspotted message
+
 ### 1.3.2
 + for WoT version 0.9.21.0.2
 + fix bug: error when EnableVehicleType is set and current vehicle type is not included in it

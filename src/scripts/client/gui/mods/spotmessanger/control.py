@@ -22,7 +22,8 @@ class SpotMessanger(object):
             COMMAND_TYPE.LABELS.PING: self._doPing,
             COMMAND_TYPE.LABELS.HELP: self._doHelp,
             COMMAND_TYPE.LABELS.TEAMMSG: self._doSendTeamMsg,
-            COMMAND_TYPE.LABELS.SQUADMSG: self._doSendSquadMsg
+            COMMAND_TYPE.LABELS.SQUADMSG: self._doSendSquadMsg,
+            COMMAND_TYPE.LABELS.UNSPOTTED: self._doSendUnspottedMsg
         }
 
     def onBattleStart(self):
@@ -54,10 +55,11 @@ class SpotMessanger(object):
         for p in self.settings.getParamsBattleType(guiType.battleType):
             i = p['index']
             log.info('[{}]: CommandOrder: {}'.format(i, p.getInfo('CommandOrder')))
-            log.info('[{}]: CooldownInterval: {}, CommandDelay: {}, TextDelay: {}'.format(i,
+            log.info('[{}]: CooldownInterval: {}, CommandDelay: {}, TextDelay: {}, UnspottedDelay: {}'.format(i,
                     p.getInfo('CooldownInterval'),
                     p.getInfo('CommandDelay'),
-                    p.getInfo('TextDelay')))
+                    p.getInfo('TextDelay'),
+                    p.getInfo('UnspottedDelay')))
             log.info('[{}]: MinTeamAmount: {}, MaxTeamAmount: {}'.format(i,
                     p.getInfo('MinTeamAmount'),
                     p.getInfo('MaxTeamAmount')))
@@ -130,7 +132,7 @@ class SpotMessanger(object):
         log.info('current chat channel: {}'.format(chatutils.getChannelLabels()))
         log.info('current ally amount w/o myself: (team, squad) = ({}, {})'.format(teamAmount, squadAmount))
 
-        self._isDone = { 'ping': False, 'help': False, 'msg': False }
+        self._isDone = { 'ping': False, 'help': False, 'msg': False, 'unspotted': False }
         for param in self._activeParams:
             self._doSixthSense(param, messenger, currentTime, cellIndex, teamAmount, squadAmount)
         if self._isDone.values().count(True):
@@ -153,7 +155,7 @@ class SpotMessanger(object):
             log.info('[{}]: team amount ({}) is too many (> {}), skip.'.format(index, teamAmount, maxTeamAmount))
             return
 
-        messenger.setParam(param['CommandDelay'], param['TextDelay'])
+        messenger.setParam(param['CommandDelay'], param['TextDelay'], param['UnspottedDelay'])
         commandOrder = param.get('CommandOrder', [])
         log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
@@ -198,3 +200,13 @@ class SpotMessanger(object):
             return
         log.info('[{}][squadmsg]: action: send message to squad channel: "{}"'.format(param['index'], msg))
         self._isDone['msg'] = messenger.sendSquad(msg)
+
+    def _doSendUnspottedMsg(self, param, messenger, **kwargs):
+        if self._isDone['unspotted']:
+            log.info('[{}][unspotted]: action: "unspotted message" is already executed'.format(param['index']))
+            return
+        msg = param['Unspotted'].format(delay=round(param['UnspottedDelay'], 1))
+        if not msg:
+            return
+        log.info('[{}][unspotted]: action: unspotted message to myself: "{}"'.format(param['index'], msg))
+        self._isDone['unspotted'] = messenger.sendUnspottedMsg(msg)
