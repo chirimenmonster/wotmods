@@ -5,19 +5,19 @@
             "method":   "plain",
             "root":     "",
             "reldir":   "",
-            "files":    [ "LICENSE", "README.md" ]
+            "source":   [ "LICENSE", "README.md" ]
         },
         {
             "method":   "plain",
             "root":     "",
             "reldir":   "mods/${wot_version}",
-            "files":    [ "build/${package}" ]
+            "source":   [ "build/${package}" ]
         },
         {
             "method":   "apply",
             "root":     "mods/${config_dir}",
             "reldir":   "",
-            "files":    [
+            "source":  [
                 "configs/spotmessanger/config-sample1.in.xml",
                 "configs/spotmessanger/config-sample2.in.xml",
                 "configs/spotmessanger/config-sample3.in.xml",
@@ -30,7 +30,7 @@
             "method":   "plain",
             "root":     "mods/${config_dir}",
             "reldir":   "",
-            "files":    [  "LICENSE", "README.md" ]
+            "source":   [  "LICENSE", "README.md" ]
         }
     ]
 }
