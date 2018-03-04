@@ -5,7 +5,7 @@
  
 <root>
 
-    <Debug>${DEBUG}</Debug>
+    <Debug>${debug}</Debug>
     <LogLevel>info</LogLevel> <!-- may debug/info/notice/warning/error -->
 
     <!-- Global settings -->

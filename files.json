@@ -1,0 +1,54 @@
+{
+    "package":  "${package}",
+    "files":    [
+        {
+            "method":   "apply",
+            "root":     "",
+            "reldir":   "",
+            "files":    [ "meta.in.xml" ]
+        },
+        {
+            "method":   "python",
+            "root":     "res",
+            "reldir":   "scripts/client/gui/mods",
+            "files":    [
+                "src/scripts/client/gui/mods/mod_spotmessanger.py"
+             ]
+        },
+        {
+            "method":   "python",
+            "root":     "res",
+            "reldir":   "scripts/client/gui/mods/spotmessanger",
+            "files":    [
+                "src/scripts/client/gui/mods/spotmessanger/__init__.py",
+                "src/scripts/client/gui/mods/spotmessanger/control.py",
+                "src/scripts/client/gui/mods/spotmessanger/delaychat.py",
+                "src/scripts/client/gui/mods/spotmessanger/events.py",
+                "src/scripts/client/gui/mods/spotmessanger/inputhandler.py",
+                "src/scripts/client/gui/mods/spotmessanger/logger.py",
+                "src/scripts/client/gui/mods/spotmessanger/modconsts.py",
+                "src/scripts/client/gui/mods/spotmessanger/settings.py"
+             ]
+        },
+        {
+            "method":   "apply+python",
+            "root":     "res",
+            "reldir":   "scripts/client/gui/mods/spotmessanger",
+            "files":    [
+                "src/scripts/client/gui/mods/spotmessanger/version.in.py"
+             ]
+        },
+        {
+            "method":   "python",
+            "root":     "res",
+            "reldir":   "scripts/client/gui/mods/spotmessanger/wotapi",
+            "files":    [
+                "src/scripts/client/gui/mods/spotmessanger/wotapi/__init__.py",
+                "src/scripts/client/gui/mods/spotmessanger/wotapi/avatarutils.py",
+                "src/scripts/client/gui/mods/spotmessanger/wotapi/chatutils.py",
+                "src/scripts/client/gui/mods/spotmessanger/wotapi/minimaputils.py",
+                "src/scripts/client/gui/mods/spotmessanger/wotapi/sysutils.py"
+             ]
+        }
+    ]
+}

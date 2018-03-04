@@ -1,6 +1,6 @@
 <root>
 
-    <Debug>${DEBUG}</Debug>
+    <Debug>${debug}</Debug>
     <LogLevel>info</LogLevel>
 
     <!-- Global settings -->
