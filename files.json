@@ -3,52 +3,20 @@
     "files":    [
         {
             "method":   "apply",
-            "root":     "",
-            "reldir":   "",
             "source":   [ "meta.in.xml" ]
         },
         {
             "method":   "python",
             "root":     "res",
-            "reldir":   "scripts/client/gui/mods",
-            "source":    [
-                "src/scripts/client/gui/mods/mod_spotmessanger.py"
-             ]
-        },
-        {
-            "method":   "python",
-            "root":     "res",
-            "reldir":   "scripts/client/gui/mods/spotmessanger",
-            "source":   [
-                "src/scripts/client/gui/mods/spotmessanger/__init__.py",
-                "src/scripts/client/gui/mods/spotmessanger/control.py",
-                "src/scripts/client/gui/mods/spotmessanger/delaychat.py",
-                "src/scripts/client/gui/mods/spotmessanger/events.py",
-                "src/scripts/client/gui/mods/spotmessanger/inputhandler.py",
-                "src/scripts/client/gui/mods/spotmessanger/logger.py",
-                "src/scripts/client/gui/mods/spotmessanger/modconsts.py",
-                "src/scripts/client/gui/mods/spotmessanger/settings.py"
-             ]
+            "include":  "\\.py$$",
+            "exclude":  "\\.in\\.py$$",
+            "srcdir":    [ "src" ]
         },
         {
             "method":   "apply+python",
             "root":     "res",
-            "reldir":   "scripts/client/gui/mods/spotmessanger",
-            "source":   [
-                "src/scripts/client/gui/mods/spotmessanger/version.in.py"
-             ]
-        },
-        {
-            "method":   "python",
-            "root":     "res",
-            "reldir":   "scripts/client/gui/mods/spotmessanger/wotapi",
-            "source":   [
-                "src/scripts/client/gui/mods/spotmessanger/wotapi/__init__.py",
-                "src/scripts/client/gui/mods/spotmessanger/wotapi/avatarutils.py",
-                "src/scripts/client/gui/mods/spotmessanger/wotapi/chatutils.py",
-                "src/scripts/client/gui/mods/spotmessanger/wotapi/minimaputils.py",
-                "src/scripts/client/gui/mods/spotmessanger/wotapi/sysutils.py"
-             ]
+            "include":  "\\.in\\.py$$",
+            "srcdir":   [ "src" ]
         }
     ]
 }
