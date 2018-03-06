@@ -1,22 +1,22 @@
 {
     "package":  "${package}",
-    "files":    [
+    "sources":    [
         {
             "method":   "apply",
-            "source":   [ "meta.in.xml" ]
+            "files":    [ "meta.in.xml" ]
         },
         {
             "method":   "python",
             "root":     "res",
             "include":  "\\.py$$",
             "exclude":  "\\.in\\.py$$",
-            "srcdir":    [ "src" ]
+            "dirs":     [ "src" ]
         },
         {
             "method":   "apply+python",
             "root":     "res",
             "include":  "\\.in\\.py$$",
-            "srcdir":   [ "src" ]
+            "dirs":     [ "src" ]
         }
     ]
 }

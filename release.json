@@ -1,24 +1,24 @@
 {
     "package":  "${release_package}",
-    "files":    [
+    "sources":    [
         {
             "method":   "plain",
-            "source":   [ "LICENSE", "README.md" ]
+            "files":    [ "LICENSE", "README.md" ]
         },
         {
             "method":   "plain",
             "root":     "mods/${wot_version}",
-            "source":   [ "build/${package}" ]
+            "files":    [ "${BUILDDIR}/${package}" ]
         },
         {
             "method":   "apply",
             "root":     "mods/${config_dir}",
-            "srcdir":   [ "configs/spotmessanger" ]
+            "dirs":     [ "configs/spotmessanger" ]
         },
         {
             "method":   "plain",
             "root":     "mods/${config_dir}",
-            "source":   [ "LICENSE", "README.md" ]
+            "files":    [ "LICENSE", "README.md" ]
         }
     ]
 }
