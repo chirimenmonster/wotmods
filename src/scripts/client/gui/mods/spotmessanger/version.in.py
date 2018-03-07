@@ -1,9 +1,9 @@
 
 class MOD_INFO:
-    ID = '${MOD_ID}'
-    NAME = '${MOD_NAME}'
-    VERSION = '${MOD_VERSION}'
-    VERSION_LONG = '${MOD_VERSION_LONG}'
-    DEBUG = ${DEBUG}
-    CONFIG_FILE = '${MOD_CONFIG_FILE}'
-    SUPPORT_URL = '${SUPPORT_URL}'
+    ID = '${mod_id}'
+    NAME = '${name}'
+    VERSION = '${version}'
+    VERSION_LONG = '${version_long}'
+    DEBUG = ${debug}
+    CONFIG_FILE = '${config_file}'
+    SUPPORT_URL = '${support_url}'

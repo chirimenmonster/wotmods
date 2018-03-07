@@ -1,5 +1,5 @@
 <root>
-    <Debug>${DEBUG}</Debug>
+    <Debug>${debug}</Debug>
 
     <UnspottedDelay>10.0</UnspottedDelay><!-- after 10s since 6th sense reacted -->
     <Unspotted>{delay} sec passed since spotted.</Unspotted><!-- value UnspottedDelay assinged to {delay} -->

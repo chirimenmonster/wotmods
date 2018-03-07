@@ -1,6 +1,6 @@
 <root>
-   <id>${MOD_ID}</id>
-   <name>${MOD_NAME}</name>
-   <version>${MOD_VERSION}</version>
-   <description>${DESCRIPTION}</description>
+   <id>${package_id}</id>
+   <name>${name}</name>
+   <version>${version}</version>
+   <description>${description}</description>
 </root>
