@@ -54,6 +54,10 @@ Support forum
 
 ChangeLog
 ---------
+### 1.4.2.99-dev
++ for WoT version 1.0.1 Common Test
++ add battle mode "EpicBattle", and delete "ProvingGround"
+
 ### 1.4.2
 + for WoT version 1.0.0.3
 + new release management

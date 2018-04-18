@@ -41,6 +41,7 @@
             <AssignBattleType>
                 <BattleType>Random</BattleType> <!-- for Random Battle (Regular) -->
                 <BattleType>EpicRandom</BattleType> <!-- for Random Battle (30x30) -->
+                <BattleType>EpicBattle</BattleType> <!-- for Frontline -->
             </AssignBattleType>
         </BattleTypeParameter>
 

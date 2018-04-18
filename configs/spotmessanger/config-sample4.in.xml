@@ -20,6 +20,7 @@
             <AssignBattleType>
                 <BattleType>Random</BattleType>
                 <BattleType>EpicRandom</BattleType>
+                <BattleType>EpicBattle</BattleType>
             </AssignBattleType>
             <CommandOrder>
                 <Command>squadmsg</Command>
@@ -33,6 +34,7 @@
                 <BattleType>default</BattleType>
                 <BattleType>Random</BattleType>
                 <BattleType>EpicRandom</BattleType>
+                <BattleType>EpicBattle</BattleType>
             </AssignBattleType>
             <CooldownInterval>0</CooldownInterval><!-- 0 is recommended to avoid the influence of cooldown -->
             <CommandOrder>

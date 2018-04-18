@@ -35,7 +35,11 @@
 
         <BattleTypeParameter>
             <!-- List for assign battle types -->
-            <!-- BattleType may default/Random/Training/Company/TeamBattle/Fortifications/ProvingGround/Fallout -->
+            <!--
+                BattleType may
+                    default/Random/GlobalMap/TeamBattle/Fortifications/Fallout/Ranked/
+                    Training/EpicRandom/EpicRandomTraining/EpicBattle/others
+            -->
             <AssignBattleType>
                 <BattleType>default</BattleType> <!-- default when battle type is not found -->
             </AssignBattleType>
@@ -69,6 +73,7 @@
             <AssignBattleType>
                 <BattleType>Random</BattleType> <!-- for Random Battle (Regular) -->
                 <BattleType>EpicRandom</BattleType> <!-- for Random Battle (30x30) -->
+                <BattleType>EpicBattle</BattleType> <!-- for Frontline -->
             </AssignBattleType>
             <CommandOrder>
                 <Command>squadmsg</Command>  <!-- Send Message to platoon chat. -->
@@ -88,19 +93,6 @@
             <CooldownInterval>30</CooldownInterval>
         </BattleTypeParameter>
 
-        <!-- for SandBox -->
-        <BattleTypeParameter>
-            <AssignBattleType>
-                <BattleType>ProvingGround</BattleType> <!-- for SandBox -->
-            </AssignBattleType>
-            <CommandOrder>
-                <Command>help</Command>
-                <Command>ping</Command>
-                <Command>teammsg</Command>
-            </CommandOrder>
-            <CooldownInterval>10</CooldownInterval>
-        </BattleTypeParameter>
-        
     </BattleTypeParameterList>
     
 </root>
