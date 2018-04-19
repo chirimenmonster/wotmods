@@ -45,7 +45,7 @@ class SpotMessanger(object):
         if self._isObserver:
             log.info('player avatar is observer, nothing to do')
             return
-        log.info('current battle type: {} [{}({}) = "{}"], "{}" ({})'.format(
+        log.info('current battle type: "{}" [{}({}) = "{}"], "{}" ({})'.format(
             guiType.battleType, guiType.attrLabel, guiType.id, guiType.name,
             arenaType.name, arenaType.geometryName))
         log.info('current vehicle class: {} [{}] ({})'.format(vehicle.classAbbr, vehicle.className, vehicle.name))
