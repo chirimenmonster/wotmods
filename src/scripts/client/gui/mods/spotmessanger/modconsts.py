@@ -9,14 +9,15 @@ class BATTLE_TYPE:
         'TRAINING':             'Training',
         'CYBERSPORT':           'TeamBattle',
         'FALLOUT':              'Fallout',
-        'SANDBOX':              'ProvingGround',
         'FALLOUT_CLASSIC':      'Fallout',
         'FALLOUT_MULTITEAM':    'Fallout',
         'SORTIE_2':             'Fortifications',
         'FORT_BATTLE_2':        'Fortifications',
         'RANKED':               'Ranked',
         'EPIC_RANDOM':          'EpicRandom',
-        'EPIC_RANDOM_TRAINING': 'EpicRandomTraining'
+        'EPIC_RANDOM_TRAINING': 'EpicRandomTraining',
+        'EPIC_BATTLE':          'EpicBattle',
+        'EPIC_TRAINING':        'EpicBattle',
     }
     WOT_ATTR_NAME = { v:k for k, v in vars(ARENA_GUI_TYPE).items() if isinstance(v, int) }
     WOT_LABELS = ARENA_GUI_TYPE_LABEL.LABELS

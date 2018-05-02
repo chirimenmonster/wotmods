@@ -41,6 +41,7 @@
             <AssignBattleType>
                 <BattleType>Random</BattleType> <!-- for Random Battle (Regular) -->
                 <BattleType>EpicRandom</BattleType> <!-- for Random Battle (30x30) -->
+                <BattleType>EpicBattle</BattleType> <!-- for Frontline -->
             </AssignBattleType>
             <CommandOrder>
                 <Command>help</Command> <!-- Send "Help!" quick command (F7) when the perk activates. -->
@@ -55,6 +56,7 @@
             <AssignBattleType>
                 <BattleType>Random</BattleType> <!-- for Random Battle (Regular) -->
                 <BattleType>EpicRandom</BattleType> <!-- for Random Battle (30x30) -->
+                <BattleType>EpicBattle</BattleType> <!-- for Frontline -->
             </AssignBattleType>
             <CommandOrder>
                 <Command>squadmsg</Command>  <!-- Send Message to platoon chat. -->
