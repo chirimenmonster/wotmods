@@ -6,7 +6,7 @@ def main():
     file = control.makePackage()
     print 'create package: {}'.format(file)
 
-    control = package.Control(config=['config.ini', 'release.ini'], hasBuildDir=True)
+    control.setConfig(['config.ini', 'release.ini'])
     file = control.makePackage(package.SECTION_RELEASE, compression=ZIP_DEFLATED)
     print 'create package: {}'.format(file)
 
