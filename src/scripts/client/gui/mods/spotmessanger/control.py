@@ -45,10 +45,10 @@ class SpotMessanger(object):
         if self._isObserver:
             log.info('player avatar is observer, nothing to do')
             return
-        log.info('current battle type: "{}" [{}({}) = "{}:{}"], "{}" ({})'.format(
+        log.info('current battle type: "{}" [{} ({}) = "{}":"{}"], "{}" ({})'.format(
             guiType.battleType, guiType.attrLabel, guiType.id, guiType.name, guiType.i18nName,
             arenaType.name, arenaType.geometryName))
-        log.info('current vehicle class: {} [{}] ({})'.format(vehicle.classAbbr, vehicle.className, vehicle.name))
+        log.info('current vehicle class: "{}" [{}] ({})'.format(vehicle.classAbbr, vehicle.className, vehicle.name))
 
         self._activeParams = []
         cooldownInterval = []
@@ -65,7 +65,7 @@ class SpotMessanger(object):
                     p.getInfo('MaxTeamAmount')))
             log.info('[{}]: Enable Vehicle Type: {}'.format(i, p.getInfo('EnableVehicleType')))
             if vehicle.classAbbr in p.get('EnableVehicleType', VEHICLE_TYPE.LIST):
-                log.info('[{}]: current vehicle type is {}, add to list.'.format(i, vehicle.classAbbr))
+                log.info('[{}]: current vehicle type is "{}", add to list.'.format(i, vehicle.classAbbr))
                 self._activeParams.append(p)
                 cooldownInterval.append(p['CooldownInterval'])
             else:
