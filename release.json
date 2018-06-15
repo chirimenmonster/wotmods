@@ -8,7 +8,7 @@
         {
             "method":   "plain",
             "root":     "mods/${wot_version}",
-            "files":    [ "${BUILDDIR}/${package}" ]
+            "files":    [ "${build_dir}/${package}" ]
         },
         {
             "method":   "apply",

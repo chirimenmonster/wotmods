@@ -2,6 +2,7 @@
 import BigWorld
 from gui.battle_control import avatar_getter
 from items.vehicles import getVehicleClass
+from helpers import i18n
 
 from ..modconsts import VEHICLE_TYPE, BATTLE_TYPE
 from ..logger import log
@@ -60,6 +61,10 @@ class _ArenaGuiTypeInfo(object):
     @property
     def battleType(self):
         return BATTLE_TYPE.LABELS.get(self._guiType, 'others')
+
+    @property
+    def i18nName(self):
+        return i18n.makeString('#menu:loading/battleTypes/{}'.format(self._guiType))
 
 
 def getPlayer():
