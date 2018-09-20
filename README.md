@@ -54,6 +54,9 @@ Support forum
 
 ChangeLog
 ---------
+### 1.4.4_6
++ repackaging for WoT version 1.1.0.1
+
 ### 1.4.4_5
 + repackaging for WoT version 1.1.0
 
