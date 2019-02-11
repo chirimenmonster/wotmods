@@ -54,6 +54,9 @@ Support forum
 
 ChangeLog
 ---------
+### 1.4.4_13
++ change packaging policy
+
 ### 1.4.4_12
 + repackaging for WoT version 1.4.0.0
 

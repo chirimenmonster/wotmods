@@ -7,7 +7,7 @@
         },
         {
             "method":   "plain",
-            "root":     "mods/${wot_version}",
+            "root":     "",
             "files":    [ "${build_dir}/${package}" ]
         },
         {
