@@ -3,11 +3,18 @@ import BigWorld
 from gui.battle_control import avatar_getter
 from items.vehicles import getVehicleClass
 from helpers import i18n
+from aih_constants import CTRL_MODE_NAME
 
 from ..modconsts import VEHICLE_TYPE, BATTLE_TYPE
 from ..logger import log
 
-SIXTH_SENSE_VALID_MODE = ( 'arcade', 'strategic', 'sniper' )
+SIXTH_SENSE_VALID_MODE = (
+    CTRL_MODE_NAME.ARCADE,
+    CTRL_MODE_NAME.STRATEGIC,
+    CTRL_MODE_NAME.ARTY,
+    CTRL_MODE_NAME.SNIPER,
+    CTRL_MODE_NAME.DUAL_GUN
+)
 
 class _VehicleInfo(object):
 

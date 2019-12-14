@@ -4,6 +4,7 @@ from chat_shared import CHAT_COMMANDS
 from messenger import MessengerEntry
 from messenger.m_constants import BATTLE_CHANNEL, PROTO_TYPE
 from messenger.proto.interfaces import IEntityFindCriteria
+from ..logger import log
 
 
 class _Criteria(IEntityFindCriteria):
@@ -20,15 +21,19 @@ def addClientMessage(message):
     MessengerEntry.g_instance.gui.addClientMessage(message)
 
 def doPing(cellIdx):
+    log.debug('doPing: {}'.format(cellIdx))
     _getChatCommandCtrl().sendAttentionToCell(cellIdx)
 
 def callHelp():
+    log.debug('callHelp')
     _getChatCommandCtrl().sendCommand(CHAT_COMMANDS.HELPME.name())
 
 def sendTeamChat(text):
+    log.debug('sendTeamChat: {}'.format(text))
     _sendChat(BATTLE_CHANNEL.TEAM, text)
 
 def sendSquadChat(text):
+    log.debug('sendSquadChat: {}'.format(text))
     _sendChat(BATTLE_CHANNEL.SQUAD, text)
 
 def isExistSquadChannel():
