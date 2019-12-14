@@ -54,6 +54,10 @@ Support forum
 
 ChangeLog
 ---------
+### 1.4.5
++ for WoT version 1.7.0.1
++ support control mode 'dualgun'
+
 ### 1.4.4_13
 + change packaging policy
 
