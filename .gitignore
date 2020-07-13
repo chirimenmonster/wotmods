@@ -13,3 +13,4 @@ package/
 build/
 desktop.ini
 tmp/
+.vs/
