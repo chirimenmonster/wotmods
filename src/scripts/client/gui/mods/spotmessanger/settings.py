@@ -1,6 +1,7 @@
 import os
 import copy
 import pprint
+
 import ResMgr
 from logger import log, LOGLEVEL
 from modconsts import BATTLE_TYPE, COMMAND_TYPE, VEHICLE_TYPE
@@ -143,11 +144,14 @@ class Settings(object):
     def readConfig(self, file, prefix_list):
         for prefix in prefix_list:
             path = os.path.join(prefix, file)
-            section = ResMgr.openSection(path, True)
-            if section:
-                log.info('read config file: {}'.format(ResMgr.resolveToAbsolutePath(path)))
-                self._readConfig(section)
-                break
+            if ResMgr.isFile(path):
+                section = ResMgr.openSection(path, True)
+                if section:
+                    log.info('read config file: {}'.format(ResMgr.resolveToAbsolutePath(path)))
+                    self._readConfig(section)
+                    break
+                else:
+                    log.error('config file is not valid xml: {}'.format(ResMgr.resolveToAbsolutePath(path)))
         else:
             log.warning('cannot open config file: {}, use internal default settings.'.format(file))
         self.dumpSettings()

@@ -126,7 +126,7 @@ class SpotMessanger(object):
 
         teamAmount = avatarutils.getTeamAmount()
         squadAmount = avatarutils.getSquadAmount()
-        cellIndex = minimaputils.getCellIndexByPosition(avatarutils.getPos())
+        position = avatarutils.getPos()
         
         messenger = DelayChatControl()
         log.info('current chat channel: {}'.format(chatutils.getChannelLabels()))
@@ -134,12 +134,12 @@ class SpotMessanger(object):
 
         self._isDone = { 'ping': False, 'help': False, 'msg': False, 'unspotted': False }
         for param in self._activeParams:
-            self._doSixthSense(param, messenger, currentTime, cellIndex, teamAmount, squadAmount)
+            self._doSixthSense(param, messenger, currentTime, position, teamAmount, squadAmount)
         if self._isDone.values().count(True):
             log.debug('success commands, update last activity.')
             self._lastActivity = currentTime
 
-    def _doSixthSense(self, param, messenger, currentTime, cellIndex, teamAmount, squadAmount):
+    def _doSixthSense(self, param, messenger, currentTime, position, teamAmount, squadAmount):
         index = param['index']
         cooldownTime = self._getCooldownTime(currentTime, param['CooldownInterval'])
         if cooldownTime > 0:
@@ -159,14 +159,14 @@ class SpotMessanger(object):
         commandOrder = param.get('CommandOrder', [])
         log.info('[{}]: command order: {}'.format(index, commandOrder))
         for command in commandOrder:
-            self._commandMethod[command](param, messenger, cellIndex=cellIndex, squadAmount=squadAmount)
+            self._commandMethod[command](param, messenger, position=position, squadAmount=squadAmount)
 
-    def _doPing(self, param, messenger, cellIndex, **kwargs):
+    def _doPing(self, param, messenger, position, **kwargs):
         if self._isDone['ping']:
             log.info('[{}][ping]: action: "ping" is already executed'.format(param['index']))
             return
-        log.info('[{}][ping]: action: do ping at {}'.format(param['index'], minimaputils.getCellName(cellIndex)))
-        self._isDone['ping'] = messenger.doPing(cellIndex)
+        log.info('[{}][ping]: action: do ping at {}'.format(param['index'], position))
+        self._isDone['ping'] = messenger.doPing(position)
 
     def _doHelp(self, param, messenger, **kwargs):
         if self._isDone['help']:
@@ -175,21 +175,21 @@ class SpotMessanger(object):
         log.info('[{}][help]: action: call help'.format(param['index']))
         self._isDone['help'] = messenger.callHelp()
 
-    def _doSendTeamMsg(self, param, messenger, cellIndex, **kwargs):
+    def _doSendTeamMsg(self, param, messenger, position, **kwargs):
         if self._isDone['msg']:
             log.info('[{}][teammsg]: action: "send message" is already executed'.format(param['index']))
             return
-        msg = param['ImSpotted'].format(pos=minimaputils.getCellName(cellIndex))
+        msg = param['ImSpotted'].format(pos=minimaputils.getCellNameByPosition(position))
         if not msg:
             return
         log.info('[{}][teammsg]: action: send message to team channel: "{}"'.format(param['index'], msg))
         self._isDone['msg'] = messenger.sendTeam(msg)
 
-    def _doSendSquadMsg(self, param, messenger, cellIndex, squadAmount, **kwargs):
+    def _doSendSquadMsg(self, param, messenger, position, squadAmount, **kwargs):
         if self._isDone['msg']:
             log.info('[{}][squadmsg]: action: "send message" is already executed'.format(param['index']))
             return
-        msg = param['ImSpotted'].format(pos=minimaputils.getCellName(cellIndex))
+        msg = param['ImSpotted'].format(pos=minimaputils.getCellNameByPosition(position))
         if not msg:
             return
         if not chatutils.isExistSquadChannel():

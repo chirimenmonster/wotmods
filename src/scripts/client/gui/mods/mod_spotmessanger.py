@@ -24,7 +24,6 @@ def init():
         log.info('{} {} ({})'.format(MOD_INFO.NAME, MOD_INFO.VERSION_LONG, MOD_INFO.SUPPORT_URL))
         settings = Settings(conf_file, conf_base)
         _control = SpotMessanger(settings)
-        
         log.debug('set key event handlers')
         if settings['ReloadConfigKey']:
             log.info('enabled ReloadConfigKey: key=\'{}\''.format(settings['ReloadConfigKey']))
