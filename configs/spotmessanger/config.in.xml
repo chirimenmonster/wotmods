@@ -46,8 +46,8 @@
             <!-- Order of commands -->
             <!-- Command may ping/help/teammsg/squadmsg -->
             <CommandOrder>
-                <!-- Command>ping</Command --> <!-- Ping the minimap square you are in when the perk activates. -->
-                <Command>help</Command> <!-- Send "Help!" quick command (F7) when the perk activates. -->
+                <Command>ping</Command> <!-- Ping the minimap square you are in when the perk activates. -->
+                <!-- Command>help</Command --> <!-- Send "Help!" quick command (F7) when the perk activates. -->
                 <Command>teammsg</Command> <!-- Send Message to team chat. -->
             </CommandOrder>
             <!-- <MaxTeamAmount>14</MaxTeamAmount> -->
@@ -87,7 +87,8 @@
                 <BattleType>Fortifications</BattleType> <!-- for Skirmish or Stronghold -->
             </AssignBattleType>
             <CommandOrder>
-                <Command>help</Command>
+                <Command>ping</Command>
+                <!-- Command>help</Command -->
                 <Command>teammsg</Command>
             </CommandOrder>
             <CooldownInterval>30</CooldownInterval>
