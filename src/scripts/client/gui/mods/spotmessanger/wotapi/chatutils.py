@@ -1,9 +1,11 @@
 
 import BigWorld
 from chat_shared import CHAT_COMMANDS
+from chat_commands_consts import BATTLE_CHAT_COMMAND_NAMES
 from messenger import MessengerEntry
 from messenger.m_constants import BATTLE_CHANNEL, PROTO_TYPE
 from messenger.proto.interfaces import IEntityFindCriteria
+
 from ..logger import log
 
 
@@ -20,13 +22,13 @@ class _Criteria(IEntityFindCriteria):
 def addClientMessage(message):
     MessengerEntry.g_instance.gui.addClientMessage(message)
 
-def doPing(cellIdx):
-    log.debug('doPing: {}'.format(cellIdx))
-    _getChatCommandCtrl().sendAttentionToCell(cellIdx)
+def doPing(position):
+    log.debug('doPing: {}'.format(position))
+    _getChatCommandCtrl().sendAttentionToPosition3D(position, BATTLE_CHAT_COMMAND_NAMES.ATTENTION_TO_POSITION)
 
 def callHelp():
     log.debug('callHelp')
-    _getChatCommandCtrl().sendCommand(CHAT_COMMANDS.HELPME.name())
+    _getChatCommandCtrl().sendCommand(BATTLE_CHAT_COMMAND_NAMES.SOS)
 
 def sendTeamChat(text):
     log.debug('sendTeamChat: {}'.format(text))
@@ -56,4 +58,5 @@ def _getChannelCtrl(channel):
     return MessengerEntry.g_instance.gui.channelsCtrl.getControllerByCriteria(_Criteria(channel))
 
 def _getChatCommandCtrl():
+    # return instance gui.battle_control.controllers.chat_cmd_ctrl.ChatCommandsController
     return BigWorld.player().guiSessionProvider.shared.chatCommands
