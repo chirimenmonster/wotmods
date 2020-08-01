@@ -54,6 +54,10 @@ Support forum
 
 ChangeLog
 ---------
+### 1.5.0
++ for WoT version 1.10.0.0
++ change command 'ping' behavior, adapted to new chat command system 
+
 ### 1.4.5
 + for WoT version 1.7.0.1
 + support control mode 'dualgun'
